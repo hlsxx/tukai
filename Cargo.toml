@@ -1,0 +1,7 @@
+[package]
+name = "tukaj"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ratatui = "0.29.0"
