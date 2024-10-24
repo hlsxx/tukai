@@ -27,10 +27,6 @@ impl Window for TypingWindow {
 }
 
 impl TypingWindow {
-  fn generate_text(&mut self) {
-    
-  }
-
   #[allow(unused)]
   pub fn config(mut self, config: TypingWindowConfig) -> Self {
     self.config = config;
