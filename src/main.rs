@@ -1,7 +1,10 @@
-mod app;
+mod terminal;
+mod traits;
+mod tools;
+mod windows;
 
-use app::terminal::App;
 use std::io;
+use terminal::App;
 
 fn main() -> io::Result<()> {
   let mut terminal = ratatui::init();
