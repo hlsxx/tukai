@@ -1,2 +1,2 @@
-pub mod search;
-pub mod path;
+pub mod typing;
+pub mod stats;

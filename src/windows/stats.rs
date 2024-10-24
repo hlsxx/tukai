@@ -1,14 +1,17 @@
 use crossterm::event::{KeyCode, KeyEvent};
+use std::env;
 use crate::traits::Window;
 
-pub struct SearchWindow {
+pub struct StatsWindow {
   pub input: String
 }
 
-impl Window for SearchWindow {
-  fn new() -> Self {
+impl Window for StatsWindow {
+  fn default() -> Self {
+    let path = env::current_dir().expect("Error getting current path");
+
     Self {
-      input: String::new()
+      input: path.to_string_lossy().into_owned()
     }
   }
 
@@ -16,7 +19,6 @@ impl Window for SearchWindow {
     match key.code {
       KeyCode::Char(c) => self.input.push(c),
       KeyCode::Backspace => { let _ = self.input.pop(); },
-      // KeyCode::Enter => is_loading = !is_loading,
       _ => ()
     }
   }

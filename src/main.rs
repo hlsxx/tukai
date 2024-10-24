@@ -2,6 +2,7 @@ mod terminal;
 mod traits;
 mod tools;
 mod windows;
+mod configs;
 
 use std::io;
 use terminal::App;

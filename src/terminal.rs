@@ -1,7 +1,7 @@
 use crossterm::event::{KeyEvent, KeyModifiers};
 use crate::tools::loader::Loader;
-use crate::windows::path::PathWindow;
-use crate::windows::search::SearchWindow;
+use crate::windows::typing::TypingWindow;
+use crate::windows::stats::StatsWindow;
 
 use crate::traits::Window;
 
@@ -12,10 +12,8 @@ use ratatui::{
 
 #[derive(PartialEq, Hash, Eq)]
 enum ActiveWindowEnum {
-  Path,
-  Search,
-  Settings,
-  Results
+  Typing,
+  Stats
 }
 
 pub struct App<'a> {
@@ -24,8 +22,8 @@ pub struct App<'a> {
   loader: Loader<'a>,
   active_window: ActiveWindowEnum,
   instructions: HashMap<ActiveWindowEnum, Vec<Span<'a>>>,
-  search_window: SearchWindow,
-  path_window: PathWindow
+  typing_window: TypingWindow,
+  stats_window: StatsWindow
 }
 
 impl<'a> App<'a> {
@@ -38,16 +36,16 @@ impl<'a> App<'a> {
       Span::styled(" [Del]Reset search", Style::default().fg(Color::Red)),
     ];
 
-    instructions.insert(ActiveWindowEnum::Search, search_instructions);
+    // instructions.insert(ActiveWindowEnum::Search, search_instructions);
 
     Self {
       is_loading: false,
       is_exit: false,
       loader: Loader::new(),
-      active_window: ActiveWindowEnum::Search,
+      active_window: ActiveWindowEnum::Typing,
       instructions,
-      search_window: SearchWindow::new(),
-      path_window: PathWindow::new()
+      typing_window: TypingWindow::default(),
+      stats_window: StatsWindow::default()
     }
   }
 
@@ -62,37 +60,45 @@ impl<'a> App<'a> {
   }
 
   fn draw(&mut self, frame: &mut Frame) {
-    let outer_layout = Layout::default()
-      .direction(Direction::Vertical)
-      .constraints(vec![
-        Constraint::Percentage(90),
-        Constraint::Percentage(10)
-      ])
-      .split(frame.area());
-
-    let main_layout = Layout::default()
-      .direction(Direction::Horizontal)
-      .constraints(vec![
-        Constraint::Percentage(30),
-        Constraint::Percentage(70),
-      ])
-      .split(outer_layout[0]);
-
-    let left_layout = Layout::default()
-      .direction(Direction::Vertical)
-      .constraints(vec![
-        Constraint::Length(3),
-        Constraint::Length(3),
-        Constraint::Percentage(100)
-      ])
-      .split(main_layout[0]);
-
-    self.render_results(frame, main_layout[1]);
-    self.render_instructions(frame, outer_layout[1]);
-    self.render_search(frame, left_layout[0]);
-    self.render_path(frame, left_layout[1]);
-    self.render_settings(frame, left_layout[2]);
-
+    match self.active_window {
+      ActiveWindowEnum::Typing => {
+        self.render_typing(frame, frame.area());
+      },
+      ActiveWindowEnum::Stats => {
+        self.render_stats(frame, frame.area());
+      }
+    }
+    // let outer_layout = Layout::default()
+    //   .direction(Direction::Vertical)
+    //   .constraints(vec![
+    //     Constraint::Percentage(90),
+    //     Constraint::Percentage(10)
+    //   ])
+    //   .split(frame.area());
+    //
+    // let main_layout = Layout::default()
+    //   .direction(Direction::Horizontal)
+    //   .constraints(vec![
+    //     Constraint::Percentage(30),
+    //     Constraint::Percentage(70),
+    //   ])
+    //   .split(outer_layout[0]);
+    //
+    // let left_layout = Layout::default()
+    //   .direction(Direction::Vertical)
+    //   .constraints(vec![
+    //     Constraint::Length(3),
+    //     Constraint::Length(3),
+    //     Constraint::Percentage(100)
+    //   ])
+    //   .split(main_layout[0]);
+    //
+    // self.render_results(frame, main_layout[1]);
+    // self.render_instructions(frame, outer_layout[1]);
+    // self.render_search(frame, left_layout[0]);
+    // self.render_path(frame, left_layout[1]);
+    // self.render_settings(frame, left_layout[2]);
+    //
     if self.is_loading {
       self.render_popup(frame);
     }
@@ -100,8 +106,8 @@ impl<'a> App<'a> {
 
   fn handle_window_events(&mut self, key: KeyEvent) {
     match self.active_window {
-      ActiveWindowEnum::Search => self.search_window.handle_events(key),
-      ActiveWindowEnum::Path => self.path_window.handle_events(key),
+      ActiveWindowEnum::Typing => self.typing_window.handle_events(key),
+      // ActiveWindowEnum::Path => self.path_window.handle_events(key),
       // ActiveWindowEnum::Results => self.search.handle_events(key),
       _ => ()
     }
@@ -111,21 +117,17 @@ impl<'a> App<'a> {
     if crossterm::event::poll(Duration::from_millis(100))? {
       if let event::Event::Key(key) = event::read()? {
         if key.code == KeyCode::Char('1') {
-          self.active_window = ActiveWindowEnum::Search;
+          self.active_window = ActiveWindowEnum::Typing;
         } else if key.code == KeyCode::Char('2') {
-          self.active_window = ActiveWindowEnum::Path;
-        } else if key.code == KeyCode::Char('3') {
-          self.active_window = ActiveWindowEnum::Settings;
-        } else if key.code == KeyCode::Char('4') {
-          self.active_window = ActiveWindowEnum::Results;
+          self.active_window = ActiveWindowEnum::Stats;
         } else if key.code == KeyCode::Char('q') || key.code == KeyCode::Esc {
           self.is_exit = true;
         } else if key.code == KeyCode::Enter {
-          if self.active_window == ActiveWindowEnum::Search {
-            if !self.is_loading {
-              self.is_loading = true;
-            }
-          }
+          // if self.active_window == ActiveWindowEnum::Search {
+          //   if !self.is_loading {
+          //     self.is_loading = true;
+          //   }
+          // }
         }
 
         self.handle_window_events(key);
@@ -135,72 +137,72 @@ impl<'a> App<'a> {
     Ok(())
   }
 
-  fn render_results(&self, frame: &mut Frame, area: Rect) {
-    let border_color = self.get_window_border_color(ActiveWindowEnum::Results);
+  fn render_typing(&self, frame: &mut Frame, area: Rect) {
+    let border_color = self.get_window_border_color(ActiveWindowEnum::Typing);
 
     let block = Block::new()
       .borders(Borders::ALL)
       .border_style(Style::default().fg(border_color))
-      .title(Title::from("[4]Results").alignment(Alignment::Center));
+      .title(Title::from("[1] Typing").alignment(Alignment::Center));
 
-    let p = Paragraph::new("Results")
+    let p = Paragraph::new(self.typing_window.generated_text.clone())
       .block(block);
 
     frame.render_widget(p, area);
   }
 
-  fn render_instructions(&self, frame: &mut Frame, area: Rect) {
-    let default_vec= Vec::new();
-    let instructions_spans = self.get_window_instructions().unwrap_or(&default_vec);
-
-    let instructions = Paragraph::new(
-      Text::from(Line::from(instructions_spans.clone()))
-    ).alignment(Alignment::Center);
-    
-    frame.render_widget(instructions, area);
-  }
-
-  fn render_path(&self, frame: &mut Frame, area: Rect) {
-    let border_color = self.get_window_border_color(ActiveWindowEnum::Path);
+  fn render_stats(&self, frame: &mut Frame, area: Rect) {
+    let border_color = self.get_window_border_color(ActiveWindowEnum::Stats);
 
     let block = Block::new()
       .borders(Borders::ALL)
       .border_style(Style::default().fg(border_color))
-      .title(Title::from("[2]Folder").alignment(Alignment::Center));
+      .title(Title::from("[2] Results").alignment(Alignment::Center));
 
-    let p = Paragraph::new(self.path_window.input.clone())
+    let p = Paragraph::new("Stats")
       .block(block);
 
     frame.render_widget(p, area);
   }
 
-  fn render_search(&self, frame: &mut Frame, area: Rect) {
-    let border_color = self.get_window_border_color(ActiveWindowEnum::Search);
+  // fn render_instructions(&self, frame: &mut Frame, area: Rect) {
+  //   let default_vec= Vec::new();
+  //   let instructions_spans = self.get_window_instructions().unwrap_or(&default_vec);
+  //
+  //   let instructions = Paragraph::new(
+  //     Text::from(Line::from(instructions_spans.clone()))
+  //   ).alignment(Alignment::Center);
+  //   
+  //   frame.render_widget(instructions, area);
+  // }
 
-    let block = Block::new()
-      .borders(Borders::ALL)
-      .border_style(Style::default().fg(border_color))
-      .title(Title::from("[1]Search").alignment(Alignment::Center));
+  // fn render_path(&self, frame: &mut Frame, area: Rect) {
+  //   let border_color = self.get_window_border_color(ActiveWindowEnum::Path);
+  //
+  //   let block = Block::new()
+  //     .borders(Borders::ALL)
+  //     .border_style(Style::default().fg(border_color))
+  //     .title(Title::from("[2]Folder").alignment(Alignment::Center));
+  //
+  //   let p = Paragraph::new(self.path_window.input.clone())
+  //     .block(block);
+  //
+  //   frame.render_widget(p, area);
+  // }
 
-    let p = Paragraph::new(self.search_window.input.clone())
-      .block(block);
-
-    frame.render_widget(p, area);
-  }
-
-  fn render_settings(&self, frame: &mut Frame, area: Rect) {
-    let border_color = self.get_window_border_color(ActiveWindowEnum::Settings);
-
-    let block = Block::new()
-      .borders(Borders::ALL)
-      .border_style(Style::default().fg(border_color))
-      .title(Title::from("[3]Settings").alignment(Alignment::Center));
-
-    let p = Paragraph::new("Results")
-      .block(block);
-
-    frame.render_widget(p, area);
-  }
+  // fn render_settings(&self, frame: &mut Frame, area: Rect) {
+  //   let border_color = self.get_window_border_color(ActiveWindowEnum::Settings);
+  //
+  //   let block = Block::new()
+  //     .borders(Borders::ALL)
+  //     .border_style(Style::default().fg(border_color))
+  //     .title(Title::from("[3]Settings").alignment(Alignment::Center));
+  //
+  //   let p = Paragraph::new("Results")
+  //     .block(block);
+  //
+  //   frame.render_widget(p, area);
+  // }
 
   fn render_popup(&mut self, frame: &mut Frame) {
     let area = frame.area();
@@ -230,20 +232,20 @@ impl<'a> App<'a> {
 
   fn get_window_border_color(&self, current_window: ActiveWindowEnum) -> Color {
     if self.active_window == current_window {
-      Color::Green
+      Color::from_u32(0x805CBF)
     } else {
-      Color::White
+      Color::from_u32(0x00999999)
     }
   }
 
-  fn get_window_instructions(&self) -> Option<&Vec<Span<'a>>> {
-    match self.active_window {
-      ActiveWindowEnum::Path => self.instructions.get(&ActiveWindowEnum::Path),
-      ActiveWindowEnum::Search => self.instructions.get(&ActiveWindowEnum::Search),
-      ActiveWindowEnum::Settings => self.instructions.get(&ActiveWindowEnum::Settings),
-      ActiveWindowEnum::Results => self.instructions.get(&ActiveWindowEnum::Results),
-    }
-  }
+  // fn get_window_instructions(&self) -> Option<&Vec<Span<'a>>> {
+  //   match self.active_window {
+  //     // ActiveWindowEnum::Path => self.instructions.get(&ActiveWindowEnum::Path),
+  //     // ActiveWindowEnum::Search => self.instructions.get(&ActiveWindowEnum::Search),
+  //     // ActiveWindowEnum::Settings => self.instructions.get(&ActiveWindowEnum::Settings),
+  //     // ActiveWindowEnum::Results => self.instructions.get(&ActiveWindowEnum::Results),
+  //   }
+  // }
 
 }
 
