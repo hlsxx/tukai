@@ -1,5 +1,5 @@
 use crossterm::event::{KeyEvent, KeyModifiers};
-use crate::tools::loader::Loader;
+use crate::{tools::loader::Loader, windows::typing::Stats};
 use crate::windows::typing::TypingWindow;
 use crate::windows::stats::StatsWindow;
 
@@ -18,7 +18,8 @@ enum ActiveWindowEnum {
 
 pub struct App<'a> {
   is_exit: bool,
-  is_loading: bool,
+  has_done: bool,
+
   loader: Loader<'a>,
   active_window: ActiveWindowEnum,
   instructions: HashMap<ActiveWindowEnum, Vec<Span<'a>>>,
@@ -39,7 +40,7 @@ impl<'a> App<'a> {
     // instructions.insert(ActiveWindowEnum::Search, search_instructions);
 
     Self {
-      is_loading: false,
+      has_done: false,
       is_exit: false,
       loader: Loader::new(),
       active_window: ActiveWindowEnum::Typing,
@@ -52,6 +53,11 @@ impl<'a> App<'a> {
   pub fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
     while !self.is_exit {
       terminal.draw(|frame| self.draw(frame))?;
+
+      if self.typing_window.generated_text.len() == self.typing_window.input.len() {
+        self.has_done = true;
+      }
+
       self.handle_events()?;
       std::thread::sleep(Duration::from_millis(50));
     }
@@ -99,8 +105,9 @@ impl<'a> App<'a> {
     // self.render_path(frame, left_layout[1]);
     // self.render_settings(frame, left_layout[2]);
     //
-    if self.is_loading {
-      self.render_popup(frame);
+
+    if self.has_done {
+      self.render_popup(frame, self.typing_window.stats.clone());
     }
   }
 
@@ -122,12 +129,6 @@ impl<'a> App<'a> {
           self.active_window = ActiveWindowEnum::Stats;
         } else if key.code == KeyCode::Char('q') || key.code == KeyCode::Esc {
           self.is_exit = true;
-        } else if key.code == KeyCode::Enter {
-          // if self.active_window == ActiveWindowEnum::Search {
-          //   if !self.is_loading {
-          //     self.is_loading = true;
-          //   }
-          // }
         }
 
         self.handle_window_events(key);
@@ -204,15 +205,16 @@ impl<'a> App<'a> {
   //   frame.render_widget(p, area);
   // }
 
-  fn render_popup(&mut self, frame: &mut Frame) {
+  fn render_popup(&mut self, frame: &mut Frame, stats: Stats) {
     let area = frame.area();
 
     let block = Block::bordered()
       .border_style(Style::new().fg(Color::Red));
 
     let text = Text::from(vec![
-      Line::from("Loading"),
-      Line::from(self.loader.get_slash()),
+      Line::from("Nice you make it:)"),
+      Line::from(format!("Error makes {}", stats.errors_count)),
+      //Line::from(self.loader.get_slash()),
     ]);
 
     let p = Paragraph::new(text)

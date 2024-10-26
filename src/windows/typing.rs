@@ -2,9 +2,24 @@ use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{style::{Color, Style}, text::{Line, Span, Text}, widgets::Paragraph};
 use crate::{configs::typing_window_config::TypingWindowConfig, tools::generator::Generator, traits::Window};
 
+#[derive(Clone, Copy)]
+pub struct Stats {
+  pub errors_count: usize,
+}
+
+impl Default for Stats {
+  fn default() -> Self {
+    Self {
+      errors_count: 0
+    }
+  }
+}
+
 pub struct TypingWindow {
   pub generated_text: String,
   pub input: String,
+
+  pub stats: Stats,
 
   cursor_index: usize,
   config: TypingWindowConfig
@@ -13,10 +28,13 @@ pub struct TypingWindow {
 impl Window for TypingWindow {
   fn default() -> Self {
     Self {
-      generated_text: Generator::generate_random_string(100),
+      generated_text: Generator::generate_random_string(10),
       input: String::new(),
 
+      stats: Stats::default(),
+
       cursor_index: 0,
+
       config: TypingWindowConfig::default()
     }
   }
@@ -27,7 +45,10 @@ impl Window for TypingWindow {
         self.input.push(c);
         self.cursor_index += 1;
       },
-      KeyCode::Backspace => { let _ = self.input.pop(); },
+      KeyCode::Backspace => {
+        let _ = self.input.pop();
+        self.cursor_index -= 1;
+      },
       // KeyCode::Enter => is_loading = !is_loading,
       _ => ()
     }
@@ -51,6 +72,7 @@ impl TypingWindow {
         if self.input.chars().nth(i) == Some(c) {
           Span::styled(c.to_string(), Style::default().fg(Color::from_u32(0x805CBF)))
         } else {
+          self.stats.errors_count += 1;
           Span::styled(c.to_string(), Style::default().fg(Color::Red))
         }
       } else {
