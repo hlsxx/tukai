@@ -1,8 +1,9 @@
 use crossterm::event::{KeyCode, KeyEvent};
+use ratatui::text::Line;
 use crate::{configs::typing_window_config::TypingWindowConfig, tools::generator::Generator, traits::Window};
 
 pub struct TypingWindow {
-  pub generated_text: String,
+  pub generated_text: Vec<Line<'static>>,
   pub input: String,
   config: TypingWindowConfig
 }
