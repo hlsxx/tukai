@@ -4,23 +4,23 @@ pub struct Generator {
 }
 
 impl Generator {
-  fn generate_string() -> String {
+  pub fn generate_random_string() -> String {
     String::from("Hello car is blue white")
   }
 
-  pub fn generate_random_text() -> Vec<Line<'static>> {
-    // let generated_string = Generator::generate_string();
-
-    let text = vec![
-      Line::from(vec![
-        Span::raw("First"),
-        ".".into(),
-      ]),
-      Line::from("Second line"),
-      "Third line".into(),
-    ];
-
-    text
-  }
+  // pub fn generate_random_text() -> Vec<Line<'static>> {
+  //   // let generated_string = Generator::generate_string();
+  //
+  //   let text = vec![
+  //     Line::from(vec![
+  //       Span::raw("First"),
+  //       ".".into(),
+  //     ]),
+  //     Line::from("Second line"),
+  //     "Third line".into(),
+  //   ];
+  //
+  //   text
+  // }
 
 }

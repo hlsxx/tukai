@@ -137,7 +137,7 @@ impl<'a> App<'a> {
     Ok(())
   }
 
-  fn render_typing(&self, frame: &mut Frame, area: Rect) {
+  fn render_typing(&mut self, frame: &mut Frame, area: Rect) {
     let border_color = self.get_window_border_color(ActiveWindowEnum::Typing);
 
     let block = Block::new()
@@ -145,10 +145,10 @@ impl<'a> App<'a> {
       .border_style(Style::default().fg(border_color))
       .title(Title::from("[1] Typing").alignment(Alignment::Center));
 
-    let p = Paragraph::new(self.typing_window.generated_text.clone())
-      .block(block);
-
-    frame.render_widget(p, area);
+    frame.render_widget(
+      self.typing_window.get_paragraph().block(block),
+      area
+    );
   }
 
   fn render_stats(&self, frame: &mut Frame, area: Rect) {
