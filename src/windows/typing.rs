@@ -13,7 +13,7 @@ pub struct TypingWindow {
 impl Window for TypingWindow {
   fn default() -> Self {
     Self {
-      generated_text: Generator::generate_random_string(),
+      generated_text: Generator::generate_random_string(100),
       input: String::new(),
 
       cursor_index: 0,
