@@ -1,5 +1,5 @@
 use crossterm::event::{KeyCode, KeyEvent};
-use ratatui::{style::{Color, Style}, text::{Line, Span, Text}, widgets::Paragraph};
+use ratatui::{style::{Color, Modifier, Style}, text::{Line, Span, Text}, widgets::Paragraph};
 use crate::{configs::typing_window_config::TypingWindowConfig, tools::generator::Generator, traits::Window};
 
 #[derive(Clone, Copy)]
@@ -47,7 +47,7 @@ impl Window for TypingWindow {
       },
       KeyCode::Backspace => {
         let _ = self.input.pop();
-        self.cursor_index -= 1;
+        self.cursor_index += 1;
       },
       // KeyCode::Enter => is_loading = !is_loading,
       _ => ()
@@ -73,10 +73,10 @@ impl TypingWindow {
           Span::styled(c.to_string(), Style::default().fg(Color::from_u32(0x805CBF)))
         } else {
           self.stats.errors_count += 1;
-          Span::styled(c.to_string(), Style::default().fg(Color::Red))
+          Span::styled(c.to_string(), Style::default().fg(Color::Red).add_modifier(Modifier::UNDERLINED))
         }
       } else {
-        Span::styled(c.to_string(), Style::default().fg(Color::White))
+        Span::styled(c.to_string(), Style::default().fg(Color::Gray).add_modifier(Modifier::BOLD))
       }
     }).collect();
 

@@ -146,8 +146,12 @@ impl<'a> App<'a> {
       .border_style(Style::default().fg(border_color))
       .title(Title::from("[1] Typing").alignment(Alignment::Center));
 
+    let p = self.typing_window.get_paragraph()
+      .block(block)
+      .alignment(Alignment::Center);
+
     frame.render_widget(
-      self.typing_window.get_paragraph().block(block),
+      p,
       area
     );
   }
