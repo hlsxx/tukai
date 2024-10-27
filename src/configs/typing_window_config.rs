@@ -1,7 +1,7 @@
 use crate::traits::ConfigBuilder;
 
 pub struct TypingWindowConfig {
-  time_limit: usize
+  pub time_limit: usize
 }
 
 impl Default for TypingWindowConfig {

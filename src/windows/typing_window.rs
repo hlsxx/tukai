@@ -3,7 +3,7 @@ use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{
   layout::{Alignment, Rect},
   style::{Color, Modifier, Style},
-  text::{Span, Text},
+  text::{Line, Span, Text},
   widgets::{block::Title, Block, Borders, Padding, Paragraph},
   Frame
 };
@@ -44,7 +44,7 @@ pub struct TypingWindow {
 impl Window for TypingWindow {
   fn default() -> Self {
     Self {
-      generated_text: Generator::generate_random_string(10),
+      generated_text: Generator::generate_random_string(50),
       input: String::new(),
 
       stats: Stats::default(),
@@ -87,9 +87,9 @@ impl Window for TypingWindow {
       .border_style(Style::default().fg(self.get_border_color()))
       .title(Title::from("Typing").alignment(Alignment::Center))
       .padding(Padding::new(
-        0,
-        0,
-        area.height / 2,
+        30,
+        30,
+        (area.height / 2) - 1,
         0
       ));
 
@@ -111,7 +111,17 @@ impl TypingWindow {
   pub fn get_paragraph(&self) -> Paragraph {
     let mut lines = Vec::new();
 
-    let line = self.generated_text.chars().enumerate().map(|(i, c)| {
+    let remaining_time_line = Line::from(vec![
+      Span::from(self.config.time_limit.to_string())
+    ]);
+
+    // let info = vec![
+    //   Span::styled(content, style)
+    // ];
+
+    let info_line = Line::default();
+
+    let text_line = self.generated_text.chars().enumerate().map(|(i, c)| {
       if i == self.cursor_index {
         Span::styled(c.to_string(), Style::default().fg(Color::Black).bg(Color::White))
       } else if i < self.cursor_index {
@@ -125,7 +135,8 @@ impl TypingWindow {
       }
     }).collect();
 
-    lines.push(line);
+    lines.push(remaining_time_line);
+    lines.push(text_line);
 
     let text = Text::from(lines);
 
