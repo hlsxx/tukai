@@ -34,12 +34,18 @@ impl<'a> App<'a> {
   pub fn new() -> Self {
     let mut instructions = HashMap::new();
 
-    let search_instructions = vec![
+    let typing_window_instructions = vec![
+      Span::styled("<Left> Typing", Style::default().fg(Color::Green)),
+      Span::styled(" <Right> Stats", Style::default().fg(Color::Red)),
+    ];
+
+    let stats_window_instructions = vec![
       Span::styled("[Enter]Start search", Style::default().fg(Color::Green)),
       Span::styled(" [Del]Reset search", Style::default().fg(Color::Red)),
     ];
 
-    // instructions.insert(ActiveWindowEnum::Search, search_instructions);
+    instructions.insert(ActiveWindowEnum::Typing, typing_window_instructions);
+    instructions.insert(ActiveWindowEnum::Stats, stats_window_instructions);
 
     Self {
       has_done: false,
@@ -80,7 +86,7 @@ impl<'a> App<'a> {
         self.render_typing(frame, main_layout[0]);
       },
       ActiveWindowEnum::Stats => {
-        self.render_stats(frame, main_layout[1]);
+        self.render_stats(frame, main_layout[0]);
       }
     }
 
@@ -110,7 +116,7 @@ impl<'a> App<'a> {
     //   .split(main_layout[0]);
     //
     // self.render_results(frame, main_layout[1]);
-    // self.render_instructions(frame, outer_layout[1]);
+    self.render_instructions(frame, main_layout[1]);
     // self.render_search(frame, left_layout[0]);
     // self.render_path(frame, left_layout[1]);
     // self.render_settings(frame, left_layout[2]);
