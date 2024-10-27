@@ -1,5 +1,7 @@
 use crossterm::event::{KeyEvent, KeyModifiers};
 use ratatui::widgets::Padding;
+use tokio::sync::mpsc;
+use tokio::time;
 use crate::tools::loader::Loader;
 use crate::windows::{
   typing_window::{TypingWindow,Stats},
@@ -8,6 +10,8 @@ use crate::windows::{
 
 use crate::traits::Window;
 
+use std::error::Error;
+use std::thread;
 use std::{collections::HashMap, io::{self, Write}, time::Duration};
 use ratatui::{
   crossterm::event::{self, KeyCode, KeyEventKind}, layout::{Alignment, Constraint, Direction, Flex, Layout, Rect}, style::{Color, Style, Styled, Stylize}, text::{Line, Span, Text}, widgets::{block::{Position, Title}, Block, Borders, Clear, Paragraph}, DefaultTerminal, Frame
@@ -59,15 +63,30 @@ impl<'a> App<'a> {
     }
   }
 
-  pub fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
+  pub async fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
     while !self.is_exit {
-      terminal.draw(|frame| self.draw(frame))?;
+      let (tx, mut rx) = mpsc::channel::<()>(1);
 
-      if self.typing_window.generated_text.len() == self.typing_window.input.len() {
-        self.has_done = true;
+      tokio::spawn(async move {
+        loop {
+          time::sleep(Duration::from_secs(1)).await;
+          if tx.send(()).await.is_err() {
+            break;
+          }
+        }
+      });
+
+      loop {
+        terminal.draw(|frame| self.draw(frame))?;
+
+        if self.typing_window.generated_text.len() == self.typing_window.input.len() {
+          self.has_done = true;
+        }
+
+        if self.handle_events()? {
+          break;
+        };
       }
-
-      self.handle_events()?;
     }
 
     Ok(())
@@ -132,7 +151,7 @@ impl<'a> App<'a> {
     }
   }
 
-  fn handle_events(&mut self) -> io::Result<()> {
+  fn handle_events(&mut self) -> io::Result<bool> {
     if crossterm::event::poll(Duration::from_millis(100))? {
       if let event::Event::Key(key) = event::read()? {
         if key.code == KeyCode::Left {
@@ -141,13 +160,14 @@ impl<'a> App<'a> {
           self.active_window = ActiveWindowEnum::Stats;
         } else if key.code == KeyCode::Char('q') || key.code == KeyCode::Esc {
           self.is_exit = true;
+          return Ok(true);
         }
 
         self.handle_window_events(key);
       }
     }
 
-    Ok(())
+    Ok(false)
   }
 
   fn render_instructions(&self, frame: &mut Frame, area: Rect) {
