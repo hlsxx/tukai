@@ -1,9 +1,20 @@
-use crossterm::event::{KeyCode, KeyEvent};
-use std::env;
 use crate::traits::Window;
 
+use crossterm::event::{KeyCode, KeyEvent};
+use std::env;
+
+use ratatui::{
+  layout::{Alignment, Rect},
+  style::{Color, Modifier, Style},
+  text::{Span, Text},
+  widgets::{block::Title, Block, Borders, Padding, Paragraph},
+  Frame
+};
+
 pub struct StatsWindow {
-  pub input: String
+  pub input: String,
+
+  is_active: bool
 }
 
 impl Window for StatsWindow {
@@ -11,8 +22,14 @@ impl Window for StatsWindow {
     let path = env::current_dir().expect("Error getting current path");
 
     Self {
-      input: path.to_string_lossy().into_owned()
+      input: path.to_string_lossy().into_owned(),
+
+      is_active: false
     }
+  }
+
+  fn is_active(&self) -> bool {
+    self.is_active
   }
 
   fn handle_events(&mut self, key: KeyEvent) {
@@ -22,4 +39,17 @@ impl Window for StatsWindow {
       _ => ()
     }
   }
+
+  fn render(&self, frame: &mut Frame, area: Rect) {
+    let block = Block::new()
+      .borders(Borders::ALL)
+      .border_style(Style::default().fg(self.get_border_color()))
+      .title(Title::from("Results").alignment(Alignment::Center));
+
+    let p = Paragraph::new("Stats")
+      .block(block);
+
+    frame.render_widget(p, area);
+  }
+
 }

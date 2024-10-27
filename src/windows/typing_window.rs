@@ -1,9 +1,12 @@
 use crossterm::event::{KeyCode, KeyEvent};
 
 use ratatui::{
+  layout::{Alignment, Rect},
   style::{Color, Modifier, Style},
-  text::{Line, Span, Text},
-  widgets::Paragraph};
+  text::{Span, Text},
+  widgets::{block::Title, Block, Borders, Padding, Paragraph},
+  Frame
+};
 
 use crate::{
   configs::typing_window_config::TypingWindowConfig,
@@ -30,6 +33,8 @@ pub struct TypingWindow {
 
   pub stats: Stats,
 
+  pub is_active: bool,
+
   cursor_index: usize,
   previous_index: usize,
 
@@ -44,11 +49,17 @@ impl Window for TypingWindow {
 
       stats: Stats::default(),
 
+      is_active: false,
+
       cursor_index: 0,
       previous_index: 0,
 
       config: TypingWindowConfig::default()
     }
+  }
+
+  fn is_active(&self) -> bool {
+    self.is_active
   }
 
   fn handle_events(&mut self, key: KeyEvent) {
@@ -65,6 +76,29 @@ impl Window for TypingWindow {
       _ => ()
     }
   }
+
+  fn render(
+    &self,
+    frame: &mut Frame,
+    area: Rect
+  ) {
+    let block = Block::new()
+      .borders(Borders::ALL)
+      .border_style(Style::default().fg(self.get_border_color()))
+      .title(Title::from("Typing").alignment(Alignment::Center))
+      .padding(Padding::new(
+        0,
+        0,
+        area.height / 2,
+        0
+      ));
+
+    let p = self.get_paragraph()
+      .block(block)
+      .alignment(Alignment::Center);
+
+    frame.render_widget(p, area);
+  }
 }
 
 impl TypingWindow {
@@ -74,7 +108,7 @@ impl TypingWindow {
     self
   }
 
-  pub fn get_paragraph(&mut self) -> Paragraph {
+  pub fn get_paragraph(&self) -> Paragraph {
     let mut lines = Vec::new();
 
     let line = self.generated_text.chars().enumerate().map(|(i, c)| {
@@ -84,7 +118,6 @@ impl TypingWindow {
         if self.input.chars().nth(i) == Some(c) {
           Span::styled(c.to_string(), Style::default().fg(Color::from_u32(0x805CBF)))
         } else {
-          self.stats.errors_count += 1;
           Span::styled(c.to_string(), Style::default().fg(Color::Red).add_modifier(Modifier::UNDERLINED))
         }
       } else {

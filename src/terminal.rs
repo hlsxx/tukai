@@ -1,4 +1,5 @@
 use crossterm::event::{KeyEvent, KeyModifiers};
+use ratatui::widgets::Padding;
 use crate::tools::loader::Loader;
 use crate::windows::{
   typing_window::{TypingWindow,Stats},
@@ -82,12 +83,8 @@ impl<'a> App<'a> {
       .split(frame.area());
 
     match self.active_window {
-      ActiveWindowEnum::Typing => {
-        self.render_typing(frame, main_layout[0]);
-      },
-      ActiveWindowEnum::Stats => {
-        self.render_stats(frame, main_layout[0]);
-      }
+      ActiveWindowEnum::Typing => self.typing_window.render(frame, main_layout[0]),
+      ActiveWindowEnum::Stats => self.stats_window.render(frame, main_layout[0])
     }
 
     // let outer_layout = Layout::default()
@@ -152,38 +149,6 @@ impl<'a> App<'a> {
     }
 
     Ok(())
-  }
-
-  fn render_typing(&mut self, frame: &mut Frame, area: Rect) {
-    let border_color = self.get_window_border_color(ActiveWindowEnum::Typing);
-
-    let block = Block::new()
-      .borders(Borders::ALL)
-      .border_style(Style::default().fg(border_color))
-      .title(Title::from("Typing").alignment(Alignment::Center));
-
-    let p = self.typing_window.get_paragraph()
-      .block(block)
-      .alignment(Alignment::Center);
-
-    frame.render_widget(
-      p,
-      area
-    );
-  }
-
-  fn render_stats(&self, frame: &mut Frame, area: Rect) {
-    let border_color = self.get_window_border_color(ActiveWindowEnum::Stats);
-
-    let block = Block::new()
-      .borders(Borders::ALL)
-      .border_style(Style::default().fg(border_color))
-      .title(Title::from("Results").alignment(Alignment::Center));
-
-    let p = Paragraph::new("Stats")
-      .block(block);
-
-    frame.render_widget(p, area);
   }
 
   fn render_instructions(&self, frame: &mut Frame, area: Rect) {
