@@ -68,7 +68,6 @@ impl<'a> App<'a> {
       }
 
       self.handle_events()?;
-      std::thread::sleep(Duration::from_millis(50));
     }
 
     Ok(())
