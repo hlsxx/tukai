@@ -68,14 +68,22 @@ impl<'a> App<'a> {
   }
 
   fn draw(&mut self, frame: &mut Frame) {
+    let main_layout = Layout::default()
+      .constraints(vec![
+        Constraint::Min(0),
+        Constraint::Length(1)
+      ])
+      .split(frame.area());
+
     match self.active_window {
       ActiveWindowEnum::Typing => {
-        self.render_typing(frame, frame.area());
+        self.render_typing(frame, main_layout[0]);
       },
       ActiveWindowEnum::Stats => {
-        self.render_stats(frame, frame.area());
+        self.render_stats(frame, main_layout[1]);
       }
     }
+
     // let outer_layout = Layout::default()
     //   .direction(Direction::Vertical)
     //   .constraints(vec![
@@ -125,9 +133,9 @@ impl<'a> App<'a> {
   fn handle_events(&mut self) -> io::Result<()> {
     if crossterm::event::poll(Duration::from_millis(100))? {
       if let event::Event::Key(key) = event::read()? {
-        if key.code == KeyCode::Char('1') {
+        if key.code == KeyCode::Left {
           self.active_window = ActiveWindowEnum::Typing;
-        } else if key.code == KeyCode::Char('2') {
+        } else if key.code == KeyCode::Right {
           self.active_window = ActiveWindowEnum::Stats;
         } else if key.code == KeyCode::Char('q') || key.code == KeyCode::Esc {
           self.is_exit = true;
@@ -146,7 +154,7 @@ impl<'a> App<'a> {
     let block = Block::new()
       .borders(Borders::ALL)
       .border_style(Style::default().fg(border_color))
-      .title(Title::from("[1] Typing").alignment(Alignment::Center));
+      .title(Title::from("Typing").alignment(Alignment::Center));
 
     let p = self.typing_window.get_paragraph()
       .block(block)
@@ -164,7 +172,7 @@ impl<'a> App<'a> {
     let block = Block::new()
       .borders(Borders::ALL)
       .border_style(Style::default().fg(border_color))
-      .title(Title::from("[2] Results").alignment(Alignment::Center));
+      .title(Title::from("Results").alignment(Alignment::Center));
 
     let p = Paragraph::new("Stats")
       .block(block);
@@ -172,16 +180,16 @@ impl<'a> App<'a> {
     frame.render_widget(p, area);
   }
 
-  // fn render_instructions(&self, frame: &mut Frame, area: Rect) {
-  //   let default_vec= Vec::new();
-  //   let instructions_spans = self.get_window_instructions().unwrap_or(&default_vec);
-  //
-  //   let instructions = Paragraph::new(
-  //     Text::from(Line::from(instructions_spans.clone()))
-  //   ).alignment(Alignment::Center);
-  //   
-  //   frame.render_widget(instructions, area);
-  // }
+  fn render_instructions(&self, frame: &mut Frame, area: Rect) {
+    let default_vec= Vec::new();
+    let instructions_spans = self.get_window_instructions().unwrap_or(&default_vec);
+
+    let instructions = Paragraph::new(
+      Text::from(Line::from(instructions_spans.clone()))
+    ).alignment(Alignment::Center);
+    
+    frame.render_widget(instructions, area);
+  }
 
   // fn render_path(&self, frame: &mut Frame, area: Rect) {
   //   let border_color = self.get_window_border_color(ActiveWindowEnum::Path);
@@ -246,14 +254,12 @@ impl<'a> App<'a> {
     }
   }
 
-  // fn get_window_instructions(&self) -> Option<&Vec<Span<'a>>> {
-  //   match self.active_window {
-  //     // ActiveWindowEnum::Path => self.instructions.get(&ActiveWindowEnum::Path),
-  //     // ActiveWindowEnum::Search => self.instructions.get(&ActiveWindowEnum::Search),
-  //     // ActiveWindowEnum::Settings => self.instructions.get(&ActiveWindowEnum::Settings),
-  //     // ActiveWindowEnum::Results => self.instructions.get(&ActiveWindowEnum::Results),
-  //   }
-  // }
+  fn get_window_instructions(&self) -> Option<&Vec<Span<'a>>> {
+    match self.active_window {
+      ActiveWindowEnum::Typing => self.instructions.get(&ActiveWindowEnum::Typing),
+      ActiveWindowEnum::Stats => self.instructions.get(&ActiveWindowEnum::Stats),
+    }
+  }
 
 }
 

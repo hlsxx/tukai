@@ -31,6 +31,8 @@ pub struct TypingWindow {
   pub stats: Stats,
 
   cursor_index: usize,
+  previous_index: usize,
+
   config: TypingWindowConfig
 }
 
@@ -43,6 +45,7 @@ impl Window for TypingWindow {
       stats: Stats::default(),
 
       cursor_index: 0,
+      previous_index: 0,
 
       config: TypingWindowConfig::default()
     }
