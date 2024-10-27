@@ -1,6 +1,15 @@
 use crossterm::event::{KeyCode, KeyEvent};
-use ratatui::{style::{Color, Modifier, Style}, text::{Line, Span, Text}, widgets::Paragraph};
-use crate::{configs::typing_window_config::TypingWindowConfig, tools::generator::Generator, traits::Window};
+
+use ratatui::{
+  style::{Color, Modifier, Style},
+  text::{Line, Span, Text},
+  widgets::Paragraph};
+
+use crate::{
+  configs::typing_window_config::TypingWindowConfig,
+  tools::generator::Generator,
+  traits::Window
+};
 
 #[derive(Clone, Copy)]
 pub struct Stats {
@@ -47,7 +56,7 @@ impl Window for TypingWindow {
       },
       KeyCode::Backspace => {
         let _ = self.input.pop();
-        self.cursor_index += 1;
+        self.cursor_index -= 1;
       },
       // KeyCode::Enter => is_loading = !is_loading,
       _ => ()

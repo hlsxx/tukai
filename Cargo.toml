@@ -6,4 +6,5 @@ edition = "2021"
 [dependencies]
 color-eyre = "0.6.3"
 crossterm = "0.28.1"
+rand = "0.8.5"
 ratatui = "0.28.1"

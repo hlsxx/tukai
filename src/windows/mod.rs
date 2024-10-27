@@ -1,2 +1,2 @@
-pub mod typing;
-pub mod stats;
+pub mod typing_window;
+pub mod stats_window;

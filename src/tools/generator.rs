@@ -1,4 +1,5 @@
 use std::fs::File;
+use rand::seq::SliceRandom;
 use std::io::{self, BufRead};
 
 use ratatui::text::{Line, Span};
@@ -18,13 +19,13 @@ impl Generator {
       }
     }
 
-    println!("{:?}", words.len());
+    let mut rng = rand::thread_rng();
 
-    let mut text = String::new();
-
-    for i in 0..size {
-      text.push_str(&format!("{} ", &words[i]).to_string());
-    }
+    let text = words.choose_multiple(&mut rng, size)
+      .fold(String::new(), |mut acc, c| {
+        acc.push_str(format!("{} ", c).as_str());
+        acc
+      });
 
     text
   }

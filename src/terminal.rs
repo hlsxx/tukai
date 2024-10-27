@@ -1,7 +1,9 @@
 use crossterm::event::{KeyEvent, KeyModifiers};
-use crate::{tools::loader::Loader, windows::typing::Stats};
-use crate::windows::typing::TypingWindow;
-use crate::windows::stats::StatsWindow;
+use crate::tools::loader::Loader;
+use crate::windows::{
+  typing_window::{TypingWindow,Stats},
+  stats_window::StatsWindow
+};
 
 use crate::traits::Window;
 
