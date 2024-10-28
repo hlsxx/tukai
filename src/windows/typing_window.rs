@@ -121,6 +121,14 @@ impl TypingWindow {
     self
   }
 
+  fn get_formatted_char(&self, c: char) -> String {
+    if c == ' ' {
+      '•'.to_string()
+    } else {
+      c.to_string()
+    }
+  }
+
   pub fn get_paragraph(&self) -> Paragraph {
     let mut lines = Vec::new();
 
@@ -135,20 +143,26 @@ impl TypingWindow {
       Span::from(" WPM").style(Style::default())
     ]);
 
-    let text_line = self.generated_text.chars().enumerate().map(|(i, c)| {
-      if i == self.cursor_index {
-        Span::styled(c.to_string(), Style::default().fg(Color::Black).bg(Color::White))
-      } else if i < self.cursor_index {
-        if self.input.chars().nth(i) == Some(c) {
-          // Span::styled(c.to_string(), Style::default().fg(Color::from_u32(0x805CBF)))
-          Span::styled(c.to_string(), Style::default().fg(Color::Rgb(52, 235, 180)))
+    let text_line = self.generated_text.chars()
+      .enumerate()
+      .map(|(i, c)| {
+        if i == self.cursor_index {
+          Span::from(self.get_formatted_char(c))
+            .style(Style::default().fg(Color::Black).bg(Color::White))
+        } else if i < self.cursor_index {
+          if self.input.chars().nth(i) == Some(c) {
+            Span::from(self.get_formatted_char(c))
+              .style(Style::default().fg(Color::Rgb(52, 235, 180)))
+          } else {
+            Span::from(self.get_formatted_char(c))
+              .style(Style::default().fg(Color::Red).add_modifier(Modifier::UNDERLINED))
+          }
         } else {
-          Span::styled(c.to_string(), Style::default().fg(Color::Red).add_modifier(Modifier::UNDERLINED))
+          Span::from(c.to_string())
+            .style(Style::default().fg(Color::Gray))
         }
-      } else {
-        Span::styled(c.to_string(), Style::default().fg(Color::Gray).add_modifier(Modifier::BOLD))
-      }
-    }).collect();
+      })
+      .collect::<Line>();
 
     // lines.push(remaining_time_line);
 
