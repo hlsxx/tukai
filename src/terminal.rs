@@ -1,7 +1,7 @@
-use crossterm::event::{KeyEvent, KeyModifiers};
-use ratatui::widgets::Padding;
 use tokio::sync::mpsc;
 use tokio::time;
+use crate::constants::colors;
+use crate::helper::get_color_rgb;
 use crate::tools::loader::Loader;
 use crate::windows::{
   typing_window::{TypingWindow,Stats},
@@ -10,11 +10,15 @@ use crate::windows::{
 
 use crate::traits::Window;
 
-use std::error::Error;
-use std::thread;
 use std::{collections::HashMap, io::{self, Write}, time::Duration};
 use ratatui::{
-  crossterm::event::{self, KeyCode, KeyEventKind}, layout::{Alignment, Constraint, Direction, Flex, Layout, Rect}, style::{Color, Style, Styled, Stylize}, text::{Line, Span, Text}, widgets::{block::{Position, Title}, Block, Borders, Clear, Paragraph}, DefaultTerminal, Frame
+  crossterm::event::{self, KeyCode, KeyEventKind, Event, KeyEvent},
+  layout::{Alignment, Constraint, Direction, Flex, Layout, Rect},
+  style::{Color, Style, Styled, Stylize},
+  text::{Line, Span, Text},
+  widgets::{block::{Position, Title}, Block, Borders, Clear, Paragraph},
+  DefaultTerminal,
+  Frame
 };
 
 #[derive(PartialEq, Hash, Eq)]
@@ -40,13 +44,15 @@ impl<'a> App<'a> {
     let mut instructions = HashMap::new();
 
     let typing_window_instructions = vec![
-      Span::styled("<Left> Typing", Style::default().fg(Color::Green)),
-      Span::styled(" <Right> Stats", Style::default().fg(Color::Red)),
+      Span::styled("<ESC>Exit", Style::default().fg(get_color_rgb(colors::PRIMARY))),
+      Span::styled(" <Left>Typing", Style::default().fg(get_color_rgb(colors::SECONDARY))),
+      Span::styled(" <Right>Stats", Style::default().fg(get_color_rgb(colors::SECONDARY))),
     ];
 
     let stats_window_instructions = vec![
-      Span::styled("[Enter]Start search", Style::default().fg(Color::Green)),
-      Span::styled(" [Del]Reset search", Style::default().fg(Color::Red)),
+      Span::styled("<ESC>Exit", Style::default().fg(Color::Yellow)),
+      Span::styled(" <Left>Typing", Style::default().fg(Color::Green)),
+      Span::styled(" <Right>Stats", Style::default().fg(Color::Red)),
     ];
 
     instructions.insert(ActiveWindowEnum::Typing, typing_window_instructions);
@@ -65,28 +71,15 @@ impl<'a> App<'a> {
 
   pub async fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
     while !self.is_exit {
-      let (tx, mut rx) = mpsc::channel::<()>(1);
+      terminal.draw(|frame| self.draw(frame))?;
 
-      tokio::spawn(async move {
-        loop {
-          time::sleep(Duration::from_secs(1)).await;
-          if tx.send(()).await.is_err() {
-            break;
-          }
-        }
-      });
-
-      loop {
-        terminal.draw(|frame| self.draw(frame))?;
-
-        if self.typing_window.generated_text.len() == self.typing_window.input.len() {
-          self.has_done = true;
-        }
-
-        if self.handle_events()? {
-          break;
-        };
+      if self.typing_window.generated_text.len() == self.typing_window.input.len() {
+        self.has_done = true;
       }
+
+      if self.handle_events()? {
+        break;
+      };
     }
 
     Ok(())
@@ -105,37 +98,7 @@ impl<'a> App<'a> {
       ActiveWindowEnum::Stats => self.stats_window.render(frame, main_layout[0])
     }
 
-    // let outer_layout = Layout::default()
-    //   .direction(Direction::Vertical)
-    //   .constraints(vec![
-    //     Constraint::Percentage(90),
-    //     Constraint::Percentage(10)
-    //   ])
-    //   .split(frame.area());
-    //
-    // let main_layout = Layout::default()
-    //   .direction(Direction::Horizontal)
-    //   .constraints(vec![
-    //     Constraint::Percentage(30),
-    //     Constraint::Percentage(70),
-    //   ])
-    //   .split(outer_layout[0]);
-    //
-    // let left_layout = Layout::default()
-    //   .direction(Direction::Vertical)
-    //   .constraints(vec![
-    //     Constraint::Length(3),
-    //     Constraint::Length(3),
-    //     Constraint::Percentage(100)
-    //   ])
-    //   .split(main_layout[0]);
-    //
-    // self.render_results(frame, main_layout[1]);
     self.render_instructions(frame, main_layout[1]);
-    // self.render_search(frame, left_layout[0]);
-    // self.render_path(frame, left_layout[1]);
-    // self.render_settings(frame, left_layout[2]);
-    //
 
     if self.has_done {
       self.render_popup(frame, self.typing_window.stats.clone());
@@ -158,7 +121,7 @@ impl<'a> App<'a> {
           self.active_window = ActiveWindowEnum::Typing;
         } else if key.code == KeyCode::Right {
           self.active_window = ActiveWindowEnum::Stats;
-        } else if key.code == KeyCode::Char('q') || key.code == KeyCode::Esc {
+        } else if key.code == KeyCode::Esc {
           self.is_exit = true;
           return Ok(true);
         }

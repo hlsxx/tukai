@@ -4,15 +4,14 @@ use ratatui::{
   layout::{Alignment, Rect},
   style::{Color, Modifier, Style},
   text::{Line, Span, Text},
-  widgets::{block::Title, Block, Borders, Padding, Paragraph},
+  widgets::{block::{Position, Title}, Block, BorderType, Borders, Padding, Paragraph},
   Frame
 };
 
 use crate::{
-  configs::typing_window_config::TypingWindowConfig,
-  tools::generator::Generator,
-  traits::Window
+  configs::typing_window_config::TypingWindowConfig, constants::{self, colors}, helper::get_color_rgb, tools::generator::Generator, traits::Window
 };
+
 
 #[derive(Clone, Copy)]
 pub struct Stats {
@@ -82,10 +81,15 @@ impl Window for TypingWindow {
     frame: &mut Frame,
     area: Rect
   ) {
+    let title = Title::from("Tukaj v1.0.0")
+      .position(Position::Top)
+      .alignment(Alignment::Left);
+
     let block = Block::new()
+      .title(title)
       .borders(Borders::ALL)
+      .border_type(BorderType::Rounded)
       .border_style(Style::default().fg(self.get_border_color()))
-      .title(Title::from("Typing").alignment(Alignment::Center))
       .padding(Padding::new(
         30,
         30,
@@ -126,7 +130,8 @@ impl TypingWindow {
         Span::styled(c.to_string(), Style::default().fg(Color::Black).bg(Color::White))
       } else if i < self.cursor_index {
         if self.input.chars().nth(i) == Some(c) {
-          Span::styled(c.to_string(), Style::default().fg(Color::from_u32(0x805CBF)))
+          // Span::styled(c.to_string(), Style::default().fg(Color::from_u32(0x805CBF)))
+          Span::styled(c.to_string(), Style::default().fg(Color::Rgb(52, 235, 180)))
         } else {
           Span::styled(c.to_string(), Style::default().fg(Color::Red).add_modifier(Modifier::UNDERLINED))
         }

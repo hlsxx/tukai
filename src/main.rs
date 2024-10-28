@@ -3,6 +3,8 @@ mod traits;
 mod tools;
 mod windows;
 mod configs;
+mod constants;
+mod helper;
 
 use std::io;
 use terminal::App;

@@ -3,6 +3,8 @@ use ratatui::{
   layout::Rect, style::Color, Frame
 };
 
+use crate::{constants::colors, helper::get_color_rgb};
+
 pub trait Window {
   fn default() -> Self;
   fn handle_events(&mut self, key: KeyEvent);
@@ -11,11 +13,12 @@ pub trait Window {
   fn is_active(&self) -> bool;
 
   fn get_border_color(&self) -> Color {
-    if self.is_active() {
-      Color::from_u32(0x805CBF)
-    } else {
-      Color::from_u32(0x00999999)
-    }
+    get_color_rgb(colors::PRIMARY)
+    // if self.is_active() {
+    //   Color::from_u32(0x805CBF)
+    // } else {
+    //   Color::from_u32(0x00999999)
+    // }
   }
 }
 
