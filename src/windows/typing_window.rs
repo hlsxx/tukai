@@ -1,15 +1,21 @@
+use std::sync::Arc;
+
 use crossterm::event::{KeyCode, KeyEvent};
 
 use ratatui::{
   layout::{Alignment, Rect},
-  style::{Color, Modifier, Style},
+  style::{Color, Modifier, Style, Styled},
   text::{Line, Span, Text},
   widgets::{block::{Position, Title}, Block, BorderType, Borders, Padding, Paragraph},
   Frame
 };
+use tokio::sync::Mutex;
 
 use crate::{
-  configs::typing_window_config::TypingWindowConfig, constants::{self, colors}, helper::get_color_rgb, tools::generator::Generator, traits::Window
+  configs::typing_window_config::TypingWindowConfig,
+  helper::get_color_rgb,
+  tools::generator::Generator,
+  traits::Window
 };
 
 
@@ -34,6 +40,8 @@ pub struct TypingWindow {
 
   pub is_active: bool,
 
+  // pub current_time: Arc<Mutex<usize>>,
+
   cursor_index: usize,
   previous_index: usize,
 
@@ -49,6 +57,8 @@ impl Window for TypingWindow {
       stats: Stats::default(),
 
       is_active: false,
+
+      // current_time: Arc::new(Mutex::new(0)),
 
       cursor_index: 0,
       previous_index: 0,
@@ -75,7 +85,6 @@ impl Window for TypingWindow {
       _ => ()
     }
   }
-
   fn render(
     &self,
     frame: &mut Frame,
@@ -115,15 +124,16 @@ impl TypingWindow {
   pub fn get_paragraph(&self) -> Paragraph {
     let mut lines = Vec::new();
 
-    let remaining_time_line = Line::from(vec![
-      Span::from(self.config.time_limit.to_string())
+    // let remaining_time_line = Line::from(vec![
+    //   Span::from(self.config.time_limit.to_string())
+    // ]);
+
+    // let current_time_lock = self.current_time.lock().await;
+
+    let info_line = Line::from(vec![
+      Span::from("125".to_string()).style(Style::default()),
+      Span::from(" WPM").style(Style::default())
     ]);
-
-    // let info = vec![
-    //   Span::styled(content, style)
-    // ];
-
-    let info_line = Line::default();
 
     let text_line = self.generated_text.chars().enumerate().map(|(i, c)| {
       if i == self.cursor_index {
@@ -140,7 +150,9 @@ impl TypingWindow {
       }
     }).collect();
 
-    lines.push(remaining_time_line);
+    // lines.push(remaining_time_line);
+
+    lines.push(info_line);
     lines.push(text_line);
 
     let text = Text::from(lines);

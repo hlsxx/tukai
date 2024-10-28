@@ -7,7 +7,9 @@ use crate::{constants::colors, helper::get_color_rgb};
 
 pub trait Window {
   fn default() -> Self;
+
   fn handle_events(&mut self, key: KeyEvent);
+
   fn render(&self, frame: &mut Frame, area: Rect);
 
   fn is_active(&self) -> bool;

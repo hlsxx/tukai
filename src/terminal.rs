@@ -1,4 +1,3 @@
-use tokio::sync::mpsc;
 use tokio::time;
 use crate::constants::colors;
 use crate::helper::get_color_rgb;
@@ -10,6 +9,8 @@ use crate::windows::{
 
 use crate::traits::Window;
 
+use std::sync::Arc;
+use tokio::sync::Mutex;
 use std::{collections::HashMap, io::{self, Write}, time::Duration};
 use ratatui::{
   crossterm::event::{self, KeyCode, KeyEventKind, Event, KeyEvent},
@@ -31,9 +32,13 @@ pub struct App<'a> {
   is_exit: bool,
   has_done: bool,
 
+  //current_time: Arc<Mutex<usize>>,
+
   loader: Loader<'a>,
   active_window: ActiveWindowEnum,
   instructions: HashMap<ActiveWindowEnum, Vec<Span<'a>>>,
+
+  // Windows
   typing_window: TypingWindow,
   stats_window: StatsWindow
 }
@@ -62,14 +67,28 @@ impl<'a> App<'a> {
       has_done: false,
       is_exit: false,
       loader: Loader::new(),
+
+      //current_time: Arc::new(Mutex::new(0)),
+
       active_window: ActiveWindowEnum::Typing,
       instructions,
+
       typing_window: TypingWindow::default(),
       stats_window: StatsWindow::default()
     }
   }
 
-  pub async fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
+  pub fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
+    //let current_time_lock = self.current_time.clone();
+
+    //tokio::spawn(async move {
+    //  let mut interval = time::interval(Duration::from_secs(1));
+    //  loop {
+    //    interval.tick().await;
+    //    *current_time_lock.lock().await += 1;
+    //  }
+    //});
+
     while !self.is_exit {
       terminal.draw(|frame| self.draw(frame))?;
 
@@ -85,7 +104,10 @@ impl<'a> App<'a> {
     Ok(())
   }
 
-  fn draw(&mut self, frame: &mut Frame) {
+  fn draw(
+    &mut self,
+    frame: &mut Frame,
+  ) {
     let main_layout = Layout::default()
       .constraints(vec![
         Constraint::Min(0),

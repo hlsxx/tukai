@@ -9,13 +9,12 @@ mod helper;
 use std::io;
 use terminal::App;
 
-#[tokio::main]
-async fn main() -> io::Result<()> {
+fn main() -> io::Result<()> {
   let mut terminal = ratatui::init();
   terminal.clear()?;
 
   // App
-  let app_result = App::new().run(&mut terminal).await;
+  let app_result = App::new().run(&mut terminal);
 
   ratatui::restore();
   app_result
