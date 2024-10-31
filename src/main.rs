@@ -5,6 +5,7 @@ mod windows;
 mod configs;
 mod constants;
 mod helper;
+mod event_handler;
 
 use std::io;
 use terminal::App;

@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 color-eyre = "0.6.3"
-crossterm = "0.28.1"
+crossterm = { version = "0.28.1", features = ["event-stream"] }
 rand = "0.8.5"
 ratatui = "0.28.1"
 tokio = { version = "1.41.0", features = ["full"] }
