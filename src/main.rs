@@ -7,15 +7,20 @@ mod constants;
 mod helper;
 mod event_handler;
 
-use std::io;
+use core::error;
+use event_handler::EventHandler;
 use terminal::App;
 
-fn main() -> io::Result<()> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn error::Error>> {
   let mut terminal = ratatui::init();
+  let mut event_handler = EventHandler::new();
+
   terminal.clear()?;
 
-  // App
-  let app_result = App::new().run(&mut terminal);
+  let app_result = App::new()
+    .run(&mut event_handler, &mut terminal)
+    .await;
 
   ratatui::restore();
   app_result

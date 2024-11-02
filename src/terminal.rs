@@ -1,5 +1,6 @@
 use tokio::time;
 use crate::constants::colors;
+use crate::event_handler::{EventHandler, TukajEvent};
 use crate::helper::get_color_rgb;
 use crate::tools::loader::Loader;
 use crate::windows::{
@@ -9,6 +10,7 @@ use crate::windows::{
 
 use crate::traits::Window;
 
+use std::error;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use std::{collections::HashMap, io::{self, Write}, time::Duration};
@@ -78,27 +80,34 @@ impl<'a> App<'a> {
     }
   }
 
-  pub fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
-    //let current_time_lock = self.current_time.clone();
+  pub async fn run(
+    &mut self,
+    event_handler: &mut EventHandler,
+    terminal: &mut DefaultTerminal
+  ) -> Result<(), Box<dyn error::Error>> {
+    let mut time_secs = 0;
 
-    //tokio::spawn(async move {
-    //  let mut interval = time::interval(Duration::from_secs(1));
-    //  loop {
-    //    interval.tick().await;
-    //    *current_time_lock.lock().await += 1;
-    //  }
-    //});
+    loop {
+      match event_handler.next().await? {
+        TukajEvent::Key(key_event) => {
+          if key_event.code == KeyCode::Esc {
+            break;
+          } else {
+            self.handle_events(key_event)
+          }
+        },
+        TukajEvent::Tick => time_secs += 1
+      };
 
-    while !self.is_exit {
       terminal.draw(|frame| self.draw(frame))?;
 
-      if self.typing_window.generated_text.len() == self.typing_window.input.len() {
-        self.has_done = true;
-      }
+      // if self.typing_window.generated_text.len() == self.typing_window.input.len() {
+      //   self.has_done = true;
+      // }
 
-      if self.handle_events()? {
-        break;
-      };
+      // if self.handle_events()? {
+      //   break;
+      // };
     }
 
     Ok(())
@@ -136,23 +145,14 @@ impl<'a> App<'a> {
     }
   }
 
-  fn handle_events(&mut self) -> io::Result<bool> {
-    if crossterm::event::poll(Duration::from_millis(100))? {
-      if let event::Event::Key(key) = event::read()? {
-        if key.code == KeyCode::Left {
-          self.active_window = ActiveWindowEnum::Typing;
-        } else if key.code == KeyCode::Right {
-          self.active_window = ActiveWindowEnum::Stats;
-        } else if key.code == KeyCode::Esc {
-          self.is_exit = true;
-          return Ok(true);
-        }
-
-        self.handle_window_events(key);
-      }
+  fn handle_events(&mut self, key_event: KeyEvent) {
+    if key_event.code == KeyCode::Left {
+      self.active_window = ActiveWindowEnum::Typing;
+    } else if key_event.code == KeyCode::Right {
+      self.active_window = ActiveWindowEnum::Stats;
     }
 
-    Ok(false)
+    self.handle_window_events(key_event);
   }
 
   fn render_instructions(&self, frame: &mut Frame, area: Rect) {

@@ -12,10 +12,7 @@ use ratatui::{
 use tokio::sync::Mutex;
 
 use crate::{
-  configs::typing_window_config::TypingWindowConfig,
-  helper::get_color_rgb,
-  tools::generator::Generator,
-  traits::Window
+  configs::typing_window_config::TypingWindowConfig, constants::colors, helper::get_color_rgb, tools::generator::Generator, traits::Window
 };
 
 
@@ -152,10 +149,10 @@ impl TypingWindow {
         } else if i < self.cursor_index {
           if self.input.chars().nth(i) == Some(c) {
             Span::from(self.get_formatted_char(c))
-              .style(Style::default().fg(Color::Rgb(52, 235, 180)))
+              .style(Style::default().fg(get_color_rgb(colors::PRIMARY)))
           } else {
             Span::from(self.get_formatted_char(c))
-              .style(Style::default().fg(Color::Red).add_modifier(Modifier::UNDERLINED))
+              .style(Style::default().fg(get_color_rgb(colors::ERROR)).add_modifier(Modifier::UNDERLINED))
           }
         } else {
           Span::from(c.to_string())
