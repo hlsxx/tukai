@@ -1,3 +1,5 @@
+use crossterm::event::KeyModifiers;
+use ratatui::widgets::BorderType;
 use tokio::time;
 use crate::constants::colors;
 use crate::event_handler::{EventHandler, TukajEvent};
@@ -33,8 +35,9 @@ enum ActiveWindowEnum {
 pub struct App<'a> {
   is_exit: bool,
   has_done: bool,
+  is_popup_visible: bool,
 
-  //current_time: Arc<Mutex<usize>>,
+  time_secs: u32,
 
   loader: Loader<'a>,
   active_window: ActiveWindowEnum,
@@ -68,9 +71,11 @@ impl<'a> App<'a> {
     Self {
       has_done: false,
       is_exit: false,
-      loader: Loader::new(),
+      is_popup_visible: false,
 
-      //current_time: Arc::new(Mutex::new(0)),
+      time_secs: 0,
+
+      loader: Loader::new(),
 
       active_window: ActiveWindowEnum::Typing,
       instructions,
@@ -85,8 +90,6 @@ impl<'a> App<'a> {
     event_handler: &mut EventHandler,
     terminal: &mut DefaultTerminal
   ) -> Result<(), Box<dyn error::Error>> {
-    let mut time_secs= 0_u32;
-
     while !self.is_exit {
       match event_handler.next().await? {
         TukajEvent::Key(key_event) => {
@@ -96,14 +99,10 @@ impl<'a> App<'a> {
             self.handle_events(key_event)
           }
         },
-        TukajEvent::Tick => time_secs += 1
+        TukajEvent::Tick => self.time_secs += 1
       };
 
-      terminal.draw(|frame| self.draw(frame, time_secs))?;
-
-      // if self.typing_window.generated_text.len() == self.typing_window.input.len() {
-      //   self.has_done = true;
-      // }
+      terminal.draw(|frame| self.draw(frame))?;
     }
 
     Ok(())
@@ -111,8 +110,7 @@ impl<'a> App<'a> {
 
   fn draw(
     &mut self,
-    frame: &mut Frame,
-    time_secs: u32
+    frame: &mut Frame
   ) {
     let main_layout = Layout::default()
       .constraints(vec![
@@ -123,7 +121,7 @@ impl<'a> App<'a> {
 
     match self.active_window {
       ActiveWindowEnum::Typing => {
-        self.typing_window.time_secs = time_secs;
+        self.typing_window.time_secs = self.time_secs;
 
         if self.typing_window.get_remaining_time() == 0 {
           self.has_done = true;
@@ -150,11 +148,19 @@ impl<'a> App<'a> {
     }
   }
 
+  fn reset(&mut self) {
+    self.time_secs = 0;
+    self.has_done = false;
+    self.typing_window.reset();
+  }
+
   fn handle_events(&mut self, key_event: KeyEvent) {
     if key_event.code == KeyCode::Left {
       self.active_window = ActiveWindowEnum::Typing;
     } else if key_event.code == KeyCode::Right {
       self.active_window = ActiveWindowEnum::Stats;
+    } else if key_event.code == KeyCode::Char('r') && key_event.modifiers.contains(KeyModifiers::CONTROL) {
+      return self.reset();
     }
 
     self.handle_window_events(key_event);
@@ -171,38 +177,11 @@ impl<'a> App<'a> {
     frame.render_widget(instructions, area);
   }
 
-  // fn render_path(&self, frame: &mut Frame, area: Rect) {
-  //   let border_color = self.get_window_border_color(ActiveWindowEnum::Path);
-  //
-  //   let block = Block::new()
-  //     .borders(Borders::ALL)
-  //     .border_style(Style::default().fg(border_color))
-  //     .title(Title::from("[2]Folder").alignment(Alignment::Center));
-  //
-  //   let p = Paragraph::new(self.path_window.input.clone())
-  //     .block(block);
-  //
-  //   frame.render_widget(p, area);
-  // }
-
-  // fn render_settings(&self, frame: &mut Frame, area: Rect) {
-  //   let border_color = self.get_window_border_color(ActiveWindowEnum::Settings);
-  //
-  //   let block = Block::new()
-  //     .borders(Borders::ALL)
-  //     .border_style(Style::default().fg(border_color))
-  //     .title(Title::from("[3]Settings").alignment(Alignment::Center));
-  //
-  //   let p = Paragraph::new("Results")
-  //     .block(block);
-  //
-  //   frame.render_widget(p, area);
-  // }
-
   fn render_popup(&mut self, frame: &mut Frame, stats: Stats) {
     let area = frame.area();
 
     let block = Block::bordered()
+      .border_type(BorderType::Rounded)
       .border_style(Style::new().fg(Color::Red));
 
     let text = Text::from(vec![

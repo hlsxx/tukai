@@ -36,11 +36,11 @@ pub struct TypingWindow {
   pub stats: Stats,
 
   pub is_active: bool,
+  pub is_running: bool,
 
   pub time_secs: u32,
 
   cursor_index: usize,
-  previous_index: usize,
 
   config: TypingWindowConfig
 }
@@ -54,11 +54,11 @@ impl Window for TypingWindow {
       stats: Stats::default(),
 
       is_active: false,
+      is_running: false,
 
       time_secs: 0,
 
       cursor_index: 0,
-      previous_index: 0,
 
       config: TypingWindowConfig::default()
     }
@@ -121,6 +121,12 @@ impl TypingWindow {
 
   pub fn get_remaining_time(&self) -> u32 {
     self.config.time_limit.checked_sub(self.time_secs).unwrap_or(0)
+  }
+
+  pub fn reset(&mut self) {
+    self.generated_text = Generator::generate_random_string(50);
+    self.cursor_index = 0;
+    self.input = String::new();
   }
 
   fn get_formatted_char(&self, c: char) -> String {
