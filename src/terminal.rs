@@ -85,9 +85,9 @@ impl<'a> App<'a> {
     event_handler: &mut EventHandler,
     terminal: &mut DefaultTerminal
   ) -> Result<(), Box<dyn error::Error>> {
-    let mut time_secs = 0;
+    let mut time_secs= 0_u32;
 
-    loop {
+    while !self.is_exit {
       match event_handler.next().await? {
         TukajEvent::Key(key_event) => {
           if key_event.code == KeyCode::Esc {
@@ -99,15 +99,11 @@ impl<'a> App<'a> {
         TukajEvent::Tick => time_secs += 1
       };
 
-      terminal.draw(|frame| self.draw(frame))?;
+      terminal.draw(|frame| self.draw(frame, time_secs))?;
 
       // if self.typing_window.generated_text.len() == self.typing_window.input.len() {
       //   self.has_done = true;
       // }
-
-      // if self.handle_events()? {
-      //   break;
-      // };
     }
 
     Ok(())
@@ -116,6 +112,7 @@ impl<'a> App<'a> {
   fn draw(
     &mut self,
     frame: &mut Frame,
+    time_secs: u32
   ) {
     let main_layout = Layout::default()
       .constraints(vec![
@@ -125,7 +122,15 @@ impl<'a> App<'a> {
       .split(frame.area());
 
     match self.active_window {
-      ActiveWindowEnum::Typing => self.typing_window.render(frame, main_layout[0]),
+      ActiveWindowEnum::Typing => {
+        self.typing_window.time_secs = time_secs;
+
+        if self.typing_window.get_remaining_time() == 0 {
+          self.has_done = true;
+        }
+
+        self.typing_window.render(frame, main_layout[0])
+      },
       ActiveWindowEnum::Stats => self.stats_window.render(frame, main_layout[0])
     }
 

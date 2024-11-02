@@ -1,24 +1,24 @@
 use crate::traits::ConfigBuilder;
 
 pub struct TypingWindowConfig {
-  pub time_limit: usize
+  pub time_limit: u32
 }
 
 impl Default for TypingWindowConfig {
   fn default() -> Self {
     Self {
-      time_limit: 60
+      time_limit: 5
     }
   }
 }
 
 pub struct TypingWindowConfigBuilder {
-  time_limit: Option<usize>
+  time_limit: Option<u32>
 }
 
 impl TypingWindowConfigBuilder {
   #[allow(unused)]
-  fn time_limit(mut self, time_limit: usize) -> Self {
+  fn time_limit(mut self, time_limit: u32) -> Self {
     self.time_limit = Some(time_limit);
     self
   }

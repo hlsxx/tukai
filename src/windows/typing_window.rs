@@ -37,7 +37,7 @@ pub struct TypingWindow {
 
   pub is_active: bool,
 
-  // pub current_time: Arc<Mutex<usize>>,
+  pub time_secs: u32,
 
   cursor_index: usize,
   previous_index: usize,
@@ -55,7 +55,7 @@ impl Window for TypingWindow {
 
       is_active: false,
 
-      // current_time: Arc::new(Mutex::new(0)),
+      time_secs: 0,
 
       cursor_index: 0,
       previous_index: 0,
@@ -82,6 +82,7 @@ impl Window for TypingWindow {
       _ => ()
     }
   }
+
   fn render(
     &self,
     frame: &mut Frame,
@@ -118,6 +119,10 @@ impl TypingWindow {
     self
   }
 
+  pub fn get_remaining_time(&self) -> u32 {
+    self.config.time_limit.checked_sub(self.time_secs).unwrap_or(0)
+  }
+
   fn get_formatted_char(&self, c: char) -> String {
     if c == ' ' {
       '•'.to_string()
@@ -129,9 +134,10 @@ impl TypingWindow {
   pub fn get_paragraph(&self) -> Paragraph {
     let mut lines = Vec::new();
 
-    // let remaining_time_line = Line::from(vec![
-    //   Span::from(self.config.time_limit.to_string())
-    // ]);
+    let remaining_time_line = Line::from(vec![
+      // Span::from(self.config.time_limit.to_string())
+      Span::from(self.get_remaining_time().to_string())
+    ]);
 
     // let current_time_lock = self.current_time.lock().await;
 
@@ -161,9 +167,8 @@ impl TypingWindow {
       })
       .collect::<Line>();
 
-    // lines.push(remaining_time_line);
-
-    lines.push(info_line);
+    lines.push(remaining_time_line);
+    // lines.push(info_line);
     lines.push(text_line);
 
     let text = Text::from(lines);
