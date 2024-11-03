@@ -51,14 +51,14 @@ impl<'a> App<'a> {
     let mut instructions = HashMap::new();
 
     let typing_window_instructions = vec![
-      Span::styled("Exit", Style::default().fg(get_color_rgb(colors::ERROR))),
-      Span::styled("<ESC>", Style::default().fg(get_color_rgb(colors::ERROR)).bold()),
+      Span::styled("Exit", Style::default().fg(get_color_rgb(colors::SECONDARY))),
+      Span::styled("<ESC>", Style::default().fg(get_color_rgb(colors::SECONDARY)).bold()),
 
-      Span::styled(" Typing", Style::default().fg(get_color_rgb(colors::PRIMARY))),
-      Span::styled("<←>", Style::default().fg(get_color_rgb(colors::PRIMARY)).bold()),
+      Span::styled(" Typing", Style::default().fg(get_color_rgb(colors::SECONDARY))),
+      Span::styled("<←>", Style::default().fg(get_color_rgb(colors::SECONDARY)).bold()),
 
-      Span::styled(" Stats", Style::default().fg(get_color_rgb(colors::STATS))),
-      Span::styled("<→>", Style::default().fg(get_color_rgb(colors::STATS)).bold()),
+      Span::styled(" Stats", Style::default().fg(get_color_rgb(colors::SECONDARY))),
+      Span::styled("<→>", Style::default().fg(get_color_rgb(colors::SECONDARY)).bold()),
     ];
 
     let stats_window_instructions = vec![
@@ -187,9 +187,9 @@ impl<'a> App<'a> {
     let default_vec= Vec::new();
     let instructions_spans = self.get_window_instructions().unwrap_or(&default_vec);
 
-    let instructions = Paragraph::new(
-      Text::from(Line::from(instructions_spans.clone()))
-    ).alignment(Alignment::Center);
+    let instructions = Paragraph::new(Text::from(Line::from(instructions_spans.clone())))
+      .alignment(Alignment::Center)
+      .bg(get_color_rgb(colors::BACKGROUND));
     
     frame.render_widget(instructions, area);
   }
@@ -203,8 +203,10 @@ impl<'a> App<'a> {
       .border_style(Style::new().fg(get_color_rgb(colors::PRIMARY)));
 
     let text = Text::from(vec![
+      Line::from(format!("WPM: {}", self.typing_window.get_calculated_wpm()))
+        .style(Style::default().fg(get_color_rgb(colors::PRIMARY))),
+      Line::from(""),
       Line::from(format!("Mistakes maked {}", self.typing_window.stats.get_mistakes_counter())),
-      Line::from(format!("WPM: {}", self.typing_window.get_calculated_wpm())),
       Line::from(vec![
         Span::from("Reset"),
         Span::from("<CTRL + R>").style(
@@ -218,8 +220,8 @@ impl<'a> App<'a> {
       .centered()
       .bold();
 
-    let vertical = Layout::vertical([Constraint::Percentage(20)]).flex(Flex::Center);
-    let horizontal = Layout::horizontal([Constraint::Percentage(20)]).flex(Flex::Center);
+    let vertical = Layout::vertical([Constraint::Percentage(30)]).flex(Flex::Center);
+    let horizontal = Layout::horizontal([Constraint::Percentage(30)]).flex(Flex::Center);
     let [area] = vertical.areas(area);
     let [area] = horizontal.areas(area);
 
