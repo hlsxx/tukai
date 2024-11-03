@@ -28,16 +28,21 @@ impl Window for StatsWindow {
     }
   }
 
+  fn toggle_active(&mut self) {
+    self.is_active = !self.is_active;
+  }
+
   fn is_active(&self) -> bool {
     self.is_active
   }
 
-  fn handle_events(&mut self, key: KeyEvent) {
-    match key.code {
-      KeyCode::Char(c) => self.input.push(c),
-      KeyCode::Backspace => { let _ = self.input.pop(); },
-      _ => ()
-    }
+  fn handle_events(&mut self, key: KeyEvent) -> bool {
+    false
+    // match key.code {
+    //   KeyCode::Char(c) => self.input.push(c),
+    //   KeyCode::Backspace => { let _ = self.input.pop(); },
+    //   _ => ()
+    // }
   }
 
   fn render(&self, frame: &mut Frame, area: Rect) {

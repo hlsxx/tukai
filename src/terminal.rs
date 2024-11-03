@@ -34,7 +34,7 @@ enum ActiveWindowEnum {
 
 pub struct App<'a> {
   is_exit: bool,
-  has_done: bool,
+
   is_popup_visible: bool,
 
   time_secs: u32,
@@ -54,9 +54,14 @@ impl<'a> App<'a> {
     let mut instructions = HashMap::new();
 
     let typing_window_instructions = vec![
-      Span::styled("<ESC>Exit", Style::default().fg(get_color_rgb(colors::PRIMARY))),
-      Span::styled(" <Left>Typing", Style::default().fg(get_color_rgb(colors::SECONDARY))),
-      Span::styled(" <Right>Stats", Style::default().fg(get_color_rgb(colors::SECONDARY))),
+      Span::styled("Exit", Style::default().fg(get_color_rgb(colors::ERROR))),
+      Span::styled("<ESC>", Style::default().fg(get_color_rgb(colors::ERROR)).bold()),
+
+      Span::styled(" Typing", Style::default().fg(get_color_rgb(colors::PRIMARY))),
+      Span::styled("<←>", Style::default().fg(get_color_rgb(colors::PRIMARY)).bold()),
+
+      Span::styled(" Stats", Style::default().fg(get_color_rgb(colors::STATS))),
+      Span::styled("<→>", Style::default().fg(get_color_rgb(colors::STATS)).bold()),
     ];
 
     let stats_window_instructions = vec![
@@ -69,7 +74,6 @@ impl<'a> App<'a> {
     instructions.insert(ActiveWindowEnum::Stats, stats_window_instructions);
 
     Self {
-      has_done: false,
       is_exit: false,
       is_popup_visible: false,
 
@@ -92,13 +96,7 @@ impl<'a> App<'a> {
   ) -> Result<(), Box<dyn error::Error>> {
     while !self.is_exit {
       match event_handler.next().await? {
-        TukajEvent::Key(key_event) => {
-          if key_event.code == KeyCode::Esc {
-            break;
-          } else {
-            self.handle_events(key_event)
-          }
-        },
+        TukajEvent::Key(key_event) => self.handle_events(key_event),
         TukajEvent::Tick => {
           if self.typing_window.is_running() {
             self.time_secs += 1;
@@ -125,10 +123,19 @@ impl<'a> App<'a> {
 
     match self.active_window {
       ActiveWindowEnum::Typing => {
+        if self.is_popup_visible {
+          if self.typing_window.is_active() {
+            self.typing_window.toggle_active();
+          }
+        } else if !self.typing_window.is_active() {
+          self.typing_window.toggle_active();
+        }
+
         self.typing_window.time_secs = self.time_secs;
 
         if self.typing_window.get_remaining_time() == 0 {
-          self.has_done = true;
+          self.typing_window.stop();
+          self.is_popup_visible = true;
         }
 
         self.typing_window.render(frame, main_layout[0])
@@ -138,36 +145,45 @@ impl<'a> App<'a> {
 
     self.render_instructions(frame, main_layout[1]);
 
-    if self.has_done {
+    if self.is_popup_visible {
       self.render_popup(frame, self.typing_window.stats.clone());
     }
   }
 
-  fn handle_window_events(&mut self, key: KeyEvent) {
-    match self.active_window {
+  fn handle_window_events(&mut self, key: KeyEvent) -> bool {
+    let event_occured = match self.active_window {
       ActiveWindowEnum::Typing => self.typing_window.handle_events(key),
       // ActiveWindowEnum::Path => self.path_window.handle_events(key),
       // ActiveWindowEnum::Results => self.search.handle_events(key),
-      _ => ()
-    }
+      _ => false
+    };
+
+    event_occured
   }
 
   fn reset(&mut self) {
     self.time_secs = 0;
-    self.has_done = false;
+    self.is_popup_visible = false;
     self.typing_window.reset();
   }
 
-  fn handle_events(&mut self, key_event: KeyEvent) {
-    if key_event.code == KeyCode::Left {
-      self.active_window = ActiveWindowEnum::Typing;
-    } else if key_event.code == KeyCode::Right {
-      self.active_window = ActiveWindowEnum::Stats;
-    } else if key_event.code == KeyCode::Char('r') && key_event.modifiers.contains(KeyModifiers::CONTROL) {
-      return self.reset();
-    }
+  fn exit(&mut self) {
+    self.is_exit = true;
+  }
 
-    self.handle_window_events(key_event);
+  /// If the child window does not consume the event, check the keycodes.
+  fn handle_events(&mut self, key_event: KeyEvent) {
+    if !self.handle_window_events(key_event) {
+      if key_event.code == KeyCode::Esc {
+        self.exit();
+      } else if key_event.code == KeyCode::Left {
+        self.active_window = ActiveWindowEnum::Typing;
+      } else if key_event.code == KeyCode::Right {
+        self.active_window = ActiveWindowEnum::Stats;
+      } else if key_event.code == KeyCode::Char('r') && key_event.modifiers.contains(KeyModifiers::CONTROL) {
+        return self.reset();
+      }
+    }
   }
 
   fn render_instructions(&self, frame: &mut Frame, area: Rect) {
@@ -185,11 +201,13 @@ impl<'a> App<'a> {
     let area = frame.area();
 
     let block = Block::bordered()
+      .style(Style::default().bg(get_color_rgb(colors::BACKGROUND)))
       .border_type(BorderType::Rounded)
-      .border_style(Style::new().fg(Color::Red));
+      .border_style(Style::new().fg(get_color_rgb(colors::PRIMARY)));
 
     let text = Text::from(vec![
       Line::from("Nice you make it:)"),
+      Line::from("Reset [CTRL + R]"),
       Line::from(format!("Error makes {}", stats.errors_count)),
       //Line::from(self.loader.get_slash()),
     ]);
@@ -207,14 +225,6 @@ impl<'a> App<'a> {
 
     frame.render_widget(Clear, area);
     frame.render_widget(p, area);
-  }
-
-  fn get_window_border_color(&self, current_window: ActiveWindowEnum) -> Color {
-    if self.active_window == current_window {
-      Color::from_u32(0x805CBF)
-    } else {
-      Color::from_u32(0x00999999)
-    }
   }
 
   fn get_window_instructions(&self) -> Option<&Vec<Span<'a>>> {

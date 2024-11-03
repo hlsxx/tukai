@@ -1,15 +1,27 @@
 use crossterm::event::{KeyCode, KeyEvent};
 
 use ratatui::{
+  Frame,
   layout::{Alignment, Rect},
-  style::{Color, Modifier, Style, Styled},
+  style::{Color, Modifier, Style},
   text::{Line, Span, Text},
-  widgets::{block::{Position, Title}, Block, BorderType, Borders, Padding, Paragraph},
-  Frame
+  widgets::{
+    block::{Position, Title},
+    Block,
+    BorderType,
+    Borders,
+    Padding,
+    Paragraph,
+    Wrap
+  }
 };
 
 use crate::{
-  configs::typing_window_config::TypingWindowConfig, constants::colors, helper::get_color_rgb, tools::generator::Generator, traits::Window
+  configs::typing_window_config::TypingWindowConfig,
+  constants::{self, colors},
+  helper::get_color_rgb,
+  tools::generator::Generator,
+  traits::Window
 };
 
 
@@ -70,11 +82,19 @@ impl Window for TypingWindow {
     }
   }
 
+  fn toggle_active(&mut self) {
+    self.is_active = !self.is_active;
+  }
+
   fn is_active(&self) -> bool {
     self.is_active
   }
 
-  fn handle_events(&mut self, key: KeyEvent) {
+  fn handle_events(&mut self, key: KeyEvent) -> bool {
+    if self.cursor_index > 0 && !self.is_running() {
+      return false;
+    }
+
     match key.code {
       KeyCode::Char(c) => {
         if self.cursor_index == 0 {
@@ -82,9 +102,13 @@ impl Window for TypingWindow {
         }
 
         self.move_cursor_forward_with(c);
+        true
       },
-      KeyCode::Backspace => self.move_cursor_backward(),
-      _ => ()
+      KeyCode::Backspace => {
+        self.move_cursor_backward();
+        true
+      },
+      _ => false
     }
   }
 
@@ -99,6 +123,7 @@ impl Window for TypingWindow {
 
     let block = Block::new()
       .title(title)
+      .style(Style::default().bg(get_color_rgb(colors::BACKGROUND)))
       .borders(Borders::ALL)
       .border_type(BorderType::Rounded)
       .border_style(Style::default().fg(self.get_border_color()))
@@ -119,9 +144,14 @@ impl Window for TypingWindow {
 
 impl TypingWindow {
 
-  /// Starts the running proccess
+  /// Starts the running typing process
   fn run(&mut self) {
     self.is_running = true;
+  }
+
+  /// Stops the running typing process
+  pub fn stop(&mut self) {
+    self.is_running = false;
   }
 
   /// Moves the cursor position forward
@@ -142,7 +172,7 @@ impl TypingWindow {
     self
   }
 
-  /// Calculate remaining time
+  /// Calculate the remaining time
   pub fn get_remaining_time(&self) -> u32 {
     self.config.time_limit.checked_sub(self.time_secs).unwrap_or(0)
   }
@@ -211,6 +241,6 @@ impl TypingWindow {
 
     let text = Text::from(lines);
 
-    Paragraph::new(text)
+    Paragraph::new(text).wrap(Wrap { trim: true } )
   }
 }
