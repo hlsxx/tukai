@@ -1,11 +1,7 @@
 use crossterm::event::{KeyCode, KeyEvent};
 
 use ratatui::{
-  Frame,
-  layout::{Alignment, Rect},
-  style::{Color, Modifier, Style},
-  text::{Line, Span, Text},
-  widgets::{
+  layout::{Alignment, Rect}, style::{Color, Modifier, Style, Stylize}, text::{Line, Span, Text}, widgets::{
     block::{Position, Title},
     Block,
     BorderType,
@@ -13,7 +9,7 @@ use ratatui::{
     Padding,
     Paragraph,
     Wrap
-  }
+  }, Frame
 };
 
 use crate::{
@@ -203,11 +199,9 @@ impl TypingWindow {
     let mut lines = Vec::new();
 
     let remaining_time_line = Line::from(vec![
-      // Span::from(self.config.time_limit.to_string())
       Span::from(self.get_remaining_time().to_string())
+        .style(Style::default().fg(get_color_rgb(colors::PRIMARY)).bold())
     ]);
-
-    // let current_time_lock = self.current_time.lock().await;
 
     let info_line = Line::from(vec![
       Span::from("125".to_string()).style(Style::default()),

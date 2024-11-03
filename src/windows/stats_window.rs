@@ -5,7 +5,7 @@ use std::env;
 
 use ratatui::{
   layout::{Alignment, Rect},
-  style::{Color, Modifier, Style},
+  style::Style,
   text::{Span, Text},
   widgets::{block::Title, Block, Borders, Padding, Paragraph},
   Frame

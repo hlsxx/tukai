@@ -1,6 +1,5 @@
 use crossterm::event::KeyModifiers;
 use ratatui::widgets::BorderType;
-use tokio::time;
 use crate::constants::colors;
 use crate::event_handler::{EventHandler, TukajEvent};
 use crate::helper::get_color_rgb;
@@ -13,15 +12,13 @@ use crate::windows::{
 use crate::traits::Window;
 
 use std::error;
-use std::sync::Arc;
-use tokio::sync::Mutex;
-use std::{collections::HashMap, io::{self, Write}, time::Duration};
+use std::collections::HashMap;
 use ratatui::{
-  crossterm::event::{self, KeyCode, KeyEventKind, Event, KeyEvent},
-  layout::{Alignment, Constraint, Direction, Flex, Layout, Rect},
-  style::{Color, Style, Styled, Stylize},
+  crossterm::event::{KeyCode, KeyEvent},
+  layout::{Alignment, Constraint, Flex, Layout, Rect},
+  style::{Color, Style, Stylize},
   text::{Line, Span, Text},
-  widgets::{block::{Position, Title}, Block, Borders, Clear, Paragraph},
+  widgets::{Block, Clear, Paragraph},
   DefaultTerminal,
   Frame
 };
@@ -207,9 +204,12 @@ impl<'a> App<'a> {
 
     let text = Text::from(vec![
       Line::from("Nice you make it:)"),
-      Line::from("Reset [CTRL + R]"),
       Line::from(format!("Error makes {}", stats.errors_count)),
-      //Line::from(self.loader.get_slash()),
+      Line::from(vec![
+        Span::from("Reset"),
+        Span::from("<CTRL + R>").style(
+          Style::default().fg(get_color_rgb(colors::PRIMARY)).bold()),
+      ]),
     ]);
 
     let p = Paragraph::new(text)
