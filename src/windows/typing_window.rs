@@ -1,3 +1,5 @@
+use std::collections::{HashMap, HashSet};
+
 use crossterm::event::{KeyCode, KeyEvent};
 
 use ratatui::{
@@ -21,16 +23,31 @@ use crate::{
 };
 
 
-#[derive(Clone, Copy)]
 pub struct Stats {
-  pub errors_count: usize,
+  mistakes_indexes: HashSet<usize>
 }
 
-impl Default for Stats {
+impl Stats {
   fn default() -> Self {
     Self {
-      errors_count: 0
+      mistakes_indexes: HashSet::new()
     }
+  }
+
+  pub fn is_char_mistaken(&self, char_index: usize) -> bool {
+    self.mistakes_indexes.contains(&char_index)
+  }
+
+  pub fn remove_from_mistakes_indexes(&mut self, char_index: usize) -> bool {
+    self.mistakes_indexes.remove(&char_index)
+  }
+
+  pub fn add_to_mistakes_indexes(&mut self, char_index: usize) -> bool {
+    self.mistakes_indexes.insert(char_index)
+  }
+
+  pub fn get_mistakes_counter(&self) -> usize {
+    self.mistakes_indexes.len()
   }
 }
 
@@ -124,9 +141,9 @@ impl Window for TypingWindow {
       .border_type(BorderType::Rounded)
       .border_style(Style::default().fg(self.get_border_color()))
       .padding(Padding::new(
-        30,
-        30,
-        (area.height / 2) - 1,
+        40,
+        40,
+        (area.height / 2) - 5,
         0
       ));
 
@@ -150,8 +167,17 @@ impl TypingWindow {
     self.is_running = false;
   }
 
+  fn validate_input_char(&mut self, c: char) {
+    if let Some(generated_char) = self.generated_text.chars().nth(self.cursor_index) {
+      if generated_char != c {
+        self.stats.add_to_mistakes_indexes(self.cursor_index);
+      }
+    }
+  }
+
   /// Moves the cursor position forward
   fn move_cursor_forward_with(&mut self, c: char) {
+    self.validate_input_char(c);
     self.input.push(c);
     self.cursor_index += 1;
   }
@@ -160,6 +186,15 @@ impl TypingWindow {
   fn move_cursor_backward(&mut self) {
     let _ = self.input.pop();
     self.cursor_index -= 1;
+
+    if self.stats.is_char_mistaken(self.cursor_index) {
+      self.stats.remove_from_mistakes_indexes(self.cursor_index);
+    }
+  }
+
+  /// Calculates WPM
+  pub fn get_calculated_wpm(&self) -> usize {
+    (self.input.len().saturating_sub(self.stats.get_mistakes_counter()) / 5) * 60 / self.config.time_limit as usize
   }
 
   #[allow(unused)]
@@ -180,18 +215,12 @@ impl TypingWindow {
 
   /// Reset typing window
   pub fn reset(&mut self) {
-    self.generated_text = Generator::generate_random_string(50);
+    self.generated_text = Generator::generate_random_string(
+      self.config.time_limit as usize
+    );
+
     self.cursor_index = 0;
     self.input = String::new();
-  }
-
-  /// Replace space with a dot char
-  fn get_formatted_char(&self, c: char) -> String {
-    if c == ' ' {
-      '•'.to_string()
-    } else {
-      c.to_string()
-    }
   }
 
   /// Prepare and get a paragraph
@@ -200,27 +229,27 @@ impl TypingWindow {
 
     let remaining_time_line = Line::from(vec![
       Span::from(self.get_remaining_time().to_string())
-        .style(Style::default().fg(get_color_rgb(colors::PRIMARY)).bold())
-    ]);
-
-    let info_line = Line::from(vec![
-      Span::from("125".to_string()).style(Style::default()),
-      Span::from(" WPM").style(Style::default())
+        .style(
+          Style::default()
+            .fg(get_color_rgb(colors::PRIMARY))
+            .bold()),
     ]);
 
     let text_line = self.generated_text.chars()
       .enumerate()
       .map(|(i, c)| {
         if i == self.cursor_index {
-          Span::from(self.get_formatted_char(c))
+          Span::from(c.to_string())
             .style(Style::default().fg(Color::Black).bg(Color::White))
         } else if i < self.cursor_index {
           if self.input.chars().nth(i) == Some(c) {
-            Span::from(self.get_formatted_char(c))
+            Span::from(c.to_string())
               .style(Style::default().fg(get_color_rgb(colors::PRIMARY)))
           } else {
-            Span::from(self.get_formatted_char(c))
-              .style(Style::default().fg(get_color_rgb(colors::ERROR)).add_modifier(Modifier::UNDERLINED))
+            Span::from(c.to_string())
+              .style(Style::default()
+                .fg(get_color_rgb(colors::ERROR))
+                .add_modifier(Modifier::CROSSED_OUT))
           }
         } else {
           Span::from(c.to_string())
@@ -230,7 +259,7 @@ impl TypingWindow {
       .collect::<Line>();
 
     lines.push(remaining_time_line);
-    // lines.push(info_line);
+    lines.push(Line::from(Vec::new()));
     lines.push(text_line);
 
     let text = Text::from(lines);

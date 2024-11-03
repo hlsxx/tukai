@@ -6,7 +6,7 @@ pub struct Generator {
 }
 
 impl Generator {
-  pub fn generate_random_string(size: usize) -> String {
+  pub fn generate_random_string(amount: usize) -> String {
     let mut words = Vec::new();
 
     if let Ok(file) = File::open("words/en.txt") {
@@ -19,7 +19,7 @@ impl Generator {
 
     let mut rng = rand::thread_rng();
 
-    let text = words.choose_multiple(&mut rng, size)
+    let text = words.choose_multiple(&mut rng, amount * 3)
       .fold(String::new(), |mut acc, c| {
         acc.push_str(format!("{} ", c).as_str());
         acc
