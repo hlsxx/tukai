@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use crossterm::event::{KeyCode, KeyEvent};
 
 use ratatui::{
@@ -9,7 +7,6 @@ use ratatui::{
   widgets::{block::{Position, Title}, Block, BorderType, Borders, Padding, Paragraph},
   Frame
 };
-use tokio::sync::Mutex;
 
 use crate::{
   configs::typing_window_config::TypingWindowConfig, constants::colors, helper::get_color_rgb, tools::generator::Generator, traits::Window
@@ -30,18 +27,27 @@ impl Default for Stats {
 }
 
 pub struct TypingWindow {
+  /// Random generated text
   pub generated_text: String,
+
+  /// User typed input
   pub input: String,
 
+  /// User statistics after the run is completed
   pub stats: Stats,
 
-  pub is_active: bool,
-  pub is_running: bool,
+  /// The TypingWindow is currently active window
+  is_active: bool,
+
+  /// Typing running
+  is_running: bool,
 
   pub time_secs: u32,
 
+  /// The current cursor index withing generated_text
   cursor_index: usize,
 
+  /// The TypingWindow custom config
   config: TypingWindowConfig
 }
 
@@ -71,14 +77,13 @@ impl Window for TypingWindow {
   fn handle_events(&mut self, key: KeyEvent) {
     match key.code {
       KeyCode::Char(c) => {
-        self.input.push(c);
-        self.cursor_index += 1;
+        if self.cursor_index == 0 {
+          self.run();
+        }
+
+        self.move_cursor_forward_with(c);
       },
-      KeyCode::Backspace => {
-        let _ = self.input.pop();
-        self.cursor_index -= 1;
-      },
-      // KeyCode::Enter => is_loading = !is_loading,
+      KeyCode::Backspace => self.move_cursor_backward(),
       _ => ()
     }
   }
@@ -113,22 +118,48 @@ impl Window for TypingWindow {
 }
 
 impl TypingWindow {
+
+  /// Starts the running proccess
+  fn run(&mut self) {
+    self.is_running = true;
+  }
+
+  /// Moves the cursor position forward
+  fn move_cursor_forward_with(&mut self, c: char) {
+    self.input.push(c);
+    self.cursor_index += 1;
+  }
+
+  /// Moves the cursor position backward
+  fn move_cursor_backward(&mut self) {
+    let _ = self.input.pop();
+    self.cursor_index -= 1;
+  }
+
   #[allow(unused)]
   pub fn config(mut self, config: TypingWindowConfig) -> Self {
     self.config = config;
     self
   }
 
+  /// Calculate remaining time
   pub fn get_remaining_time(&self) -> u32 {
     self.config.time_limit.checked_sub(self.time_secs).unwrap_or(0)
   }
 
+  /// Returns if typing already began
+  pub fn is_running(&self) -> bool {
+     self.is_running
+  }
+
+  /// Reset typing window
   pub fn reset(&mut self) {
     self.generated_text = Generator::generate_random_string(50);
     self.cursor_index = 0;
     self.input = String::new();
   }
 
+  /// Replace space with a dot char
   fn get_formatted_char(&self, c: char) -> String {
     if c == ' ' {
       '•'.to_string()
@@ -137,6 +168,7 @@ impl TypingWindow {
     }
   }
 
+  /// Prepare and get a paragraph
   pub fn get_paragraph(&self) -> Paragraph {
     let mut lines = Vec::new();
 

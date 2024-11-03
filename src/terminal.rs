@@ -99,7 +99,11 @@ impl<'a> App<'a> {
             self.handle_events(key_event)
           }
         },
-        TukajEvent::Tick => self.time_secs += 1
+        TukajEvent::Tick => {
+          if self.typing_window.is_running() {
+            self.time_secs += 1;
+          }
+        }
       };
 
       terminal.draw(|frame| self.draw(frame))?;
