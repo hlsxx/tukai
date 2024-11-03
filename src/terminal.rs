@@ -143,7 +143,7 @@ impl<'a> App<'a> {
     self.render_instructions(frame, main_layout[1]);
 
     if self.is_popup_visible {
-      self.render_popup(frame, self.typing_window.stats.clone());
+      self.render_popup(frame);
     }
   }
 
@@ -194,7 +194,7 @@ impl<'a> App<'a> {
     frame.render_widget(instructions, area);
   }
 
-  fn render_popup(&mut self, frame: &mut Frame, stats: Stats) {
+  fn render_popup(&mut self, frame: &mut Frame) {
     let area = frame.area();
 
     let block = Block::bordered()
@@ -203,8 +203,8 @@ impl<'a> App<'a> {
       .border_style(Style::new().fg(get_color_rgb(colors::PRIMARY)));
 
     let text = Text::from(vec![
-      Line::from("Nice you make it:)"),
-      Line::from(format!("Error makes {}", stats.errors_count)),
+      Line::from(format!("Mistakes maked {}", self.typing_window.stats.get_mistakes_counter())),
+      Line::from(format!("WPM: {}", self.typing_window.get_calculated_wpm())),
       Line::from(vec![
         Span::from("Reset"),
         Span::from("<CTRL + R>").style(
