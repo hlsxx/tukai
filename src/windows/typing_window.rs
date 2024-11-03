@@ -242,18 +242,24 @@ impl TypingWindow {
           Span::from(c.to_string())
             .style(Style::default().fg(Color::Black).bg(Color::White))
         } else if i < self.cursor_index {
+          let color = if self.is_active() { colors::PRIMARY } else { colors::SECONDARY };
+
           if self.input.chars().nth(i) == Some(c) {
             Span::from(c.to_string())
-              .style(Style::default().fg(get_color_rgb(colors::PRIMARY)))
+              .style(Style::default().fg(get_color_rgb(color)))
           } else {
+            let color = if self.is_active() { colors::ERROR } else { colors::ERROR_SECONDARY };
+
             Span::from(c.to_string())
               .style(Style::default()
-                .fg(get_color_rgb(colors::ERROR))
+                .fg(get_color_rgb(color))
                 .add_modifier(Modifier::CROSSED_OUT))
           }
         } else {
+          let color = if self.is_active() { Color::Gray } else { Color::DarkGray };
+
           Span::from(c.to_string())
-            .style(Style::default().fg(Color::Gray))
+            .style(Style::default().fg(color))
         }
       })
       .collect::<Line>();
