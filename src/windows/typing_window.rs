@@ -221,6 +221,7 @@ impl TypingWindow {
 
     self.cursor_index = 0;
     self.input = String::new();
+    self.stop();
   }
 
   /// Prepare and get a paragraph

@@ -161,6 +161,7 @@ impl<'a> App<'a> {
   fn reset(&mut self) {
     self.time_secs = 0;
     self.is_popup_visible = false;
+    self.typing_window.stop();
     self.typing_window.reset();
   }
 
@@ -170,16 +171,25 @@ impl<'a> App<'a> {
 
   /// If the child window does not consume the event, check the keycodes.
   fn handle_events(&mut self, key_event: KeyEvent) {
-    if !self.handle_window_events(key_event) {
-      if key_event.code == KeyCode::Esc {
-        self.exit();
-      } else if key_event.code == KeyCode::Left {
-        self.active_window = ActiveWindowEnum::Typing;
-      } else if key_event.code == KeyCode::Right {
-        self.active_window = ActiveWindowEnum::Stats;
-      } else if key_event.code == KeyCode::Char('r') && key_event.modifiers.contains(KeyModifiers::CONTROL) {
-        return self.reset();
+    if key_event.modifiers.contains(KeyModifiers::CONTROL) {
+      if key_event.code == KeyCode::Char('r') {
+
       }
+
+      self.reset();
+      return;
+    }
+
+    if self.handle_window_events(key_event) {
+      return;
+    }
+
+    if key_event.code == KeyCode::Esc {
+      self.exit();
+    } else if key_event.code == KeyCode::Left {
+      self.active_window = ActiveWindowEnum::Typing;
+    } else if key_event.code == KeyCode::Right {
+      self.active_window = ActiveWindowEnum::Stats;
     }
   }
 
