@@ -9,4 +9,6 @@ crossterm = { version = "0.28.1", features = ["event-stream"] }
 futures = "0.3.31"
 rand = "0.8.5"
 ratatui = "0.28.1"
+serde = { version = "1.0.214", features = ["derive"] }
 tokio = { version = "1.41.0", features = ["full"] }
+toml = "0.8.19"

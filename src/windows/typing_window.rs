@@ -259,7 +259,7 @@ impl TypingWindow {
       .map(|(i, c)| {
         if i == self.cursor_index {
           Span::from(c.to_string())
-            .style(Style::default().fg(Color::Black).bg(Color::White))
+            .style(Style::default().fg(get_color_rgb(colors::TEXT_SECONDARY)).bg(get_color_rgb(colors::TEXT)))
         } else if i < self.cursor_index {
           let color = if self.is_active() { colors::PRIMARY } else { colors::SECONDARY };
 
@@ -275,7 +275,7 @@ impl TypingWindow {
                 .add_modifier(Modifier::CROSSED_OUT))
           }
         } else {
-          let color = if self.is_active() { Color::Gray } else { Color::DarkGray };
+          let color = if self.is_active() { get_color_rgb(colors::TEXT) } else { get_color_rgb(colors::TEXT_SECONDARY) };
 
           Span::from(c.to_string())
             .style(Style::default().fg(color))

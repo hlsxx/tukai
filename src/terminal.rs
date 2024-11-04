@@ -1,5 +1,6 @@
 use crossterm::event::KeyModifiers;
 use ratatui::widgets::BorderType;
+use crate::config::Package;
 use crate::constants::colors;
 use crate::event_handler::{EventHandler, TukajEvent};
 use crate::helper::get_color_rgb;
@@ -30,6 +31,8 @@ enum ActiveWindowEnum {
 }
 
 pub struct App<'a> {
+  config_package: Package,
+
   is_exit: bool,
 
   is_popup_visible: bool,
@@ -47,18 +50,18 @@ pub struct App<'a> {
 
 impl<'a> App<'a> {
 
-  pub fn new() -> Self {
+  pub fn new(config_package: Package) -> Self {
     let mut instructions = HashMap::new();
 
     let typing_window_instructions = vec![
       Span::styled("Exit", Style::default().fg(get_color_rgb(colors::SECONDARY))),
       Span::styled("<ESC>", Style::default().fg(get_color_rgb(colors::SECONDARY)).bold()),
 
-      Span::styled(" Typing", Style::default().fg(get_color_rgb(colors::SECONDARY))),
-      Span::styled("<←>", Style::default().fg(get_color_rgb(colors::SECONDARY)).bold()),
+      Span::styled(" Reset", Style::default().fg(get_color_rgb(colors::SECONDARY))),
+      Span::styled("<CTRL+R>", Style::default().fg(get_color_rgb(colors::SECONDARY)).bold()),
 
-      Span::styled(" Stats", Style::default().fg(get_color_rgb(colors::SECONDARY))),
-      Span::styled("<→>", Style::default().fg(get_color_rgb(colors::SECONDARY)).bold()),
+      Span::styled(" Settings", Style::default().fg(get_color_rgb(colors::SECONDARY))),
+      Span::styled(" →", Style::default().fg(get_color_rgb(colors::SECONDARY)).bold()),
     ];
 
     let stats_window_instructions = vec![
@@ -71,6 +74,8 @@ impl<'a> App<'a> {
     instructions.insert(ActiveWindowEnum::Stats, stats_window_instructions);
 
     Self {
+      config_package,
+
       is_exit: false,
       is_popup_visible: false,
 
@@ -114,7 +119,7 @@ impl<'a> App<'a> {
     let main_layout = Layout::default()
       .constraints(vec![
         Constraint::Min(0),
-        Constraint::Length(1)
+        Constraint::Length(3)
       ])
       .split(frame.area());
 
