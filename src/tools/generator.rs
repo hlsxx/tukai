@@ -1,5 +1,5 @@
 use std::fs::File;
-use rand::seq::SliceRandom;
+use rand::{seq::SliceRandom, Rng};
 use std::io::{self, BufRead};
 
 pub struct Generator {
@@ -26,6 +26,22 @@ impl Generator {
       });
 
     text
+  }
+
+  pub fn generate_random_motto() -> String {
+    let mottos = vec![
+      "Practice today, master tomorrow",
+      "Fingers on keys, progress with ease",
+      "Consistency breeds accuracy",
+      "Type smarter, not harder",
+      "Precision today, perfection tomorrow"
+    ];
+
+    let mut rng = rand::thread_rng();
+
+    let random_index = rng.gen_range(0..mottos.len());
+  
+    String::from(mottos[random_index])
   }
 
 }

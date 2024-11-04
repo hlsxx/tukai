@@ -213,13 +213,19 @@ impl<'a> App<'a> {
       .border_style(Style::new().fg(get_color_rgb(colors::PRIMARY)));
 
     let text = Text::from(vec![
-      Line::from(format!("WPM: {}", self.typing_window.get_calculated_wpm()))
+      Line::from(format!("Average WPM: {}", self.typing_window.get_calculated_wpm()))
         .style(Style::default().fg(get_color_rgb(colors::PRIMARY))),
+
+      Line::from(format!("Raw WPM: {}", self.typing_window.get_calculated_raw_wpm()))
+        .style(Style::default().fg(get_color_rgb(colors::SECONDARY))),
+
+      Line::from(format!("Accuracy: {}%", self.typing_window.get_calculated_accuracy()))
+        .style(Style::default().fg(get_color_rgb(colors::PRIMARY))),
+
       Line::from(""),
-      Line::from(format!("Mistakes maked {}", self.typing_window.stats.get_mistakes_counter())),
       Line::from(vec![
-        Span::from("Reset"),
-        Span::from("<CTRL + R>").style(
+        Span::from("↻ Try again"),
+        Span::from(" <CTRL + R>").style(
           Style::default().fg(get_color_rgb(colors::PRIMARY)).bold()),
       ]),
     ]);

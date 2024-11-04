@@ -73,7 +73,9 @@ pub struct TypingWindow {
   cursor_index: usize,
 
   /// The TypingWindow custom config
-  config: TypingWindowConfig
+  config: TypingWindowConfig,
+
+  motto: String
 }
 
 impl Window for TypingWindow {
@@ -91,7 +93,9 @@ impl Window for TypingWindow {
 
       cursor_index: 0,
 
-      config: TypingWindowConfig::default()
+      config: TypingWindowConfig::default(),
+
+      motto: Generator::generate_random_motto()
     }
   }
 
@@ -130,12 +134,15 @@ impl Window for TypingWindow {
     frame: &mut Frame,
     area: Rect
   ) {
-    let title = Title::from("Tukaj v1.0.0")
+    let title = Title::from("💛 tukaj v1.0.0")
       .position(Position::Top)
       .alignment(Alignment::Left);
 
     let block = Block::new()
       .title(title)
+      .title_bottom(self.motto.as_ref())
+      .title_style(Style::default().fg(get_color_rgb(colors::PRIMARY)))
+      .title_alignment(Alignment::Center)
       .style(Style::default().bg(get_color_rgb(colors::BACKGROUND)))
       .borders(Borders::ALL)
       .border_type(BorderType::Rounded)
@@ -192,9 +199,20 @@ impl TypingWindow {
     }
   }
 
+  /// Calculates raw WPM
+  pub fn get_calculated_raw_wpm(&self) -> usize {
+    (self.input.len() / 5) * 60 / self.config.time_limit as usize
+  }
+
   /// Calculates WPM
   pub fn get_calculated_wpm(&self) -> usize {
     (self.input.len().saturating_sub(self.stats.get_mistakes_counter()) / 5) * 60 / self.config.time_limit as usize
+  }
+
+  /// Calculates accuracy
+  pub fn get_calculated_accuracy(&self) -> f32 {
+    let accuracy = (self.input.len().saturating_sub(self.stats.get_mistakes_counter()) * 100) as f32 / self.input.len() as f32;
+    (accuracy * 100.0).round() / 100.0
   }
 
   #[allow(unused)]
