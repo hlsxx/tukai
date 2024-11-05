@@ -1,5 +1,5 @@
 use crossterm::event::KeyModifiers;
-use ratatui::widgets::BorderType;
+use ratatui::widgets::{BorderType, Padding};
 use crate::config::Package;
 use crate::constants::colors;
 use crate::event_handler::{EventHandler, TukajEvent};
@@ -202,7 +202,11 @@ impl<'a> App<'a> {
     let default_vec= Vec::new();
     let instructions_spans = self.get_window_instructions().unwrap_or(&default_vec);
 
+    let block = Block::new()
+      .padding(Padding::new(0, 0, area.height / 2, 0));
+
     let instructions = Paragraph::new(Text::from(Line::from(instructions_spans.clone())))
+      .block(block)
       .alignment(Alignment::Center)
       .bg(get_color_rgb(colors::BACKGROUND));
     
