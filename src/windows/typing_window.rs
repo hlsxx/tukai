@@ -134,7 +134,7 @@ impl Window for TypingWindow {
     frame: &mut Frame,
     area: Rect
   ) {
-    let title = Title::from("💛 tukaj v1.0.0")
+    let title = Title::from("⌨ tukaj v1.0.0 ⌨")
       .position(Position::Top)
       .alignment(Alignment::Left);
 

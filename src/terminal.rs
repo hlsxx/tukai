@@ -60,8 +60,11 @@ impl<'a> App<'a> {
       Span::styled(" Reset", Style::default().fg(get_color_rgb(colors::SECONDARY))),
       Span::styled("<CTRL+R>", Style::default().fg(get_color_rgb(colors::SECONDARY)).bold()),
 
+      Span::styled(" Layout", Style::default().fg(get_color_rgb(colors::SECONDARY))),
+      Span::styled("<CTRL+I>", Style::default().fg(get_color_rgb(colors::SECONDARY)).bold()),
+
       Span::styled(" Settings", Style::default().fg(get_color_rgb(colors::SECONDARY))),
-      Span::styled(" →", Style::default().fg(get_color_rgb(colors::SECONDARY)).bold()),
+      Span::styled(" <CTRL+L>", Style::default().fg(get_color_rgb(colors::SECONDARY)).bold()),
     ];
 
     let stats_window_instructions = vec![
@@ -174,14 +177,19 @@ impl<'a> App<'a> {
     self.is_exit = true;
   }
 
+  fn switch_layout(&mut self) {
+
+  }
+
   /// If the child window does not consume the event, check the keycodes.
   fn handle_events(&mut self, key_event: KeyEvent) {
     if key_event.modifiers.contains(KeyModifiers::CONTROL) {
       if key_event.code == KeyCode::Char('r') {
-
+       self.reset();
+      } else if key_event.code == KeyCode::Char('i') {
+       self.switch_layout();
       }
 
-      self.reset();
       return;
     }
 
