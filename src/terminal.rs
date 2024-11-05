@@ -10,6 +10,8 @@ use crate::windows::{
   stats_window::StatsWindow
 };
 
+use crate::layout::Layout as TukajLayout;
+
 use crate::traits::Window;
 
 use std::error;
@@ -31,6 +33,8 @@ enum ActiveWindowEnum {
 }
 
 pub struct App<'a> {
+  layout: TukajLayout,
+
   config_package: Package,
 
   is_exit: bool,
@@ -77,6 +81,8 @@ impl<'a> App<'a> {
     instructions.insert(ActiveWindowEnum::Stats, stats_window_instructions);
 
     Self {
+      layout: TukajLayout::default(),
+
       config_package,
 
       is_exit: false,
@@ -143,9 +149,9 @@ impl<'a> App<'a> {
           self.is_popup_visible = true;
         }
 
-        self.typing_window.render(frame, main_layout[0])
+        self.typing_window.render(frame, &self.layout, main_layout[0])
       },
-      ActiveWindowEnum::Stats => self.stats_window.render(frame, main_layout[0])
+      ActiveWindowEnum::Stats => self.stats_window.render(frame, &self.layout, main_layout[0])
     }
 
     self.render_instructions(frame, main_layout[1]);
@@ -216,7 +222,7 @@ impl<'a> App<'a> {
     let instructions = Paragraph::new(Text::from(Line::from(instructions_spans.clone())))
       .block(block)
       .alignment(Alignment::Center)
-      .bg(get_color_rgb(colors::BACKGROUND));
+      .bg(self.layout.get_background_color());
     
     frame.render_widget(instructions, area);
   }
@@ -225,25 +231,25 @@ impl<'a> App<'a> {
     let area = frame.area();
 
     let block = Block::bordered()
-      .style(Style::default().bg(get_color_rgb(colors::BACKGROUND)))
+      .style(Style::default().bg(self.layout.get_background_color()))
       .border_type(BorderType::Rounded)
-      .border_style(Style::new().fg(get_color_rgb(colors::PRIMARY)));
+      .border_style(Style::new().fg(self.layout.get_primary_color()));
 
     let text = Text::from(vec![
       Line::from(format!("Average WPM: {}", self.typing_window.get_calculated_wpm()))
-        .style(Style::default().fg(get_color_rgb(colors::PRIMARY))),
+        .style(Style::default().fg(self.layout.get_primary_color())),
 
       Line::from(format!("Raw WPM: {}", self.typing_window.get_calculated_raw_wpm()))
-        .style(Style::default().fg(get_color_rgb(colors::SECONDARY))),
+        .style(Style::default().fg(self.layout.get_secondary_color())),
 
       Line::from(format!("Accuracy: {}%", self.typing_window.get_calculated_accuracy()))
-        .style(Style::default().fg(get_color_rgb(colors::PRIMARY))),
+        .style(Style::default().fg(self.layout.get_primary_color())),
 
       Line::from(""),
       Line::from(vec![
         Span::from("↻ Try again"),
         Span::from(" <CTRL + R>").style(
-          Style::default().fg(get_color_rgb(colors::PRIMARY)).bold()),
+          Style::default().fg(self.layout.get_primary_color()).bold()),
       ]),
     ]);
 

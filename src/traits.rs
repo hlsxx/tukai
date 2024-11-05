@@ -3,7 +3,7 @@ use ratatui::{
   layout::Rect, style::Color, Frame
 };
 
-use crate::{constants::colors, helper::get_color_rgb};
+use crate::{constants::colors, helper::get_color_rgb, layout::Layout as TukajLayout};
 
 pub trait Window {
   fn default() -> Self;
@@ -23,10 +23,29 @@ pub trait Window {
   }
 
   /// Render window
-  fn render(&self, frame: &mut Frame, area: Rect);
+  fn render(&self, frame: &mut Frame, layout: &TukajLayout, area: Rect);
 }
 
+#[allow(unused)]
 pub trait ConfigBuilder<T> {
   fn new() -> Self;
   fn build(self) -> T;
 }
+
+#[allow(unused)]
+pub trait ToColor {
+  /// Converts the `(u8, u8, u8)` tuple to a `Color::Rgb`
+  ///
+  /// # Example
+  ///
+  /// ```
+  /// use ratatui::style::Color
+  ///
+  /// let rgb: (u8, u8, u8) = (128, 64, 255);
+  /// let color = rgb.to_color();
+  ///
+  /// assert_eq!(color, Color::Rgb(128, 64, 255));
+  /// ```
+  fn to_color(self) -> Color;
+}
+

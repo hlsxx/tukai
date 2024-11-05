@@ -19,7 +19,8 @@ use crate::{
   constants::{self, colors},
   helper::get_color_rgb,
   tools::generator::Generator,
-  traits::Window
+  traits::Window,
+  layout::Layout as TukajLayout
 };
 
 
@@ -132,6 +133,7 @@ impl Window for TypingWindow {
   fn render(
     &self,
     frame: &mut Frame,
+    layout: &TukajLayout,
     area: Rect
   ) {
     let title = Title::from("⌨ tukaj v1.0.0 ⌨")
@@ -141,9 +143,9 @@ impl Window for TypingWindow {
     let block = Block::new()
       .title(title)
       .title_bottom(self.motto.as_ref())
-      .title_style(Style::default().fg(get_color_rgb(colors::PRIMARY)))
+      .title_style(Style::default().fg(layout.get_primary_color()))
       .title_alignment(Alignment::Center)
-      .style(Style::default().bg(get_color_rgb(colors::BACKGROUND)))
+      .style(Style::default().bg(layout.get_background_color()))
       .borders(Borders::ALL)
       .border_type(BorderType::Rounded)
       .border_style(Style::default().fg(self.get_border_color()))
@@ -154,7 +156,7 @@ impl Window for TypingWindow {
         0
       ));
 
-    let p = self.get_paragraph()
+    let p = self.get_paragraph(layout)
       .block(block)
       .alignment(Alignment::Center);
 
@@ -243,14 +245,14 @@ impl TypingWindow {
   }
 
   /// Prepare and get a paragraph
-  pub fn get_paragraph(&self) -> Paragraph {
+  pub fn get_paragraph(&self, layout: &TukajLayout) -> Paragraph {
     let mut lines = Vec::new();
 
     let remaining_time_line = Line::from(vec![
       Span::from(self.get_remaining_time().to_string())
         .style(
           Style::default()
-            .fg(get_color_rgb(colors::PRIMARY))
+            .fg(layout.get_primary_color())
             .bold()),
     ]);
 
@@ -259,23 +261,23 @@ impl TypingWindow {
       .map(|(i, c)| {
         if i == self.cursor_index {
           Span::from(c.to_string())
-            .style(Style::default().fg(get_color_rgb(colors::TEXT_SECONDARY)).bg(get_color_rgb(colors::TEXT)))
+            .style(Style::default().fg(layout.get_text_color()).bg(layout.get_text_secondary_color()))
         } else if i < self.cursor_index {
-          let color = if self.is_active() { colors::PRIMARY } else { colors::SECONDARY };
+          let color = if self.is_active() { layout.get_primary_color() } else { layout.get_secondary_color() };
 
           if self.input.chars().nth(i) == Some(c) {
             Span::from(c.to_string())
-              .style(Style::default().fg(get_color_rgb(color)))
+              .style(Style::default().fg(color))
           } else {
-            let color = if self.is_active() { colors::ERROR } else { colors::ERROR_SECONDARY };
+            let color = if self.is_active() { layout.get_error_color() } else { layout.get_error_color() };
 
             Span::from(c.to_string())
               .style(Style::default()
-                .fg(get_color_rgb(color))
+                .fg(color)
                 .add_modifier(Modifier::CROSSED_OUT))
           }
         } else {
-          let color = if self.is_active() { get_color_rgb(colors::TEXT) } else { get_color_rgb(colors::TEXT_SECONDARY) };
+          let color = if self.is_active() { layout.get_text_color() } else { layout.get_text_secondary_color() };
 
           Span::from(c.to_string())
             .style(Style::default().fg(color))

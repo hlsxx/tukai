@@ -11,6 +11,8 @@ use ratatui::{
   Frame
 };
 
+use crate::layout::Layout as TukajLayout;
+
 pub struct StatsWindow {
   pub input: String,
 
@@ -45,7 +47,12 @@ impl Window for StatsWindow {
     // }
   }
 
-  fn render(&self, frame: &mut Frame, area: Rect) {
+  fn render(
+    &self,
+    frame: &mut Frame,
+    layout: &TukajLayout,
+    area: Rect
+  ) {
     let block = Block::new()
       .borders(Borders::ALL)
       .border_style(Style::default().fg(self.get_border_color()))
