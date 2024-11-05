@@ -3,7 +3,6 @@ mod traits;
 mod tools;
 mod windows;
 mod configs;
-mod constants;
 mod helper;
 mod event_handler;
 mod config;

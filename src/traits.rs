@@ -1,9 +1,10 @@
+use color_eyre::config::Theme;
 use crossterm::event::KeyEvent;
 use ratatui::{
   layout::Rect, style::Color, Frame
 };
 
-use crate::{constants::colors, helper::get_color_rgb, layout::Layout as TukajLayout};
+use crate::layout::Layout as TukajLayout;
 
 pub trait Window {
   fn default() -> Self;
@@ -15,12 +16,6 @@ pub trait Window {
   /// Window is currently active
   fn is_active(&self) -> bool;
   fn toggle_active(&mut self);
-
-  /// Get border color (active/nonactive)
-  fn get_border_color(&self) -> Color {
-    let color_rgb = if self.is_active() { colors::PRIMARY } else { colors::SECONDARY };
-    get_color_rgb(color_rgb)
-  }
 
   /// Render window
   fn render(&self, frame: &mut Frame, layout: &TukajLayout, area: Rect);
@@ -48,4 +43,37 @@ pub trait ToColor {
   /// ```
   fn to_color(self) -> Color;
 }
+
+#[allow(unused)]
+pub trait ToDark {
+  /// Converts the `(u8, u8, u8)` tuple to a `Color::Rgb`
+  ///
+  /// # Example
+  ///
+  /// ```
+  /// use ratatui::style::Color
+  ///
+  /// let rgb: (u8, u8, u8) = (128, 64, 255);
+  /// let color = rgb.to_color();
+  ///
+  /// assert_eq!(color, Color::Rgb(128, 64, 255));
+  /// ```
+  fn to_dark(self) -> Color;
+}
+
+impl ToDark for Color {
+  fn to_dark(self) -> Color {
+    match self {
+      Color::Rgb(r, g, b) => {
+        let darkened_r = (r as f32 * (1.0 - 0.5)) as u8;
+        let darkened_g = (g as f32 * (1.0 - 0.5)) as u8;
+        let darkened_b = (b as f32 * (1.0 - 0.5)) as u8;
+
+        Color::Rgb(darkened_r, darkened_g, darkened_b)
+      },
+      _ => self
+    }
+  }
+}
+
 

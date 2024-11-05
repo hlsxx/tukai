@@ -15,12 +15,7 @@ use ratatui::{
 };
 
 use crate::{
-  configs::typing_window_config::TypingWindowConfig,
-  constants::{self, colors},
-  helper::get_color_rgb,
-  tools::generator::Generator,
-  traits::Window,
-  layout::Layout as TukajLayout
+  configs::typing_window_config::TypingWindowConfig, layout::Layout as TukajLayout, tools::generator::Generator, traits::{ToDark, Window}
 };
 
 
@@ -148,7 +143,7 @@ impl Window for TypingWindow {
       .style(Style::default().bg(layout.get_background_color()))
       .borders(Borders::ALL)
       .border_type(BorderType::Rounded)
-      .border_style(Style::default().fg(self.get_border_color()))
+      .border_style(Style::default().fg(layout.get_secondary_color()))
       .padding(Padding::new(
         40,
         40,
@@ -261,15 +256,15 @@ impl TypingWindow {
       .map(|(i, c)| {
         if i == self.cursor_index {
           Span::from(c.to_string())
-            .style(Style::default().fg(layout.get_text_color()).bg(layout.get_text_secondary_color()))
+            .style(Style::default().fg(layout.get_text_color()).bg(layout.get_text_reverse_color()))
         } else if i < self.cursor_index {
-          let color = if self.is_active() { layout.get_primary_color() } else { layout.get_secondary_color() };
+          let color = if self.is_active() { layout.get_primary_color() } else { layout.get_primary_color().to_dark() };
 
           if self.input.chars().nth(i) == Some(c) {
             Span::from(c.to_string())
               .style(Style::default().fg(color))
           } else {
-            let color = if self.is_active() { layout.get_error_color() } else { layout.get_error_color() };
+            let color = if self.is_active() { layout.get_error_color().to_dark() } else { layout.get_error_color().to_dark() };
 
             Span::from(c.to_string())
               .style(Style::default()
@@ -277,7 +272,7 @@ impl TypingWindow {
                 .add_modifier(Modifier::CROSSED_OUT))
           }
         } else {
-          let color = if self.is_active() { layout.get_text_color() } else { layout.get_text_secondary_color() };
+          let color = if self.is_active() { layout.get_text_color() } else { layout.get_text_color().to_dark() };
 
           Span::from(c.to_string())
             .style(Style::default().fg(color))

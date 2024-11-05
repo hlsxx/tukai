@@ -55,7 +55,7 @@ impl Window for StatsWindow {
   ) {
     let block = Block::new()
       .borders(Borders::ALL)
-      .border_style(Style::default().fg(self.get_border_color()))
+      .border_style(Style::default().fg(layout.get_secondary_color()))
       .title(Title::from("Results").alignment(Alignment::Center));
 
     let p = Paragraph::new("Stats")

@@ -24,10 +24,9 @@ pub struct LayoutColors {
   primary: RgbColor,
   secondary: RgbColor,
   text: RgbColor,
-  text_secondary: RgbColor,
+  text_reverse: RgbColor,
   background: RgbColor,
-  error: RgbColor,
-  error_secondary: RgbColor,
+  error: RgbColor
 }
 
 pub struct Layout {
@@ -41,30 +40,27 @@ impl Layout {
       primary: (224, 174, 9),
       secondary: (117, 91, 5),
       text: (237, 237, 237),
-      text_secondary: (37, 41, 47),
+      text_reverse: (37, 41, 47),
       background: (41, 41, 36),
       error: (224, 9, 9),
-      error_secondary: (224, 9, 9)
     };
 
     let anime = LayoutColors {
       primary: (223, 218, 215),
       secondary: (223, 218, 215),
       text: (237, 237, 237),
-      text_secondary: (37, 41, 47),
+      text_reverse: (37, 41, 47),
       background: (81, 104, 125),
       error: (37, 41, 47),
-      error_secondary: (224, 9, 9)
     };
 
     let premium = LayoutColors {
       primary: (223, 218, 215),
       secondary: (223, 218, 215),
       text: (237, 237, 237),
-      text_secondary: (37, 41, 47),
+      text_reverse: (37, 41, 47),
       background:(81, 104, 125),
       error: (37, 41, 47),
-      error_secondary: (224, 9, 9)
     };
 
     let mut layouts = HashMap::new();
@@ -95,8 +91,8 @@ impl Layout {
     self.get_layout_colors().text.to_color()
   }
 
-  pub fn get_text_secondary_color(&self) -> Color {
-    self.get_layout_colors().text_secondary.to_color()
+  pub fn get_text_reverse_color(&self) -> Color {
+    self.get_layout_colors().text_reverse.to_color()
   }
 
   pub fn get_error_color(&self) -> Color {

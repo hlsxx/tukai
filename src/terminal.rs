@@ -1,7 +1,6 @@
 use crossterm::event::KeyModifiers;
 use ratatui::widgets::{BorderType, Padding};
 use crate::config::Package;
-use crate::constants::colors;
 use crate::event_handler::{EventHandler, TukajEvent};
 use crate::helper::get_color_rgb;
 use crate::tools::loader::Loader;
