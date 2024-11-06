@@ -84,6 +84,16 @@ impl Layout {
     }
   }
 
+  pub fn switch_active_layout(&mut self) {
+    if self.active_layout_type == LayoutType::Classic {
+      self.active_layout_type = LayoutType::Anime;
+    } else if self.active_layout_type == LayoutType::Anime {
+      self.active_layout_type = LayoutType::Premium;
+    } else {
+      self.active_layout_type = LayoutType::Classic;
+    }
+  }
+
   fn get_layout_colors(&self) -> &LayoutColors {
     self.layouts.get(&self.active_layout_type).unwrap()
   }

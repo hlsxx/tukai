@@ -1,8 +1,7 @@
 use crossterm::event::KeyModifiers;
-use ratatui::widgets::{BorderType, Padding};
+use ratatui::widgets::BorderType;
 use crate::config::Package;
 use crate::event_handler::{EventHandler, TukajEvent};
-use crate::helper::get_color_rgb;
 use crate::tools::loader::Loader;
 use crate::windows::{
   typing_window::{TypingWindow,Stats},
@@ -14,7 +13,6 @@ use crate::layout::Layout as TukajLayout;
 use crate::traits::Window;
 
 use std::error;
-use std::collections::HashMap;
 use ratatui::{
   crossterm::event::{KeyCode, KeyEvent},
   layout::{Alignment, Constraint, Flex, Layout, Rect},
@@ -157,17 +155,13 @@ impl<'a> App<'a> {
     self.is_exit = true;
   }
 
-  fn switch_layout(&mut self) {
-
-  }
-
   /// If the child window does not consume the event, check the keycodes.
   fn handle_events(&mut self, key_event: KeyEvent) {
     if key_event.modifiers.contains(KeyModifiers::CONTROL) {
       if key_event.code == KeyCode::Char('r') {
-       self.reset();
-      } else if key_event.code == KeyCode::Char('i') {
-       self.switch_layout();
+        self.reset();
+      } else if key_event.code == KeyCode::Char('s') {
+        self.layout.switch_active_layout();
       }
 
       return;
