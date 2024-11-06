@@ -46,30 +46,30 @@ pub struct Layout {
 impl Layout {
   pub fn default() -> Self {
     let classic = LayoutColors {
+      primary: (108, 181, 230),
+      secondary: (232, 232, 232),
+      text: (232, 232, 232),
+      text_reverse: (125, 184, 209),
+      background: (37, 40, 46),
+      error: (255, 38, 38),
+    };
+
+    let anime = LayoutColors {
+      primary: (216, 175, 193),
+      secondary: (207, 147, 150),
+      text: (237, 237, 237),
+      text_reverse: (207, 147, 150),
+      background: (81, 104, 125),
+      error: (44, 56, 65),
+    };
+
+    let premium = LayoutColors {
       primary: (224, 174, 9),
       secondary: (117, 91, 5),
       text: (237, 237, 237),
       text_reverse: (37, 41, 47),
       background: (41, 41, 36),
       error: (224, 9, 9),
-    };
-
-    let anime = LayoutColors {
-      primary: (223, 218, 215),
-      secondary: (223, 218, 215),
-      text: (237, 237, 237),
-      text_reverse: (37, 41, 47),
-      background: (81, 104, 125),
-      error: (37, 41, 47),
-    };
-
-    let premium = LayoutColors {
-      primary: (223, 218, 215),
-      secondary: (223, 218, 215),
-      text: (237, 237, 237),
-      text_reverse: (37, 41, 47),
-      background:(81, 104, 125),
-      error: (37, 41, 47),
     };
 
     let mut layouts = HashMap::new();
