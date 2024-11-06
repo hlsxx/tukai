@@ -15,7 +15,7 @@ use ratatui::{
 };
 
 use crate::{
-  configs::typing_window_config::TypingWindowConfig, layout::Layout as TukajLayout, tools::generator::Generator, traits::{ToDark, Window}
+  configs::typing_window_config::TypingWindowConfig, layout::{Layout as TukajLayout, LayoutColorTypeEnum}, tools::generator::Generator, traits::{ToDark, Window}, widgets::instructions::{Instruction, InstructionWidget}
 };
 
 
@@ -156,6 +156,30 @@ impl Window for TypingWindow {
       .alignment(Alignment::Center);
 
     frame.render_widget(p, area);
+  }
+
+  fn render_instructions(
+    &self,
+    frame: &mut Frame,
+    layout: &TukajLayout,
+    area: Rect
+  ) {
+    let mut instruction_widget = InstructionWidget::new(layout);
+
+    instruction_widget.add_instruction(Instruction::new("Exit", "ESC", LayoutColorTypeEnum::Secondary));
+    instruction_widget.add_instruction(Instruction::new("Reset", "CTRL + R", LayoutColorTypeEnum::Secondary));
+    instruction_widget.add_instruction(Instruction::new("Layout", "CTRL + I", LayoutColorTypeEnum::Secondary));
+    instruction_widget.add_instruction(Instruction::new("Settings", "CTRL + L", LayoutColorTypeEnum::Secondary));
+
+    let block = Block::new()
+      .padding(Padding::new(0, 0, area.height / 2, 0));
+
+    let instructions = instruction_widget.get_paragraph()
+      .block(block)
+      .alignment(Alignment::Center)
+      .bg(layout.get_background_color());
+    
+    frame.render_widget(instructions, area);
   }
 }
 

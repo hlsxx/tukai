@@ -13,6 +13,15 @@ impl ToColor for RgbColor {
   }
 }
 
+pub enum LayoutColorTypeEnum {
+  Primary,
+  Secondary,
+  Text,
+  TextReverse,
+  Background,
+  Error
+}
+
 #[derive(PartialEq, Eq, Hash)]
 enum LayoutType {
   Classic,

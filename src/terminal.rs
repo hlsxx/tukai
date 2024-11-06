@@ -44,7 +44,6 @@ pub struct App<'a> {
 
   loader: Loader<'a>,
   active_window: ActiveWindowEnum,
-  instructions: HashMap<ActiveWindowEnum, Vec<Span<'a>>>,
 
   // Windows
   typing_window: TypingWindow,
@@ -54,31 +53,6 @@ pub struct App<'a> {
 impl<'a> App<'a> {
 
   pub fn new(config_package: Package) -> Self {
-    let mut instructions = HashMap::new();
-
-    let typing_window_instructions = vec![
-      Span::styled("Exit", Style::default().fg(get_color_rgb(colors::SECONDARY))),
-      Span::styled("<ESC>", Style::default().fg(get_color_rgb(colors::SECONDARY)).bold()),
-
-      Span::styled(" Reset", Style::default().fg(get_color_rgb(colors::SECONDARY))),
-      Span::styled("<CTRL+R>", Style::default().fg(get_color_rgb(colors::SECONDARY)).bold()),
-
-      Span::styled(" Layout", Style::default().fg(get_color_rgb(colors::SECONDARY))),
-      Span::styled("<CTRL+I>", Style::default().fg(get_color_rgb(colors::SECONDARY)).bold()),
-
-      Span::styled(" Settings", Style::default().fg(get_color_rgb(colors::SECONDARY))),
-      Span::styled(" <CTRL+L>", Style::default().fg(get_color_rgb(colors::SECONDARY)).bold()),
-    ];
-
-    let stats_window_instructions = vec![
-      Span::styled("<ESC>Exit", Style::default().fg(Color::Yellow)),
-      Span::styled(" <Left>Typing", Style::default().fg(Color::Green)),
-      Span::styled(" <Right>Stats", Style::default().fg(Color::Red)),
-    ];
-
-    instructions.insert(ActiveWindowEnum::Typing, typing_window_instructions);
-    instructions.insert(ActiveWindowEnum::Stats, stats_window_instructions);
-
     Self {
       layout: TukajLayout::default(),
 
@@ -92,7 +66,6 @@ impl<'a> App<'a> {
       loader: Loader::new(),
 
       active_window: ActiveWindowEnum::Typing,
-      instructions,
 
       typing_window: TypingWindow::default(),
       stats_window: StatsWindow::default()
@@ -148,12 +121,14 @@ impl<'a> App<'a> {
           self.is_popup_visible = true;
         }
 
-        self.typing_window.render(frame, &self.layout, main_layout[0])
+        self.typing_window.render(frame, &self.layout, main_layout[0]);
+        self.typing_window.render_instructions(frame, &self.layout, main_layout[1]);
       },
-      ActiveWindowEnum::Stats => self.stats_window.render(frame, &self.layout, main_layout[0])
+      ActiveWindowEnum::Stats => {
+        self.stats_window.render(frame, &self.layout, main_layout[0]);
+        self.typing_window.render_instructions(frame, &self.layout, main_layout[1]);
+      }
     }
-
-    self.render_instructions(frame, main_layout[1]);
 
     if self.is_popup_visible {
       self.render_popup(frame);
@@ -211,21 +186,6 @@ impl<'a> App<'a> {
     }
   }
 
-  fn render_instructions(&self, frame: &mut Frame, area: Rect) {
-    let default_vec= Vec::new();
-    let instructions_spans = self.get_window_instructions().unwrap_or(&default_vec);
-
-    let block = Block::new()
-      .padding(Padding::new(0, 0, area.height / 2, 0));
-
-    let instructions = Paragraph::new(Text::from(Line::from(instructions_spans.clone())))
-      .block(block)
-      .alignment(Alignment::Center)
-      .bg(self.layout.get_background_color());
-    
-    frame.render_widget(instructions, area);
-  }
-
   fn render_popup(&mut self, frame: &mut Frame) {
     let area = frame.area();
 
@@ -265,13 +225,6 @@ impl<'a> App<'a> {
 
     frame.render_widget(Clear, area);
     frame.render_widget(p, area);
-  }
-
-  fn get_window_instructions(&self) -> Option<&Vec<Span<'a>>> {
-    match self.active_window {
-      ActiveWindowEnum::Typing => self.instructions.get(&ActiveWindowEnum::Typing),
-      ActiveWindowEnum::Stats => self.instructions.get(&ActiveWindowEnum::Stats),
-    }
   }
 
 }

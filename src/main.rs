@@ -7,6 +7,7 @@ mod helper;
 mod event_handler;
 mod config;
 mod layout;
+mod widgets;
 
 use core::error;
 use config::Config;

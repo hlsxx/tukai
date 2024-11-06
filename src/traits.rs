@@ -17,8 +17,12 @@ pub trait Window {
   fn is_active(&self) -> bool;
   fn toggle_active(&mut self);
 
+  /// Render window instructions
+  fn render_instructions(&self, frame: &mut Frame, layout: &TukajLayout, area: Rect);
+
   /// Render window
   fn render(&self, frame: &mut Frame, layout: &TukajLayout, area: Rect);
+
 }
 
 #[allow(unused)]
