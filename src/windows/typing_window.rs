@@ -212,9 +212,11 @@ impl TypingWindow {
 
   /// Moves the cursor position backward
   fn move_cursor_backward(&mut self) {
-    let _ = self.input.pop();
-    self.cursor_index -= 1;
+    if !self.input.pop().is_some() {
+      return;
+    }
 
+    self.cursor_index -= 1;
     if self.stats.is_char_mistaken(self.cursor_index) {
       self.stats.remove_from_mistakes_indexes(self.cursor_index);
     }
@@ -285,7 +287,7 @@ impl TypingWindow {
             Span::from(c.to_string())
               .style(Style::default().fg(color))
           } else {
-            let color = if self.is_active() { layout.get_error_color().to_dark() } else { layout.get_error_color().to_dark() };
+            let color = if self.is_active() { layout.get_error_color() } else { layout.get_error_color().to_dark() };
 
             Span::from(c.to_string())
               .style(Style::default()
