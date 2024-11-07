@@ -49,9 +49,9 @@ impl Layout {
       primary: (108, 181, 230),
       secondary: (232, 232, 232),
       text: (232, 232, 232),
-      text_reverse: (125, 184, 209),
+      text_reverse: (108, 181, 230),
       background: (37, 40, 46),
-      error: (255, 38, 38),
+      error: (214, 90, 90),
     };
 
     let anime = LayoutColors {

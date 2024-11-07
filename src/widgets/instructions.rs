@@ -57,7 +57,7 @@ impl<'a> InstructionWidget<'a> {
       let color = self.get_instruction_color(&instruction.color_type);
 
       vec![
-        Span::from(instruction.title).style(Style::default().fg(color)),
+        Span::from(format!(" {}", instruction.title)).style(Style::default().fg(color)),
         Span::from(format!("<{}>", instruction.shortcut)).style(Style::default().fg(color).bold()),
       ]
     }).collect::<Vec<Span>>();

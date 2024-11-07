@@ -267,13 +267,10 @@ impl TypingWindow {
   pub fn get_paragraph(&self, layout: &TukajLayout) -> Paragraph {
     let mut lines = Vec::new();
 
-    let remaining_time_line = Line::from(vec![
-      Span::from(self.get_remaining_time().to_string())
-        .style(
-          Style::default()
-            .fg(layout.get_primary_color())
-            .bold()),
-    ]);
+    let color = if self.is_active() { layout.get_primary_color() } else { layout.get_primary_color().to_dark() };
+    let span = Span::from(self.get_remaining_time().to_string()).style(Style::default().fg(color).bold());
+
+    let remaining_time_line = Line::from(vec![span]);
 
     let text_line = self.generated_text.chars()
       .enumerate()
