@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::{collections::{HashMap, HashSet}, path::Path};
 
 use crossterm::event::{KeyCode, KeyEvent};
 
@@ -15,7 +15,7 @@ use ratatui::{
 };
 
 use crate::{
-  configs::typing_window_config::TypingWindowConfig, layout::{Layout as TukaiLayout, LayoutColorTypeEnum}, tools::generator::Generator, traits::{ToDark, Window}, widgets::instructions::{Instruction, InstructionWidget}
+  app_data::{AppData, RunStat}, configs::typing_window_config::TypingWindowConfig, layout::{Layout as TukaiLayout, LayoutColorTypeEnum}, tools::generator::Generator, traits::{ToDark, Window}, widgets::instructions::{Instruction, InstructionWidget}
 };
 
 
@@ -47,15 +47,18 @@ impl Stats {
   }
 }
 
-pub struct TypingWindow {
+pub struct TypingWindow<'a> {
   /// Random generated text
   pub generated_text: String,
 
   /// User typed input
   pub input: String,
 
-  /// User statistics after the run is completed
+  /// TODO: User statistics after the run is completed
   pub stats: Stats,
+
+  /// User statistics after the run is completed
+  pub run_stat: Option<&'a RunStat>,
 
   /// The TypingWindow is currently active window
   is_active: bool,
@@ -74,13 +77,14 @@ pub struct TypingWindow {
   motto: String
 }
 
-impl Window for TypingWindow {
+impl<'a> Window for TypingWindow<'a> {
   fn default() -> Self {
     Self {
       generated_text: Generator::generate_random_string(50),
       input: String::new(),
 
       stats: Stats::default(),
+      run_stat: None,
 
       is_active: false,
       is_running: false,
@@ -183,7 +187,7 @@ impl Window for TypingWindow {
   }
 }
 
-impl TypingWindow {
+impl<'a> TypingWindow<'a> {
 
   /// Starts the running typing process
   fn run(&mut self) {
@@ -193,6 +197,16 @@ impl TypingWindow {
   /// Stops the running typing process
   pub fn stop(&mut self) {
     self.is_running = false;
+
+    let run_stat = RunStat::new(
+      self.input.len(),
+      self.config.time_limit as usize,
+      self.stats.get_mistakes_counter()
+    );
+
+    self.run_stat = Some(run_stat);
+
+    AppData::insert_into_run_stats(Path::new("xxx.tukai"), &run_stat).unwrap()
   }
 
   fn validate_input_char(&mut self, c: char) {
