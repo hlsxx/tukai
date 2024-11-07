@@ -8,7 +8,9 @@
 
 ## About The Tukai
 
-![Tukai](https://github.com/hlsxx/tukai/blob/master/blob/example.gif)
+<div align="center">
+  <img src="https://github.com/hlsxx/tukai/blob/master/blob/example.gif" alt="Tukai" style="width:100%; max-height:400px" />;
+</div>
 
 A terminal-based touch typing application built in Rust using the [Ratatui](https://github.com/crossterm-rs/ratatui) library. The app provides an interactive typing experience with switchable templates, designed to help users improve their typing speed and accuracy.
 
