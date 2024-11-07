@@ -168,8 +168,8 @@ impl Window for TypingWindow {
 
     instruction_widget.add_instruction(Instruction::new("Exit", "ESC", LayoutColorTypeEnum::Secondary));
     instruction_widget.add_instruction(Instruction::new("Reset", "CTRL + R", LayoutColorTypeEnum::Secondary));
-    instruction_widget.add_instruction(Instruction::new("Layout", "CTRL + I", LayoutColorTypeEnum::Secondary));
-    instruction_widget.add_instruction(Instruction::new("Settings", "CTRL + L", LayoutColorTypeEnum::Secondary));
+    instruction_widget.add_instruction(Instruction::new("Layout", "CTRL + S", LayoutColorTypeEnum::Secondary));
+    // instruction_widget.add_instruction(Instruction::new("Settings", "CTRL + L", LayoutColorTypeEnum::Secondary));
 
     let block = Block::new()
       .padding(Padding::new(0, 0, area.height / 2, 0));
