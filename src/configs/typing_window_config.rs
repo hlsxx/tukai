@@ -7,7 +7,7 @@ pub struct TypingWindowConfig {
 impl Default for TypingWindowConfig {
   fn default() -> Self {
     Self {
-      time_limit: 60
+      time_limit: 10
     }
   }
 }

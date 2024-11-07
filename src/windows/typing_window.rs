@@ -131,7 +131,7 @@ impl Window for TypingWindow {
     layout: &TukaiLayout,
     area: Rect
   ) {
-    let title = Title::from("⌨ tukai v1.0.0 ⌨")
+    let title = Title::from("⌨ tukai v0.0.1 ⌨")
       .position(Position::Top)
       .alignment(Alignment::Left);
 
