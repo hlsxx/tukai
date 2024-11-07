@@ -4,7 +4,7 @@ use ratatui::{
   layout::Rect, style::Color, Frame
 };
 
-use crate::layout::Layout as TukajLayout;
+use crate::layout::Layout as TukaiLayout;
 
 pub trait Window {
   fn default() -> Self;
@@ -18,10 +18,10 @@ pub trait Window {
   fn toggle_active(&mut self);
 
   /// Render window instructions
-  fn render_instructions(&self, frame: &mut Frame, layout: &TukajLayout, area: Rect);
+  fn render_instructions(&self, frame: &mut Frame, layout: &TukaiLayout, area: Rect);
 
   /// Render window
-  fn render(&self, frame: &mut Frame, layout: &TukajLayout, area: Rect);
+  fn render(&self, frame: &mut Frame, layout: &TukaiLayout, area: Rect);
 
 }
 

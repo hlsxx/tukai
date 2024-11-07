@@ -1,14 +1,14 @@
 use crossterm::event::KeyModifiers;
 use ratatui::widgets::BorderType;
 use crate::config::Package;
-use crate::event_handler::{EventHandler, TukajEvent};
+use crate::event_handler::{EventHandler, TukaiEvent};
 use crate::tools::loader::Loader;
 use crate::windows::{
   typing_window::{TypingWindow,Stats},
   stats_window::StatsWindow
 };
 
-use crate::layout::Layout as TukajLayout;
+use crate::layout::Layout as TukaiLayout;
 
 use crate::traits::Window;
 
@@ -30,7 +30,7 @@ enum ActiveWindowEnum {
 }
 
 pub struct App<'a> {
-  layout: TukajLayout,
+  layout: TukaiLayout,
 
   config_package: Package,
 
@@ -52,7 +52,7 @@ impl<'a> App<'a> {
 
   pub fn new(config_package: Package) -> Self {
     Self {
-      layout: TukajLayout::default(),
+      layout: TukaiLayout::default(),
 
       config_package,
 
@@ -77,8 +77,8 @@ impl<'a> App<'a> {
   ) -> Result<(), Box<dyn error::Error>> {
     while !self.is_exit {
       match event_handler.next().await? {
-        TukajEvent::Key(key_event) => self.handle_events(key_event),
-        TukajEvent::Tick => {
+        TukaiEvent::Key(key_event) => self.handle_events(key_event),
+        TukaiEvent::Tick => {
           if self.typing_window.is_running() {
             self.time_secs += 1;
           }
@@ -181,9 +181,7 @@ impl<'a> App<'a> {
   }
 
   fn render_popup(&mut self, frame: &mut Frame) {
-    let area = frame.area();
-
-    let block = Block::bordered()
+    let area = frame.area(); let block = Block::bordered()
       .style(Style::default().bg(self.layout.get_background_color()))
       .border_type(BorderType::Rounded)
       .border_style(Style::new().fg(self.layout.get_primary_color()));

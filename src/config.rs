@@ -4,6 +4,7 @@ use serde::Deserialize;
 use toml;
 
 #[derive(Deserialize)]
+#[allow(unused)]
 pub struct Package {
   version: String
 }
@@ -16,9 +17,9 @@ pub struct Config {
 
 impl Config {
   pub fn get_package() -> Result<Package, Box<dyn error::Error>> {
-    let tukaj_toml_string = fs::read_to_string("Cargo.toml")?;
-    let tukaj_config = toml::from_str::<Config>(&tukaj_toml_string)?;
+    let tukai_toml_string = fs::read_to_string("Cargo.toml")?;
+    let tukai_config = toml::from_str::<Config>(&tukai_toml_string)?;
 
-    Ok(tukaj_config.package)
+    Ok(tukai_config.package)
   }
 }

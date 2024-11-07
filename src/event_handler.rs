@@ -5,21 +5,21 @@ use tokio::sync::mpsc;
 use futures::{FutureExt, StreamExt};
 
 #[derive(Clone, Copy, Debug)]
-pub enum TukajEvent {
+pub enum TukaiEvent {
   Tick,
   Key(KeyEvent),
 }
 
 pub struct EventHandler {
-  tx: mpsc::UnboundedSender<TukajEvent>,
-  rx: mpsc::UnboundedReceiver<TukajEvent>,
+  tx: mpsc::UnboundedSender<TukaiEvent>,
+  rx: mpsc::UnboundedReceiver<TukaiEvent>,
   task: tokio::task::JoinHandle<()>,
 }
 
 impl EventHandler {
   pub fn new() -> Self {
     let tick_rate = Duration::from_secs(1);
-    let (tx, rx) = mpsc::unbounded_channel::<TukajEvent>();
+    let (tx, rx) = mpsc::unbounded_channel::<TukaiEvent>();
 
     let tx_clone = tx.clone();
 
@@ -35,13 +35,13 @@ impl EventHandler {
           Some(Ok(event)) = crossterm_event => {
             match event {
               Event::Key(key_event) => {
-                tx_clone.send(TukajEvent::Key(key_event)).unwrap()
+                tx_clone.send(TukaiEvent::Key(key_event)).unwrap()
               },
               _ => {}
             }
           },
           _ = tick_delay => {
-            tx_clone.send(TukajEvent::Tick).unwrap();
+            tx_clone.send(TukaiEvent::Tick).unwrap();
           },
         }
       }
@@ -54,7 +54,7 @@ impl EventHandler {
     }
   }
 
-  pub async fn next(&mut self) -> Result<TukajEvent, Box<dyn error::Error>> {
+  pub async fn next(&mut self) -> Result<TukaiEvent, Box<dyn error::Error>> {
     self.rx.recv().await.ok_or(Box::new(
       io::Error::new(io::ErrorKind::Other, "Some IO error occured")))
   }

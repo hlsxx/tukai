@@ -10,7 +10,7 @@ use ratatui::{
   Frame
 };
 
-use crate::layout::Layout as TukajLayout;
+use crate::layout::Layout as TukaiLayout;
 
 pub struct StatsWindow {
   pub input: String,
@@ -49,7 +49,7 @@ impl Window for StatsWindow {
   fn render_instructions(
     &self,
     frame: &mut Frame,
-    layout: &TukajLayout,
+    layout: &TukaiLayout,
     area: Rect
   ) {
     let mut instruction_widget = InstructionWidget::new(layout);
@@ -73,7 +73,7 @@ impl Window for StatsWindow {
   fn render(
     &self,
     frame: &mut Frame,
-    layout: &TukajLayout,
+    layout: &TukaiLayout,
     area: Rect
   ) {
     let block = Block::new()

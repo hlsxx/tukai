@@ -15,7 +15,7 @@ use ratatui::{
 };
 
 use crate::{
-  configs::typing_window_config::TypingWindowConfig, layout::{Layout as TukajLayout, LayoutColorTypeEnum}, tools::generator::Generator, traits::{ToDark, Window}, widgets::instructions::{Instruction, InstructionWidget}
+  configs::typing_window_config::TypingWindowConfig, layout::{Layout as TukaiLayout, LayoutColorTypeEnum}, tools::generator::Generator, traits::{ToDark, Window}, widgets::instructions::{Instruction, InstructionWidget}
 };
 
 
@@ -128,10 +128,10 @@ impl Window for TypingWindow {
   fn render(
     &self,
     frame: &mut Frame,
-    layout: &TukajLayout,
+    layout: &TukaiLayout,
     area: Rect
   ) {
-    let title = Title::from("⌨ tukaj v1.0.0 ⌨")
+    let title = Title::from("⌨ tukai v1.0.0 ⌨")
       .position(Position::Top)
       .alignment(Alignment::Left);
 
@@ -161,7 +161,7 @@ impl Window for TypingWindow {
   fn render_instructions(
     &self,
     frame: &mut Frame,
-    layout: &TukajLayout,
+    layout: &TukaiLayout,
     area: Rect
   ) {
     let mut instruction_widget = InstructionWidget::new(layout);
@@ -266,7 +266,7 @@ impl TypingWindow {
   }
 
   /// Prepare and get a paragraph
-  pub fn get_paragraph(&self, layout: &TukajLayout) -> Paragraph {
+  pub fn get_paragraph(&self, layout: &TukaiLayout) -> Paragraph {
     let mut lines = Vec::new();
 
     let color = if self.is_active() { layout.get_primary_color() } else { layout.get_primary_color().to_dark() };

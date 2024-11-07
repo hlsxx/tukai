@@ -1,6 +1,6 @@
 use ratatui::{style::{Color, Style, Stylize}, text::{Line, Span, Text}, widgets::Paragraph};
 
-use crate::layout::{LayoutColorTypeEnum, Layout as TukajLayout};
+use crate::layout::{LayoutColorTypeEnum, Layout as TukaiLayout};
 
 pub struct Instruction<'a> {
   title: &'a str,
@@ -25,12 +25,12 @@ impl<'a> Instruction<'a> {
 }
 
 pub struct InstructionWidget<'a> {
-  layout: &'a TukajLayout,
+  layout: &'a TukaiLayout,
   instructions: Vec<Instruction<'a>>
 }
 
 impl<'a> InstructionWidget<'a> {
-  pub fn new(layout: &'a TukajLayout) -> Self {
+  pub fn new(layout: &'a TukaiLayout) -> Self {
     Self {
       layout,
       instructions: Vec::new()
