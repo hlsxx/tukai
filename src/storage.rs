@@ -77,19 +77,23 @@ impl StatDuration {
 type Stats = HashMap<StatDuration, Vec<Stat>>;
 type Activities = HashMap<String, String>;
 
-enum StorageDataType {
+#[derive(Deserialize, Serialize, Hash, PartialEq, Eq, Debug)]
+pub enum StorageDataType {
   Stats,
   Activities
 }
 
-enum StorageDataValue {
+#[derive(Deserialize, Serialize, Debug)]
+pub enum StorageDataValue {
   Stats(Stats),
   Activity(Activities)
 }
 
+type StorageData = HashMap<StorageDataType, StorageDataValue>;
+
 pub struct Storage {
   file_path: PathBuf,
-  data: HashMap<StorageDataType, StorageDataValue>,
+  data: StorageData
 }
 
 impl Storage {
@@ -98,6 +102,29 @@ impl Storage {
       file_path: file_path.as_ref().to_owned(),
       data: HashMap::new()
     }
+  }
+
+  pub fn get_data(&self) -> &StorageData {
+    &self.data
+  }
+
+  /// Init a storage file
+  pub fn init(self) -> Result<Self, std::io::Error> {
+    let empty_data: StorageData = HashMap::new();
+    let data_bytes = bincode::serialize(&empty_data).unwrap();
+    FileHandler::write_bytes_into_file(&self.file_path, &data_bytes)?;
+
+    Ok(self)
+  }
+
+  /// Gets the storage data from the file
+  ///
+  /// &[0, 55, 55] -> StorageData
+  fn read_data_from_file(&self) -> StorageData {
+    let data_bytes = FileHandler::read_bytes_from_file(&self.file_path).unwrap();
+    let data = bincode::deserialize::<StorageData>(&data_bytes).unwrap();
+
+    data
   }
 
   pub fn insert_stat(
@@ -134,5 +161,20 @@ mod tests {
     };
 
     // AppData::insert_into_run_stats(&run_stat).expect("Error")
+  }
+
+  #[test]
+  fn storage_write_and_read_data() {
+    let storage = Storage::new("test.tukai")
+      .init()
+      .unwrap();
+
+    let storage_data = storage.get_data();
+    let storage_data_from_file = &storage.read_data_from_file();
+
+    println!("{:?}", storage_data);
+    println!("{:?}", storage_data_from_file);
+
+    // assert_eq!(storage_data, storage_data_from_file);
   }
 }

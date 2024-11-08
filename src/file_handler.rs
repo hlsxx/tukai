@@ -25,7 +25,7 @@ impl FileHandler {
 
     let mut file = FileHandler::open_file(path)?;
 
-    file.read(&mut bytes_buf)?;
+    file.read_to_end(&mut bytes_buf)?;
 
     Ok(bytes_buf)
   }

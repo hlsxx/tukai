@@ -15,7 +15,7 @@ use ratatui::{
 };
 
 use crate::{
-  app_data::{AppData, RunStat}, configs::typing_window_config::TypingWindowConfig, layout::{Layout as TukaiLayout, LayoutColorTypeEnum}, tools::generator::Generator, traits::{ToDark, Window}, widgets::instructions::{Instruction, InstructionWidget}
+  storage::{Storage, Stat}, configs::typing_window_config::TypingWindowConfig, layout::{Layout as TukaiLayout, LayoutColorTypeEnum}, tools::generator::Generator, traits::{ToDark, Window}, widgets::instructions::{Instruction, InstructionWidget}
 };
 
 
@@ -47,7 +47,7 @@ impl Stats {
   }
 }
 
-pub struct TypingWindow<'a> {
+pub struct TypingWindow {
   /// Random generated text
   pub generated_text: String,
 
@@ -58,7 +58,7 @@ pub struct TypingWindow<'a> {
   pub stats: Stats,
 
   /// User statistics after the run is completed
-  pub run_stat: Option<&'a RunStat>,
+  pub stat: Option<Stat>,
 
   /// The TypingWindow is currently active window
   is_active: bool,
@@ -77,14 +77,14 @@ pub struct TypingWindow<'a> {
   motto: String
 }
 
-impl<'a> Window for TypingWindow<'a> {
+impl Window for TypingWindow {
   fn default() -> Self {
     Self {
       generated_text: Generator::generate_random_string(50),
       input: String::new(),
 
       stats: Stats::default(),
-      run_stat: None,
+      stat: None,
 
       is_active: false,
       is_running: false,
@@ -187,7 +187,7 @@ impl<'a> Window for TypingWindow<'a> {
   }
 }
 
-impl<'a> TypingWindow<'a> {
+impl TypingWindow {
 
   /// Starts the running typing process
   fn run(&mut self) {
@@ -198,15 +198,15 @@ impl<'a> TypingWindow<'a> {
   pub fn stop(&mut self) {
     self.is_running = false;
 
-    let run_stat = RunStat::new(
+    let stat = Stat::new(
       self.input.len(),
       self.config.time_limit as usize,
       self.stats.get_mistakes_counter()
     );
 
-    self.run_stat = Some(run_stat);
+    self.stat = Some(stat);
 
-    AppData::insert_into_run_stats(Path::new("xxx.tukai"), &run_stat).unwrap()
+    // Storage::insert_into_run_stats(Path::new("xxx.tukai"), &run_stat).unwrap()
   }
 
   fn validate_input_char(&mut self, c: char) {
