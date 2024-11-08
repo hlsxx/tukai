@@ -89,6 +89,12 @@ pub enum StorageDataValue {
   Activity(Activities)
 }
 
+impl StorageDataValue {
+  // pub fn insert_stats(stat_name: String, stat_value: i32) -> Self {
+  //   StorageDataValue::Stats(Stats { stat_name, stat_value })
+  // }
+}
+
 type StorageData = HashMap<StorageDataType, StorageDataValue>;
 
 pub struct Storage {
@@ -131,6 +137,10 @@ impl Storage {
     &mut self,
     stat: &Stat
   ) -> Result<(), std::io::Error> {
+    let data = self.get_data();
+   
+    data.insert(StorageDataType::Stats, );
+
     let stat_bytes = bincode::serialize(stat).unwrap();
     FileHandler::write_bytes_into_file(&self.file_path, &stat_bytes)?;
 
