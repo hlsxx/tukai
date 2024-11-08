@@ -8,7 +8,7 @@ mod event_handler;
 mod config;
 mod layout;
 mod widgets;
-mod app_data;
+mod storage;
 mod file_handler;
 
 use core::error;
