@@ -14,8 +14,10 @@ use ratatui::{
   }, Frame
 };
 
+use crate::storage::stats::{Stat, TypingDuration};
+
 use crate::{
-  storage::{Storage, Stat}, configs::typing_window_config::TypingWindowConfig, layout::{Layout as TukaiLayout, LayoutColorTypeEnum}, tools::generator::Generator, traits::{ToDark, Window}, widgets::instructions::{Instruction, InstructionWidget}
+  storage::storage_handler::StorageHandler, configs::typing_window_config::TypingWindowConfig, layout::{Layout as TukaiLayout, LayoutColorTypeEnum}, tools::generator::Generator, traits::{ToDark, Window}, widgets::instructions::{Instruction, InstructionWidget}
 };
 
 
@@ -199,6 +201,7 @@ impl TypingWindow {
     self.is_running = false;
 
     let stat = Stat::new(
+      TypingDuration::Minute,
       self.input.len(),
       self.config.time_limit as usize,
       self.stats.get_mistakes_counter()
