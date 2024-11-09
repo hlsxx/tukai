@@ -14,7 +14,7 @@ use ratatui::{
   }, Frame
 };
 
-use crate::storage::{stats::{Stat, TypingDuration}, storage_handler};
+use crate::{common, storage::{stats::{Stat, TypingDuration}, storage_handler}};
 
 use crate::{
   storage::storage_handler::StorageHandler, configs::typing_window_config::TypingWindowConfig, layout::{Layout as TukaiLayout, LayoutColorTypeEnum}, tools::generator::Generator, traits::{ToDark, Window}, widgets::instructions::{Instruction, InstructionWidget}
@@ -137,12 +137,8 @@ impl Window for TypingWindow {
     layout: &TukaiLayout,
     area: Rect
   ) {
-    let title = Title::from("⌨ tukai v0.0.1 ⌨")
-      .position(Position::Top)
-      .alignment(Alignment::Left);
-
     let block = Block::new()
-      .title(title)
+      .title(common::get_title())
       .title_bottom(self.motto.as_ref())
       .title_style(Style::default().fg(layout.get_primary_color()))
       .title_alignment(Alignment::Center)
@@ -175,7 +171,7 @@ impl Window for TypingWindow {
     instruction_widget.add_instruction(Instruction::new("Exit", "ESC", LayoutColorTypeEnum::Secondary));
     instruction_widget.add_instruction(Instruction::new("Reset", "CTRL + R", LayoutColorTypeEnum::Secondary));
     instruction_widget.add_instruction(Instruction::new("Layout", "CTRL + S", LayoutColorTypeEnum::Secondary));
-    // instruction_widget.add_instruction(Instruction::new("Settings", "CTRL + L", LayoutColorTypeEnum::Secondary));
+    instruction_widget.add_instruction(Instruction::new("Settings", "CTRL + L", LayoutColorTypeEnum::Secondary));
 
     let block = Block::new()
       .padding(Padding::new(0, 0, area.height / 2, 0));

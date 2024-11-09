@@ -162,6 +162,8 @@ impl<'a> App<'a> {
         self.reset();
       } else if key_event.code == KeyCode::Char('s') {
         self.layout.switch_active_layout();
+      } else if key_event.code == KeyCode::Char('l') {
+        self.active_window = ActiveWindowEnum::Stats;
       }
 
       return;

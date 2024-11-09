@@ -80,6 +80,14 @@ impl StorageHandler {
     &self.data
   }
 
+  pub fn get_data_stats(&self) -> Option<&Vec<Stat>> {
+    if let Some(StorageDataValue::Stats(stats)) = self.data.get(&StorageDataType::Stats) {
+      Some(stats)
+    } else {
+      None
+    }
+  }
+
   /// Gets the stats from the storage
   fn get_data_stats_mut(&mut self) -> Option<&mut Vec<Stat>> {
     if let Some(StorageDataValue::Stats(stats)) = self.data.get_mut(&StorageDataType::Stats) {

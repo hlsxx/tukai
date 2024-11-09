@@ -1,12 +1,12 @@
-use crate::{layout::LayoutColorTypeEnum, traits::Window, widgets::instructions::{Instruction, InstructionWidget}};
+use crate::{common, layout::LayoutColorTypeEnum, storage::storage_handler::{self, StorageHandler}, traits::Window, widgets::instructions::{Instruction, InstructionWidget}};
 
 use crossterm::event::{KeyCode, KeyEvent};
 use std::env;
 
 use ratatui::{
-  layout::{Alignment, Rect},
+  layout::{Alignment, Constraint, Rect},
   style::{Style, Stylize},
-  widgets::{block::Title, Block, Borders, Padding, Paragraph},
+  widgets::{block::Title, Block, BorderType, Borders, Padding, Paragraph, Row, Table},
   Frame
 };
 
@@ -76,15 +76,44 @@ impl Window for StatsWindow {
     layout: &TukaiLayout,
     area: Rect
   ) {
+    let storage_handler = StorageHandler::new("test.tukai")
+      .init();
+
+    let stats = storage_handler.get_data_stats().unwrap();
+
     let block = Block::new()
+      .title(common::get_title())
       .borders(Borders::ALL)
       .border_style(Style::default().fg(layout.get_secondary_color()))
-      .title(Title::from("Results").alignment(Alignment::Center));
+      .border_type(BorderType::Rounded);
 
-    let p = Paragraph::new("Stats")
-      .block(block);
+    let rows = stats.iter()
+      .map(|stat| {
+        Row::new(vec![
+          stat.get_average_wpm().to_string(),
+          stat.get_raw_wpm().to_string(),
+          stat.get_accuracy().to_string()
+        ])
+      }).collect::<Vec<Row>>();
 
-    frame.render_widget(p, area);
+    // Columns widths are constrained in the same way as Layout...
+    let widths = [
+      Constraint::Percentage(33),
+      Constraint::Percentage(33),
+      Constraint::Percentage(33),
+    ];
+
+    let table = Table::new(rows, widths)
+      .block(block)
+      .column_spacing(1)
+      .style(Style::new().blue())
+      .header(
+        Row::new(vec!["Average WPM", "Raw WPM", "Accuracy"])
+          .style(Style::new().bold())
+          .bottom_margin(1),
+      );
+
+    frame.render_widget(table, area);
   }
 
 }

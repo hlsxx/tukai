@@ -11,6 +11,7 @@ mod widgets;
 mod file_handler;
 mod helpers;
 mod storage;
+mod common;
 
 use core::error;
 use config::Config;
