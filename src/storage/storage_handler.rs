@@ -83,10 +83,8 @@ impl StorageHandler {
   fn get_data_stats_mut(&mut self) -> Option<&mut Vec<Stat>> {
     // println!("{:?}", self.data.);
     if let Some(StorageDataValue::Stats(stats)) = self.data.get_mut(&StorageDataType::Stats) {
-      println!("{:?}", stats);
       Some(stats)
     } else {
-      println!("xxx");
       None
     }
   }
@@ -114,7 +112,6 @@ impl StorageHandler {
     &mut self,
     stat: &Stat
   ) -> bool {
-    println!("{:?}", self.get_data_stats_mut());
     if let Some(stats) = self.get_data_stats_mut() {
       stats.push(stat.clone());
       return true;
@@ -140,12 +137,21 @@ mod tests {
   }
 
   #[test]
-  // fn storage_read_from_data() {
-  //   let storage_handler = get_storage_handler();
-  //   let _storage_data= storage_handler.read_data_from_file();
-  // }
+  // Just validate if binary file was created right
+  fn storage_read_from_data() {
+    let storage_handler = get_storage_handler();
+    let storage_data= storage_handler.read_data_from_file();
+
+    assert!(storage_data.get(&StorageDataType::Stats).is_some(), "Stats not initialized successfully");
+    assert!(storage_data.get(&StorageDataType::Activities).is_some(), "Activities not initialized successfully");
+  }
 
   #[test]
+  // Init an empty storage data
+  //
+  // Insert test Stat into the file
+  //
+  // Try to reverse read from the binary file
   fn storage_insert_into_data_stats() {
     let mut storage_handler = get_storage_handler();
 
@@ -156,39 +162,16 @@ mod tests {
       60
     );
 
-    assert_eq!(true, storage_handler.insert_into_stats(&stat));
+    assert!(storage_handler.insert_into_stats(&stat), "Insert into the storage error occured");
 
-    // let stats = storage_handler.get_data_stats_mut();
+    let stats = storage_handler.get_data_stats_mut();
 
-    // stats.inse
+    assert!(stats.is_some(), "Failed to read from the storage stats (stats is None)");
 
-    // assert!
+    let stats_unwraped = stats.unwrap();
+
+    let stat_from_binary = &stats_unwraped[0];
+
+    assert_eq!(stat_from_binary.get_average_wpm(), stat.get_average_wpm());
   }
-
-  // #[test]
-  // fn storage_insert_read_from_file() {
-  //   let stat = Stat {
-  //     duration: StatDuration::Minute,
-  //     average_wpm: 80,
-  //     raw_wpm: 90,
-  //     accuracy: 95.50
-  //   };
-  //
-  //   // AppData::insert_into_run_stats(&run_stat).expect("Error")
-  // }
-  //
-  // #[test]
-  // fn storage_write_and_read_data() {
-  //   let storage = Storage::new("test.tukai")
-  //     .init()
-  //     .unwrap();
-  //
-  //   let storage_data = storage.get_data();
-  //   let storage_data_from_file = &storage.read_data_from_file();
-  //
-  //   println!("{:?}", storage_data);
-  //   println!("{:?}", storage_data_from_file);
-  //
-  //   // assert_eq!(storage_data, storage_data_from_file);
-  // }
 }

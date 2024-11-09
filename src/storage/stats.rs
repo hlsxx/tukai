@@ -41,4 +41,21 @@ impl Stat {
       accuracy: StatHelper::get_calculated_accuracy(chars_counter, mistakes_counter)
     }
   }
+
+  pub fn get_duration(&self) -> &TypingDuration {
+    &self.duration
+  }
+
+  pub fn get_average_wpm(&self) -> usize {
+    self.average_wpm
+  }
+
+  pub fn get_raw_wpm(&self) -> usize {
+    self.raw_wpm
+  }
+
+  pub fn get_accuracy(&self) -> f32 {
+    self.accuracy
+  }
+
 }
