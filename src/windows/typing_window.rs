@@ -14,7 +14,7 @@ use ratatui::{
   }, Frame
 };
 
-use crate::storage::stats::{Stat, TypingDuration};
+use crate::storage::{stats::{Stat, TypingDuration}, storage_handler};
 
 use crate::{
   storage::storage_handler::StorageHandler, configs::typing_window_config::TypingWindowConfig, layout::{Layout as TukaiLayout, LayoutColorTypeEnum}, tools::generator::Generator, traits::{ToDark, Window}, widgets::instructions::{Instruction, InstructionWidget}
@@ -203,13 +203,14 @@ impl TypingWindow {
     let stat = Stat::new(
       TypingDuration::Minute,
       self.input.len(),
+      self.stats.get_mistakes_counter(),
       self.config.time_limit as usize,
-      self.stats.get_mistakes_counter()
     );
 
-    self.stat = Some(stat);
+    StorageHandler::new("test.tukai")
+      .insert_into_stats(&stat);
 
-    // Storage::insert_into_run_stats(Path::new("xxx.tukai"), &run_stat).unwrap()
+    self.stat = Some(stat);
   }
 
   fn validate_input_char(&mut self, c: char) {
@@ -239,20 +240,40 @@ impl TypingWindow {
     }
   }
 
-  /// Calculates raw WPM
+  // Gets the last stat
+  pub fn get_last_stat(&self) -> Option<&Stat> {
+    if let Some(last_stat) = &self.stat {
+      Some(&last_stat)
+    } else {
+      None
+    }
+  }
+
+  /// Gets raw wpm
   pub fn get_calculated_raw_wpm(&self) -> usize {
-    (self.input.len() / 5) * 60 / self.config.time_limit as usize
+    if let Some(last_stat) = &self.stat {
+      last_stat.get_raw_wpm()
+    } else {
+      0
+    }
   }
 
-  /// Calculates WPM
+  /// Gets average WPM
   pub fn get_calculated_wpm(&self) -> usize {
-    (self.input.len().saturating_sub(self.stats.get_mistakes_counter()) / 5) * 60 / self.config.time_limit as usize
+    if let Some(last_stat) = &self.stat {
+      last_stat.get_average_wpm()
+    } else {
+      0
+    }
   }
 
-  /// Calculates accuracy
+  /// Gets accuracy
   pub fn get_calculated_accuracy(&self) -> f32 {
-    let accuracy = (self.input.len().saturating_sub(self.stats.get_mistakes_counter()) * 100) as f32 / self.input.len() as f32;
-    (accuracy * 100.0).round() / 100.0
+    if let Some(last_stat) = &self.stat {
+      last_stat.get_accuracy()
+    } else {
+      0.0
+    }
   }
 
   #[allow(unused)]
