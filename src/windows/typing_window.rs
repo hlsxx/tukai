@@ -207,7 +207,9 @@ impl TypingWindow {
       self.config.time_limit as usize,
     );
 
+    // TODO: Some action if not set into the binary
     StorageHandler::new("test.tukai")
+      .init()
       .insert_into_stats(&stat);
 
     self.stat = Some(stat);
