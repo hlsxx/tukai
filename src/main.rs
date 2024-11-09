@@ -8,8 +8,9 @@ mod event_handler;
 mod config;
 mod layout;
 mod widgets;
-mod storage;
 mod file_handler;
+mod helpers;
+mod storage;
 
 use core::error;
 use std::path::PathBuf;
