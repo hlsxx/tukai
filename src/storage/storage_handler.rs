@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::io;
+use std::{error, io};
 use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 
@@ -69,11 +69,12 @@ impl StorageHandler {
   ///
   /// Try to read all bytes from the storage file
   /// Then set into the data
-  pub fn init(mut self) -> Self {
-    let data_bytes = FileHandler::read_bytes_from_file(&self.file_path).unwrap();
-    self.data = bincode::deserialize(&data_bytes).unwrap();
+  pub fn init(mut self) -> Result<Self, io::Error> {
+    if let Ok(data_bytes) = FileHandler::read_bytes_from_file(&self.file_path) {
+      self.data = bincode::deserialize(&data_bytes).unwrap();
+    }
 
-    self
+    Ok(self)
   }
 
   pub fn get_data(&self) -> &StorageData {
@@ -83,6 +84,18 @@ impl StorageHandler {
   pub fn get_data_stats(&self) -> Option<&Vec<Stat>> {
     if let Some(StorageDataValue::Stats(stats)) = self.data.get(&StorageDataType::Stats) {
       Some(stats)
+    } else {
+      None
+    }
+  }
+
+  pub fn get_data_stats_reversed(&self) -> Option<Vec<Stat>> {
+    if let Some(StorageDataValue::Stats(stats)) = self.data.get(&StorageDataType::Stats) {
+      let stats_reversed = stats.iter()
+        .rev()
+        .map(|item| item.to_owned()).collect::<Vec<Stat>>();
+
+      Some(stats_reversed)
     } else {
       None
     }
@@ -148,7 +161,8 @@ mod tests {
     let storage_helper = StorageHandler::new("test.tukai")
       .default()
       .unwrap()
-      .init();
+      .init()
+      .unwrap();
 
     storage_helper
   }

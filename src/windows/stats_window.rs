@@ -6,11 +6,12 @@ use std::env;
 use ratatui::{
   layout::{Alignment, Constraint, Rect},
   style::{Style, Stylize},
-  widgets::{block::Title, Block, BorderType, Borders, Padding, Paragraph, Row, Table},
+  widgets::{block::Title, Block, BorderType, Borders, Cell, Padding, Paragraph, Row, Table},
   Frame
 };
 
 use crate::layout::Layout as TukaiLayout;
+use crate::traits::ToDark;
 
 pub struct StatsWindow {
   pub input: String,
@@ -75,9 +76,10 @@ impl Window for StatsWindow {
     area: Rect
   ) {
     let storage_handler = StorageHandler::new("test.tukai")
-      .init();
+      .init()
+      .unwrap();
 
-    let stats = storage_handler.get_data_stats().unwrap();
+    let stats = storage_handler.get_data_stats_reversed().unwrap();
 
     let block = Block::new()
       .title(common::get_title("Typing"))
@@ -86,13 +88,21 @@ impl Window for StatsWindow {
       .border_style(Style::default().fg(layout.get_secondary_color()))
       .border_type(BorderType::Rounded);
 
+    let default_cell_style = Style::default()
+      .fg(layout.get_text_color());
+
     let rows = stats.iter()
       .map(|stat| {
         Row::new(vec![
-          stat.get_average_wpm().to_string(),
-          stat.get_raw_wpm().to_string(),
-          format!("{}%", stat.get_accuracy().to_string())
-        ]).style(Style::default().fg(layout.get_text_color()))
+          Cell::from(stat.get_average_wpm().to_string())
+            .style(default_cell_style),
+
+          Cell::from(format!("{}%", stat.get_accuracy().to_string()))
+            .style(default_cell_style),
+
+          Cell::from(stat.get_raw_wpm().to_string())
+            .style(Style::default().fg(layout.get_text_color().to_dark()))
+        ])
       }).collect::<Vec<Row>>();
 
     let widths = [
@@ -101,14 +111,25 @@ impl Window for StatsWindow {
       Constraint::Percentage(33),
     ];
 
+    let default_header_cell_style = Style::default()
+      .fg(layout.get_primary_color())
+      .bold();
+
     let table = Table::new(rows, widths)
       .block(block)
       .column_spacing(1)
       .style(Style::new().bg(layout.get_background_color()))
       .header(
-        Row::new(vec!["Average WPM", "Raw WPM", "Accuracy"])
-          .style(Style::new().bold().fg(layout.get_primary_color()))
-          .bottom_margin(1),
+        Row::new(vec![
+          Cell::from("Average WPM")
+            .style(default_header_cell_style),
+
+          Cell::from("Accuracy")
+            .style(default_header_cell_style),
+
+          Cell::from("Raw WPM")
+            .style(default_header_cell_style),
+        ]).bottom_margin(1)
       );
 
     frame.render_widget(table, area);
