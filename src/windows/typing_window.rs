@@ -139,7 +139,7 @@ impl Window for TypingWindow {
     area: Rect
   ) {
     let block = Block::new()
-      .title(common::get_title())
+      .title(common::get_title("Stats"))
       .title_bottom(self.motto.as_ref())
       .title_style(Style::default().fg(layout.get_primary_color()))
       .title_alignment(Alignment::Center)

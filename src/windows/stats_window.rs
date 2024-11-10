@@ -55,9 +55,7 @@ impl Window for StatsWindow {
     let mut instruction_widget = InstructionWidget::new(layout);
 
     instruction_widget.add_instruction(Instruction::new("Exit", "ESC", LayoutColorTypeEnum::Secondary));
-    instruction_widget.add_instruction(Instruction::new("Reset", "CTRL + R", LayoutColorTypeEnum::Secondary));
-    instruction_widget.add_instruction(Instruction::new("Layout", "CTRL + I", LayoutColorTypeEnum::Secondary));
-    instruction_widget.add_instruction(Instruction::new("Settings", "CTRL + L", LayoutColorTypeEnum::Secondary));
+    instruction_widget.add_instruction(Instruction::new("Typing", "CTRL + J", LayoutColorTypeEnum::Secondary));
 
     let block = Block::new()
       .padding(Padding::new(0, 0, area.height / 2, 0));
@@ -82,7 +80,8 @@ impl Window for StatsWindow {
     let stats = storage_handler.get_data_stats().unwrap();
 
     let block = Block::new()
-      .title(common::get_title())
+      .title(common::get_title("Typing"))
+      .title_style(Style::new().fg(layout.get_primary_color()))
       .borders(Borders::ALL)
       .border_style(Style::default().fg(layout.get_secondary_color()))
       .border_type(BorderType::Rounded);
@@ -93,7 +92,7 @@ impl Window for StatsWindow {
           stat.get_average_wpm().to_string(),
           stat.get_raw_wpm().to_string(),
           format!("{}%", stat.get_accuracy().to_string())
-        ]).style(Style::default().fg(layout.get_primary_color()))
+        ]).style(Style::default().fg(layout.get_text_color()))
       }).collect::<Vec<Row>>();
 
     let widths = [
@@ -105,10 +104,10 @@ impl Window for StatsWindow {
     let table = Table::new(rows, widths)
       .block(block)
       .column_spacing(1)
-      .style(Style::new().blue())
+      .style(Style::new().bg(layout.get_background_color()))
       .header(
         Row::new(vec!["Average WPM", "Raw WPM", "Accuracy"])
-          .style(Style::new().bold().fg(layout.get_secondary_color()))
+          .style(Style::new().bold().fg(layout.get_primary_color()))
           .bottom_margin(1),
       );
 

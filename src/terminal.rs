@@ -124,7 +124,7 @@ impl<'a> App<'a> {
       },
       ActiveWindowEnum::Stats => {
         self.stats_window.render(frame, &self.layout, main_layout[0]);
-        self.typing_window.render_instructions(frame, &self.layout, main_layout[1]);
+        self.stats_window.render_instructions(frame, &self.layout, main_layout[1]);
       }
     }
 
