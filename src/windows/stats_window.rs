@@ -92,11 +92,10 @@ impl Window for StatsWindow {
         Row::new(vec![
           stat.get_average_wpm().to_string(),
           stat.get_raw_wpm().to_string(),
-          stat.get_accuracy().to_string()
-        ])
+          format!("{}%", stat.get_accuracy().to_string())
+        ]).style(Style::default().fg(layout.get_primary_color()))
       }).collect::<Vec<Row>>();
 
-    // Columns widths are constrained in the same way as Layout...
     let widths = [
       Constraint::Percentage(33),
       Constraint::Percentage(33),
@@ -109,7 +108,7 @@ impl Window for StatsWindow {
       .style(Style::new().blue())
       .header(
         Row::new(vec!["Average WPM", "Raw WPM", "Accuracy"])
-          .style(Style::new().bold())
+          .style(Style::new().bold().fg(layout.get_secondary_color()))
           .bottom_margin(1),
       );
 

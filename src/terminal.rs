@@ -115,7 +115,7 @@ impl<'a> App<'a> {
         self.typing_window.time_secs = self.time_secs;
 
         if self.typing_window.get_remaining_time() == 0 {
-          self.typing_window.stop();
+          self.typing_window.stop(true);
           self.is_popup_visible = true;
         }
 
@@ -147,7 +147,6 @@ impl<'a> App<'a> {
   fn reset(&mut self) {
     self.time_secs = 0;
     self.is_popup_visible = false;
-    self.typing_window.stop();
     self.typing_window.reset();
   }
 
@@ -174,7 +173,11 @@ impl<'a> App<'a> {
     }
 
     if key_event.code == KeyCode::Esc {
-      self.exit();
+      if self.is_popup_visible {
+        self.reset();
+      } else {
+        self.exit();
+      }
     } else if key_event.code == KeyCode::Left {
       self.active_window = ActiveWindowEnum::Typing;
     } else if key_event.code == KeyCode::Right {

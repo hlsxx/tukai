@@ -76,6 +76,7 @@ pub struct TypingWindow {
   /// The TypingWindow custom config
   config: TypingWindowConfig,
 
+  /// Block motto
   motto: String
 }
 
@@ -190,25 +191,28 @@ impl TypingWindow {
   /// Starts the running typing process
   fn run(&mut self) {
     self.is_running = true;
+    self.stat = None;
   }
 
   /// Stops the running typing process
-  pub fn stop(&mut self) {
+  pub fn stop(&mut self, save_record: bool) {
     self.is_running = false;
 
-    let stat = Stat::new(
-      TypingDuration::Minute,
-      self.input.len(),
-      self.stats.get_mistakes_counter(),
-      self.config.time_limit as usize,
-    );
+    if save_record && self.stat.is_none() {
+      let stat = Stat::new(
+        TypingDuration::Minute,
+        self.input.len(),
+        self.stats.get_mistakes_counter(),
+        self.config.time_limit as usize,
+      );
 
-    // TODO: Some action if not set into the binary
-    StorageHandler::new("test.tukai")
-      .init()
-      .insert_into_stats(&stat);
+      // TODO: Some action if not set into the binary
+      StorageHandler::new("test.tukai")
+        .init()
+        .insert_into_stats(&stat);
 
-    self.stat = Some(stat);
+      self.stat = Some(stat);
+    }
   }
 
   fn validate_input_char(&mut self, c: char) {
@@ -298,7 +302,7 @@ impl TypingWindow {
 
     self.cursor_index = 0;
     self.input = String::new();
-    self.stop();
+    self.stop(false);
   }
 
   /// Prepare and get a paragraph
