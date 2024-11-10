@@ -157,12 +157,17 @@ impl<'a> App<'a> {
   /// If the child window does not consume the event, check the keycodes.
   fn handle_events(&mut self, key_event: KeyEvent) {
     if key_event.modifiers.contains(KeyModifiers::CONTROL) {
-      if key_event.code == KeyCode::Char('r') {
-        self.reset();
-      } else if key_event.code == KeyCode::Char('s') {
-        self.layout.switch_active_layout();
-      } else if key_event.code == KeyCode::Char('l') {
-        self.active_window = ActiveWindowEnum::Stats;
+      match key_event.code {
+        KeyCode::Char(c) => {
+          match c {
+            'r' => self.reset(),
+            's' => self.layout.switch_active_layout(),
+            'l' => self.active_window = ActiveWindowEnum::Stats,
+            'c' => self.exit(),
+            _ => {}
+          }
+        },
+        _ => {}
       }
 
       return;
