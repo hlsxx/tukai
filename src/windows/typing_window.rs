@@ -311,7 +311,10 @@ impl TypingWindow {
     let mut lines = Vec::new();
 
     let color = if self.is_active() { layout.get_primary_color() } else { layout.get_primary_color().to_dark() };
-    let span = Span::from(self.get_remaining_time().to_string()).style(Style::default().fg(color).bold());
+
+    let span = Span::from(
+      self.get_remaining_time().to_string())
+      .style(Style::default().fg(color).bold());
 
     let remaining_time_line = Line::from(vec![span]);
 
