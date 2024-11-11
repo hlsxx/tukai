@@ -146,7 +146,7 @@ impl Window for TypingWindow {
       .style(Style::default().bg(layout.get_background_color()))
       .borders(Borders::ALL)
       .border_type(BorderType::Rounded)
-      .border_style(Style::default().fg(layout.get_secondary_color()))
+      .border_style(Style::default().fg(layout.get_primary_color()))
       .padding(Padding::new(
         40,
         40,
@@ -320,7 +320,7 @@ impl TypingWindow {
       .map(|(i, c)| {
         if i == self.cursor_index {
           Span::from(c.to_string())
-            .style(Style::default().fg(layout.get_text_color()).bg(layout.get_text_reverse_color()))
+            .style(Style::default().fg(layout.get_text_current_color()).bg(layout.get_text_current_bg_color()))
         } else if i < self.cursor_index {
           let color = if self.is_active() { layout.get_primary_color() } else { layout.get_primary_color().to_dark() };
 

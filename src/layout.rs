@@ -23,17 +23,19 @@ pub enum LayoutColorTypeEnum {
 }
 
 #[derive(PartialEq, Eq, Hash)]
-enum LayoutType {
-  Classic,
+pub enum LayoutType {
+  Venus,
+  Neptune,
   Anime,
   Premium
 }
 
 pub struct LayoutColors {
   primary: RgbColor,
-  secondary: RgbColor,
   text: RgbColor,
-  text_reverse: RgbColor,
+  text_done: RgbColor,
+  text_current: RgbColor,
+  text_current_bg: RgbColor,
   background: RgbColor,
   error: RgbColor
 }
@@ -45,52 +47,62 @@ pub struct Layout {
 
 impl Layout {
   pub fn default() -> Self {
-    let classic = LayoutColors {
+    let venus = LayoutColors {
+      primary: (207, 112, 154),
+
+      text: (207, 112, 154),
+      text_done: (156, 86, 153),
+
+      text_current: (100, 100, 100),
+      text_current_bg: (50, 50, 50),
+
+      background: (252, 252, 252),
+      error: (214, 90, 90),
+    };
+
+    let neptune = LayoutColors {
       primary: (108, 181, 230),
-      secondary: (232, 232, 232),
       text: (232, 232, 232),
-      text_reverse: (108, 181, 230),
+
+      text_done: (232, 232, 232),
+      text_current: (25, 74, 107),
+      text_current_bg: (200, 200, 200),
+
       background: (37, 40, 46),
       error: (214, 90, 90),
     };
 
     let anime = LayoutColors {
       primary: (216, 175, 193),
-      secondary: (207, 147, 150),
+      text_done: (207, 147, 150),
+
       text: (237, 237, 237),
-      text_reverse: (207, 147, 150),
+      text_current: (50, 50, 50),
+      text_current_bg: (202, 175, 216),
+
       background: (81, 104, 125),
       error: (44, 56, 65),
     };
 
-    let premium = LayoutColors {
-      primary: (224, 174, 9),
-      secondary: (117, 91, 5),
-      text: (237, 237, 237),
-      text_reverse: (37, 41, 47),
-      background: (41, 41, 36),
-      error: (224, 9, 9),
-    };
-
     let mut layouts = HashMap::new();
 
-    layouts.insert(LayoutType::Classic, classic);
+    layouts.insert(LayoutType::Venus, venus);
+    layouts.insert(LayoutType::Neptune, neptune);
     layouts.insert(LayoutType::Anime, anime);
-    layouts.insert(LayoutType::Premium, premium);
 
     Self {
       layouts,
-      active_layout_type: LayoutType::Classic
+      active_layout_type: LayoutType::Neptune
     }
   }
 
   pub fn switch_active_layout(&mut self) {
-    if self.active_layout_type == LayoutType::Classic {
+    if self.active_layout_type == LayoutType::Neptune {
+      self.active_layout_type = LayoutType::Venus;
+    } else if self.active_layout_type == LayoutType::Venus {
       self.active_layout_type = LayoutType::Anime;
-    } else if self.active_layout_type == LayoutType::Anime {
-      self.active_layout_type = LayoutType::Premium;
     } else {
-      self.active_layout_type = LayoutType::Classic;
+      self.active_layout_type = LayoutType::Neptune;
     }
   }
 
@@ -102,16 +114,20 @@ impl Layout {
     self.get_layout_colors().primary.to_color()
   }
 
-  pub fn get_secondary_color(&self) -> Color {
-    self.get_layout_colors().secondary.to_color()
-  }
-
   pub fn get_text_color(&self) -> Color {
     self.get_layout_colors().text.to_color()
   }
 
-  pub fn get_text_reverse_color(&self) -> Color {
-    self.get_layout_colors().text_reverse.to_color()
+  pub fn get_text_done_color(&self) -> Color {
+    self.get_layout_colors().text_done.to_color()
+  }
+
+  pub fn get_text_current_color(&self) -> Color {
+    self.get_layout_colors().text_current.to_color()
+  }
+
+  pub fn get_text_current_bg_color(&self) -> Color {
+    self.get_layout_colors().text_current_bg.to_color()
   }
 
   pub fn get_error_color(&self) -> Color {

@@ -85,7 +85,7 @@ impl Window for StatsWindow {
       .title(common::get_title("Typing"))
       .title_style(Style::new().fg(layout.get_primary_color()))
       .borders(Borders::ALL)
-      .border_style(Style::default().fg(layout.get_secondary_color()))
+      .border_style(Style::default().fg(layout.get_primary_color()))
       .border_type(BorderType::Rounded);
 
     let default_cell_style = Style::default()

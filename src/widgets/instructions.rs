@@ -40,9 +40,9 @@ impl<'a> InstructionWidget<'a> {
   fn get_instruction_color(&self, color_type: &LayoutColorTypeEnum) -> Color {
     match color_type {
       LayoutColorTypeEnum::Primary => self.layout.get_primary_color(),
-      LayoutColorTypeEnum::Secondary => self.layout.get_secondary_color(),
+      LayoutColorTypeEnum::Secondary => self.layout.get_primary_color(),
       LayoutColorTypeEnum::Text => self.layout.get_text_color(),
-      LayoutColorTypeEnum::TextReverse => self.layout.get_text_reverse_color(),
+      LayoutColorTypeEnum::TextReverse => self.layout.get_text_current_bg_color(),
       LayoutColorTypeEnum::Error => self.layout.get_error_color(),
       LayoutColorTypeEnum::Background => self.layout.get_background_color()
     }

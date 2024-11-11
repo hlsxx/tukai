@@ -204,7 +204,7 @@ impl<'a> App<'a> {
         .style(Style::default().fg(self.layout.get_primary_color())),
 
       Line::from(format!("Raw WPM: {}", self.typing_window.get_calculated_raw_wpm()))
-        .style(Style::default().fg(self.layout.get_secondary_color())),
+        .style(Style::default().fg(self.layout.get_primary_color())),
 
       Line::from(""),
       Line::from(vec![

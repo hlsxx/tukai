@@ -4,6 +4,7 @@ use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 
 use crate::file_handler::FileHandler;
+use crate::layout::{Layout, LayoutType};
 
 use super::stats::{Stat, TypingDuration};
 use super::activities::Activities;
@@ -30,7 +31,8 @@ type StorageData = HashMap<StorageDataType, StorageDataValue>;
 
 pub struct StorageHandler {
   file_path: PathBuf,
-  data: StorageData
+  data: StorageData,
+  // active_layout_type: LayoutType
 }
 
 impl StorageHandler {
@@ -38,7 +40,8 @@ impl StorageHandler {
   pub fn new<P: AsRef<Path>>(file_path: P) -> Self {
     Self {
       file_path: file_path.as_ref().to_owned(),
-      data: HashMap::new()
+      data: HashMap::new(),
+      // active_layout_type: LayoutType::Classic
     }
   }
 
