@@ -3,14 +3,8 @@ use std::{collections::{HashMap, HashSet}, path::Path};
 use crossterm::event::{KeyCode, KeyEvent};
 
 use ratatui::{
-  layout::{Alignment, Rect}, style::{Color, Modifier, Style, Stylize}, text::{Line, Span, Text}, widgets::{
-    block::{Position, Title},
-    Block,
-    BorderType,
-    Borders,
-    Padding,
-    Paragraph,
-    Wrap
+  layout::{Alignment, Constraint, Flex, Layout, Rect}, style::{Color, Modifier, Style, Stylize}, text::{Line, Span, Text}, widgets::{
+    block::{Position, Title}, Block, BorderType, Borders, Clear, Padding, Paragraph, Wrap
   }, Frame
 };
 
@@ -68,6 +62,9 @@ pub struct TypingWindow {
   /// Typing running
   is_running: bool,
 
+  /// Popup is visible
+  is_popup_visible: bool,
+
   pub time_secs: u32,
 
   /// The current cursor index withing generated_text
@@ -91,6 +88,7 @@ impl Window for TypingWindow {
 
       is_active: false,
       is_running: false,
+      is_popup_visible: false,
 
       time_secs: 0,
 
@@ -110,12 +108,25 @@ impl Window for TypingWindow {
     self.is_active
   }
 
+  fn hide(&mut self) {
+    self.toggle_active();
+    self.is_popup_visible = false;
+  }
+
   fn handle_events(&mut self, key: KeyEvent) -> bool {
     if self.cursor_index > 0 && !self.is_running() {
       return false;
     }
 
     match key.code {
+      KeyCode::Esc => {
+        if self.is_popup_visible() {
+          self.is_popup_visible = false;
+          true
+        } else {
+          false
+        }
+      },
       KeyCode::Char(c) => {
         if self.cursor_index == 0 {
           self.run();
@@ -188,6 +199,11 @@ impl Window for TypingWindow {
 
 impl TypingWindow {
 
+  /// If is popup visible
+  pub fn is_popup_visible(&self) -> bool {
+    self.is_popup_visible
+  }
+
   /// Starts the running typing process
   fn run(&mut self) {
     self.is_running = true;
@@ -197,6 +213,7 @@ impl TypingWindow {
   /// Stops the running typing process
   pub fn stop(&mut self, save_record: bool) {
     self.is_running = false;
+    self.is_popup_visible = true;
 
     if save_record && self.stat.is_none() {
       let stat = Stat::new(
@@ -303,7 +320,7 @@ impl TypingWindow {
 
     self.cursor_index = 0;
     self.input = String::new();
-    self.stop(false);
+    self.is_popup_visible = false;
   }
 
   /// Prepare and get a paragraph
@@ -355,4 +372,50 @@ impl TypingWindow {
 
     Paragraph::new(text).wrap(Wrap { trim: true } )
   }
+
+  pub fn render_popup(
+    &mut self,
+    frame: &mut Frame,
+    layout: &TukaiLayout
+  ) {
+    let area = frame.area();
+
+    let block = Block::bordered()
+      .style(Style::default().bg(layout.get_background_color()))
+      .border_type(BorderType::Rounded)
+      .border_style(Style::new().fg(layout.get_primary_color()));
+
+    let text = Text::from(vec![
+      Line::from(format!("Average WPM: {}", self.get_calculated_wpm()))
+        .style(Style::default().fg(layout.get_primary_color())),
+
+      Line::from(format!("Accuracy: {}%", self.get_calculated_accuracy()))
+        .style(Style::default().fg(layout.get_primary_color())),
+
+      Line::from(format!("Raw WPM: {}", self.get_calculated_raw_wpm()))
+        .style(Style::default().fg(layout.get_primary_color())),
+
+      Line::from(""),
+      Line::from(vec![
+        Span::from("↻ Try again"),
+        Span::from(" <CTRL + R>").style(
+          Style::default().fg(layout.get_primary_color()).bold()),
+      ]),
+    ]);
+
+    let p = Paragraph::new(text)
+      .block(block)
+      .alignment(Alignment::Center)
+      .centered()
+      .bold();
+
+    let vertical = Layout::vertical([Constraint::Percentage(30)]).flex(Flex::Center);
+    let horizontal = Layout::horizontal([Constraint::Percentage(30)]).flex(Flex::Center);
+    let [area] = vertical.areas(area);
+    let [area] = horizontal.areas(area);
+
+    frame.render_widget(Clear, area);
+    frame.render_widget(p, area);
+  }
+
 }

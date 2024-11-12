@@ -17,6 +17,11 @@ pub trait Window {
   fn is_active(&self) -> bool;
   fn toggle_active(&mut self);
 
+  /// After another window switched
+  fn hide(&mut self) {
+    self.toggle_active();
+  }
+
   /// Render window instructions
   fn render_instructions(&self, frame: &mut Frame, layout: &TukaiLayout, area: Rect);
 
