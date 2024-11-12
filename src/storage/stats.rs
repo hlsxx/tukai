@@ -8,6 +8,18 @@ pub enum TypingDuration {
   ThreeMinutes
 }
 
+impl TypingDuration {
+  pub fn to_string(&self) -> String {
+    let time = match self {
+      TypingDuration::Minute => "60s",
+      TypingDuration::ThirtySec => "30s",
+      TypingDuration::ThreeMinutes => "180s"
+    };
+
+    time.to_string()
+  }
+}
+
 #[allow(unused)]
 impl TypingDuration {
   pub fn as_seconds(&self) -> u32 {

@@ -94,6 +94,9 @@ impl Window for StatsWindow {
     let rows = stats.iter()
       .map(|stat| {
         Row::new(vec![
+          Cell::from(stat.get_duration().to_string())
+            .style(Style::default().fg(layout.get_text_color().to_dark())),
+
           Cell::from(stat.get_average_wpm().to_string())
             .style(default_cell_style),
 
@@ -106,9 +109,10 @@ impl Window for StatsWindow {
       }).collect::<Vec<Row>>();
 
     let widths = [
-      Constraint::Percentage(33),
-      Constraint::Percentage(33),
-      Constraint::Percentage(33),
+      Constraint::Percentage(25),
+      Constraint::Percentage(25),
+      Constraint::Percentage(25),
+      Constraint::Percentage(25)
     ];
 
     let default_header_cell_style = Style::default()
@@ -121,13 +125,16 @@ impl Window for StatsWindow {
       .style(Style::new().bg(layout.get_background_color()))
       .header(
         Row::new(vec![
-          Cell::from("Average WPM")
+          Cell::from("⏳ Duration")
             .style(default_header_cell_style),
 
-          Cell::from("Accuracy")
+          Cell::from("🔥 Average WPM")
             .style(default_header_cell_style),
 
-          Cell::from("Raw WPM")
+          Cell::from("🎯 Accuracy")
+            .style(default_header_cell_style),
+
+          Cell::from("🥩 Raw WPM")
             .style(default_header_cell_style),
         ]).bottom_margin(1)
       );

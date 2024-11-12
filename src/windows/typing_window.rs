@@ -330,7 +330,7 @@ impl TypingWindow {
     let color = if self.is_active() { layout.get_primary_color() } else { layout.get_primary_color().to_dark() };
 
     let span = Span::from(
-      self.get_remaining_time().to_string())
+      format!("⏳{}", self.get_remaining_time().to_string()))
       .style(Style::default().fg(color).bold());
 
     let remaining_time_line = Line::from(vec![span]);
@@ -386,18 +386,18 @@ impl TypingWindow {
       .border_style(Style::new().fg(layout.get_primary_color()));
 
     let text = Text::from(vec![
-      Line::from(format!("Average WPM: {}", self.get_calculated_wpm()))
+      Line::from(format!("🔥 Average WPM: {}", self.get_calculated_wpm()))
         .style(Style::default().fg(layout.get_primary_color())),
 
-      Line::from(format!("Accuracy: {}%", self.get_calculated_accuracy()))
+      Line::from(format!("🎯 Accuracy: {}%", self.get_calculated_accuracy()))
         .style(Style::default().fg(layout.get_primary_color())),
 
-      Line::from(format!("Raw WPM: {}", self.get_calculated_raw_wpm()))
-        .style(Style::default().fg(layout.get_primary_color())),
+      Line::from(format!("🥩 Raw WPM: {}", self.get_calculated_raw_wpm()))
+        .style(Style::default().fg(layout.get_primary_color().to_dark())),
 
       Line::from(""),
       Line::from(vec![
-        Span::from("↻ Try again"),
+        Span::from("Try again"),
         Span::from(" <CTRL + R>").style(
           Style::default().fg(layout.get_primary_color()).bold()),
       ]),
@@ -409,8 +409,8 @@ impl TypingWindow {
       .centered()
       .bold();
 
-    let vertical = Layout::vertical([Constraint::Percentage(30)]).flex(Flex::Center);
-    let horizontal = Layout::horizontal([Constraint::Percentage(30)]).flex(Flex::Center);
+    let vertical = Layout::vertical([Constraint::Percentage(22)]).flex(Flex::Center);
+    let horizontal = Layout::horizontal([Constraint::Percentage(22)]).flex(Flex::Center);
     let [area] = vertical.areas(area);
     let [area] = horizontal.areas(area);
 

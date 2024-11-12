@@ -4,9 +4,8 @@ use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 
 use crate::file_handler::FileHandler;
-use crate::layout::{Layout, LayoutType};
 
-use super::stats::{Stat, TypingDuration};
+use super::stats::Stat;
 use super::activities::Activities;
 
 #[derive(Deserialize, Serialize, Hash, PartialEq, Eq, Debug)]
@@ -19,12 +18,6 @@ pub enum StorageDataType {
 pub enum StorageDataValue {
   Stats(Vec<Stat>),
   Activites(Activities)
-}
-
-impl StorageDataValue {
-  // pub fn insert_stats(stat_name: String, stat_value: i32) -> Self {
-  //   StorageDataValue::Stats(Stats { stat_name, stat_value })
-  // }
 }
 
 type StorageData = HashMap<StorageDataType, StorageDataValue>;
@@ -45,6 +38,7 @@ impl StorageHandler {
     }
   }
 
+  #[allow(unused)]
   /// Default data for the storage
   ///
   /// Create an empty Vec for stats
@@ -80,16 +74,9 @@ impl StorageHandler {
     Ok(self)
   }
 
+  #[allow(unused)]
   pub fn get_data(&self) -> &StorageData {
     &self.data
-  }
-
-  pub fn get_data_stats(&self) -> Option<&Vec<Stat>> {
-    if let Some(StorageDataValue::Stats(stats)) = self.data.get(&StorageDataType::Stats) {
-      Some(stats)
-    } else {
-      None
-    }
   }
 
   pub fn get_data_stats_reversed(&self) -> Option<Vec<Stat>> {
@@ -114,23 +101,13 @@ impl StorageHandler {
   }
 
   /// Gets the activities from the storage
+  #[allow(unused)]
   fn get_data_activities_mut(&mut self) -> Option<&Activities> {
     if let Some(StorageDataValue::Activites(activities)) = self.data.get_mut(&StorageDataType::Activities) {
       Some(activities)
     } else {
       None
     }
-  }
-
-  /// Loads all data
-  fn load(&self) -> StorageData {
-    let data_bytes = FileHandler::read_bytes_from_file(&self.file_path)
-      .unwrap();
-
-    let data = bincode::deserialize::<StorageData>(&data_bytes)
-      .unwrap();
-
-    data
   }
 
   /// Flush all data
@@ -183,7 +160,7 @@ mod tests {
   // Just validate if binary file was created right
   fn storage_load() {
     let storage_handler = get_storage_handler();
-    let storage_data= storage_handler.load();
+    let storage_data = storage_handler.get_data();
 
     assert!(storage_data.get(&StorageDataType::Stats).is_some(), "Stats not initialized successfully");
     assert!(storage_data.get(&StorageDataType::Activities).is_some(), "Activities not initialized successfully");
@@ -228,7 +205,7 @@ mod tests {
 
     println!("{:?}", storage_handler.get_data());
 
-    let data = storage_handler.load();
+    let data = storage_handler.get_data();
     println!("{:?}", data);
   }
 }
