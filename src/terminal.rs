@@ -1,10 +1,9 @@
 use crossterm::event::KeyModifiers;
-use ratatui::widgets::BorderType;
 use crate::config::Package;
 use crate::event_handler::{EventHandler, TukaiEvent};
 use crate::tools::loader::Loader;
 use crate::windows::{
-  typing_window::{TypingWindow,Stats},
+  typing_window::TypingWindow,
   stats_window::StatsWindow
 };
 
@@ -68,6 +67,12 @@ impl<'a> App<'a> {
     }
   }
 
+  pub fn init(mut self) -> Self {
+    let _ = self.layout.init_layout();
+
+    self
+  }
+
   /// Runs the Tukai application
   /// 
   /// Renders TUI
@@ -118,7 +123,7 @@ impl<'a> App<'a> {
         self.typing_window.time_secs = self.time_secs;
 
         if self.typing_window.get_remaining_time() == 0 {
-          self.typing_window.stop(true);
+          self.typing_window.stop();
         }
 
         // Renders

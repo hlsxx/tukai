@@ -8,12 +8,14 @@ use ratatui::{
   }, Frame
 };
 
-use crate::{common, storage::{stats::{Stat, TypingDuration}, storage_handler}};
-
-use crate::{
-  storage::storage_handler::StorageHandler, configs::typing_window_config::TypingWindowConfig, layout::{Layout as TukaiLayout, LayoutColorTypeEnum}, tools::generator::Generator, traits::{ToDark, Window}, widgets::instructions::{Instruction, InstructionWidget}
-};
-
+use crate::common;
+use crate::storage::stats::{Stat, TypingDuration};
+use crate::storage::storage_handler::StorageHandler;
+use crate::configs::typing_window_config::TypingWindowConfig;
+use crate::layout::{Layout as TukaiLayout, LayoutColorTypeEnum};
+use crate::tools::generator::Generator;
+use crate::traits::{ToDark, Window};
+use crate::widgets::instructions::{Instruction, InstructionWidget};
 
 pub struct Stats {
   mistakes_indexes: HashSet<usize>
@@ -211,11 +213,11 @@ impl TypingWindow {
   }
 
   /// Stops the running typing process
-  pub fn stop(&mut self, save_record: bool) {
+  pub fn stop(&mut self) {
     self.is_running = false;
     self.is_popup_visible = true;
 
-    if save_record && self.stat.is_none() {
+    if self.stat.is_none() {
       let stat = Stat::new(
         TypingDuration::Minute,
         self.input.len(),

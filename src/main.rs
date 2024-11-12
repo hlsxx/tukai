@@ -27,6 +27,7 @@ async fn main() -> Result<(), Box<dyn error::Error>> {
   terminal.clear()?;
 
   let app_result = App::new(config_package)
+    .init()
     .run(&mut event_handler, &mut terminal)
     .await;
 

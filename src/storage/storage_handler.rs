@@ -1,9 +1,10 @@
 use std::collections::HashMap;
-use std::{error, io};
+use std::io;
 use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 
 use crate::file_handler::FileHandler;
+use crate::layout::LayoutName;
 
 use super::stats::Stat;
 use super::activities::Activities;
@@ -11,13 +12,15 @@ use super::activities::Activities;
 #[derive(Deserialize, Serialize, Hash, PartialEq, Eq, Debug)]
 pub enum StorageDataType {
   Stats,
-  Activities
+  Activities,
+  Layout
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub enum StorageDataValue {
   Stats(Vec<Stat>),
-  Activites(Activities)
+  Activites(Activities),
+  Layout(LayoutName)
 }
 
 type StorageData = HashMap<StorageDataType, StorageDataValue>;
@@ -25,7 +28,6 @@ type StorageData = HashMap<StorageDataType, StorageDataValue>;
 pub struct StorageHandler {
   file_path: PathBuf,
   data: StorageData,
-  // active_layout_type: LayoutType
 }
 
 impl StorageHandler {
@@ -33,8 +35,7 @@ impl StorageHandler {
   pub fn new<P: AsRef<Path>>(file_path: P) -> Self {
     Self {
       file_path: file_path.as_ref().to_owned(),
-      data: HashMap::new(),
-      // active_layout_type: LayoutType::Classic
+      data: HashMap::new()
     }
   }
 
@@ -50,11 +51,13 @@ impl StorageHandler {
   pub fn default(self) -> Result<Self, std::io::Error> {
     let mut empty_data: StorageData = HashMap::new();
 
-    let empty_stats = StorageDataValue::Stats(Vec::new());
-    let empty_activities= StorageDataValue::Activites(Vec::new());
+    let default_stats = StorageDataValue::Stats(Vec::new());
+    let default_activities= StorageDataValue::Activites(Vec::new());
+    let default_layout = StorageDataValue::Layout(LayoutName::Neptune);
 
-    empty_data.insert(StorageDataType::Stats, empty_stats);
-    empty_data.insert(StorageDataType::Activities, empty_activities);
+    empty_data.insert(StorageDataType::Stats, default_stats);
+    empty_data.insert(StorageDataType::Activities, default_activities);
+    empty_data.insert(StorageDataType::Layout, default_layout);
 
     let data_bytes = bincode::serialize(&empty_data).unwrap();
     FileHandler::write_bytes_into_file(&self.file_path, &data_bytes)?;
@@ -86,6 +89,14 @@ impl StorageHandler {
         .map(|item| item.to_owned()).collect::<Vec<Stat>>();
 
       Some(stats_reversed)
+    } else {
+      None
+    }
+  }
+
+  pub fn get_active_layout_name(&self) -> Option<LayoutName> {
+    if let Some(StorageDataValue::Layout(layout)) = self.data.get(&StorageDataType::Layout) {
+      Some(layout.clone())
     } else {
       None
     }

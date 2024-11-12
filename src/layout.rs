@@ -1,8 +1,9 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, io};
 
 use ratatui::style::Color;
+use serde::{Deserialize, Serialize};
 
-use crate::traits::ToColor;
+use crate::{storage::storage_handler::{self, StorageHandler}, traits::ToColor};
 
 /// Type alias for representing an RGB color as a tuple
 type RgbColor = (u8, u8, u8);
@@ -22,8 +23,8 @@ pub enum LayoutColorTypeEnum {
   Error
 }
 
-#[derive(PartialEq, Eq, Hash)]
-pub enum LayoutType {
+#[derive(PartialEq, Eq, Hash, Debug, Serialize, Deserialize, Clone)]
+pub enum LayoutName {
   Venus,
   Neptune,
   Anime,
@@ -41,8 +42,8 @@ pub struct LayoutColors {
 }
 
 pub struct Layout {
-  layouts: HashMap<LayoutType, LayoutColors>,
-  active_layout_type: LayoutType
+  layouts: HashMap<LayoutName, LayoutColors>,
+  active_layout_name: LayoutName
 }
 
 impl Layout {
@@ -86,28 +87,39 @@ impl Layout {
 
     let mut layouts = HashMap::new();
 
-    layouts.insert(LayoutType::Venus, venus);
-    layouts.insert(LayoutType::Neptune, neptune);
-    layouts.insert(LayoutType::Anime, anime);
+    layouts.insert(LayoutName::Venus, venus);
+    layouts.insert(LayoutName::Neptune, neptune);
+    layouts.insert(LayoutName::Anime, anime);
 
     Self {
       layouts,
-      active_layout_type: LayoutType::Neptune
+      active_layout_name: LayoutName::Neptune
     }
   }
 
+  pub fn init_layout(&mut self) -> Result<(), io::Error> {
+    let storage_handler = StorageHandler::new("test.tukai")
+      .init()?;
+
+    if let Some(layout_name) = storage_handler.get_active_layout_name() {
+      self.active_layout_name = layout_name;
+    }
+
+    Ok(())
+  }
+
   pub fn switch_active_layout(&mut self) {
-    if self.active_layout_type == LayoutType::Neptune {
-      self.active_layout_type = LayoutType::Venus;
-    } else if self.active_layout_type == LayoutType::Venus {
-      self.active_layout_type = LayoutType::Anime;
+    if self.active_layout_name == LayoutName::Neptune {
+      self.active_layout_name = LayoutName::Venus;
+    } else if self.active_layout_name == LayoutName::Venus {
+      self.active_layout_name = LayoutName::Anime;
     } else {
-      self.active_layout_type = LayoutType::Neptune;
+      self.active_layout_name = LayoutName::Neptune;
     }
   }
 
   fn get_layout_colors(&self) -> &LayoutColors {
-    self.layouts.get(&self.active_layout_type).unwrap()
+    self.layouts.get(&self.active_layout_name).unwrap()
   }
 
   pub fn get_primary_color(&self) -> Color {
