@@ -27,6 +27,8 @@ type StorageData = HashMap<StorageDataType, StorageDataValue>;
 
 pub struct StorageHandler {
   file_path: PathBuf,
+
+  // Data stored in the binary file
   data: StorageData,
 }
 
@@ -37,6 +39,15 @@ impl StorageHandler {
       file_path: file_path.as_ref().to_owned(),
       data: HashMap::new()
     }
+  }
+
+  #[cfg(test)]
+  pub fn delete_file(&self) -> Result<(), io::Error> {
+    use std::fs;
+
+    fs::remove_file(&self.file_path)?;
+
+    Ok(())
   }
 
   #[allow(unused)]
@@ -65,14 +76,42 @@ impl StorageHandler {
     Ok(self)
   }
 
+  /// Inits empty data and write into the file
+  fn init_empty_data(&mut self) -> Result<(), io::Error> {
+    let mut empty_data: StorageData = HashMap::new();
+
+    let default_stats = StorageDataValue::Stats(Vec::new());
+    let default_activities= StorageDataValue::Activites(Vec::new());
+    let default_layout = StorageDataValue::Layout(LayoutName::Neptune);
+
+    empty_data.insert(StorageDataType::Stats, default_stats);
+    empty_data.insert(StorageDataType::Activities, default_activities);
+    empty_data.insert(StorageDataType::Layout, default_layout);
+
+    let data_bytes = bincode::serialize(&empty_data).unwrap();
+    FileHandler::write_bytes_into_file(&self.file_path, &data_bytes)?;
+
+    self.data = empty_data;
+
+    Ok(())
+  }
+
   /// Inits the storage
   ///
   /// Try to read all bytes from the storage file
   /// Then set into the data
   pub fn init(mut self) -> Result<Self, io::Error> {
-    if let Ok(data_bytes) = FileHandler::read_bytes_from_file(&self.file_path) {
-      self.data = bincode::deserialize(&data_bytes).unwrap();
+    if !self.file_path.exists() {
+      self.init_empty_data()?;
+      return Ok(self);
     }
+
+    let data_bytes = FileHandler::read_bytes_from_file(&self.file_path)?;
+
+    match bincode::deserialize(&data_bytes) {
+      Ok(data) => self.data = data,
+      Err(_) => self.init_empty_data()?
+    };
 
     Ok(self)
   }
@@ -105,8 +144,10 @@ impl StorageHandler {
   /// Gets the stats from the storage
   fn get_data_stats_mut(&mut self) -> Option<&mut Vec<Stat>> {
     if let Some(StorageDataValue::Stats(stats)) = self.data.get_mut(&StorageDataType::Stats) {
+      println!("SOME");
       Some(stats)
     } else {
+      println!("NONE");
       None
     }
   }
@@ -146,14 +187,13 @@ impl StorageHandler {
 #[cfg(test)]
 mod tests {
   use crate::storage::stats::TypingDuration;
+  use uuid::Uuid;
   use super::*;
 
   fn get_storage_handler() -> StorageHandler {
-    let storage_helper = StorageHandler::new("test.tukai")
-      .default()
-      .unwrap()
+    let storage_helper = StorageHandler::new(format!("tests/{}.tukai", Uuid::new_v4()))
       .init()
-      .unwrap();
+      .expect("Failed to initialize storage file");
 
     storage_helper
   }
@@ -175,6 +215,9 @@ mod tests {
 
     assert!(storage_data.get(&StorageDataType::Stats).is_some(), "Stats not initialized successfully");
     assert!(storage_data.get(&StorageDataType::Activities).is_some(), "Activities not initialized successfully");
+    assert!(storage_data.get(&StorageDataType::Layout).is_some(), "Layout not initialized successfully");
+
+    storage_handler.delete_file().expect("Error occured while deleting file");
   }
 
   #[test]
@@ -199,6 +242,8 @@ mod tests {
     let stat_from_memory = &stats_unwraped[0];
 
     assert_eq!(stat_from_memory.get_average_wpm(), stat.get_average_wpm());
+
+    storage_handler.delete_file().expect("Error occured while deleting file");
   }
 
   #[test]
@@ -207,6 +252,8 @@ mod tests {
     storage_handler.insert_into_stats(&get_test_stat());
 
     assert!(storage_handler.flush().is_ok());
+
+    storage_handler.delete_file().expect("Error occured while deleting file");
   }
 
   #[test]
@@ -218,5 +265,7 @@ mod tests {
 
     let data = storage_handler.get_data();
     println!("{:?}", data);
+
+    storage_handler.delete_file().expect("Error occured while deleting file");
   }
 }
