@@ -75,7 +75,7 @@ impl Window for StatsWindow {
     layout: &TukaiLayout,
     area: Rect
   ) {
-    let storage_handler = StorageHandler::new("test.tukai")
+    let storage_handler = StorageHandler::new("tukai.bin")
       .init()
       .unwrap();
 

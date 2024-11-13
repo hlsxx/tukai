@@ -165,7 +165,7 @@ impl StorageHandler {
     let data_bytes = bincode::serialize(&self.data)
       .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
 
-    FileHandler::write_bytes_into_file("test.tukai", &data_bytes)
+    FileHandler::write_bytes_into_file(&self.file_path, &data_bytes)
   }
 
   pub fn insert_into_stats(

@@ -107,6 +107,11 @@ impl Layout {
   //
   //   Ok(())
   // }
+  //
+
+  pub fn active_layout_name(&mut self, active_layout_name: LayoutName) {
+    self.active_layout_name = active_layout_name;
+  }
 
   pub fn switch_active_layout(&mut self) -> LayoutName {
     if self.active_layout_name == LayoutName::Neptune {

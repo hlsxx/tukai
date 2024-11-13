@@ -226,10 +226,10 @@ impl TypingWindow {
       );
 
       // TODO: Some action if not set into the binary
-      StorageHandler::new("test.tukai")
-        .init()
-        .unwrap()
-        .insert_into_stats(&stat);
+      // StorageHandler::new("tukai.bin")
+      //   .init()
+      //   .unwrap()
+      //   .insert_into_stats(&stat);
 
       self.stat = Some(stat);
     }

@@ -125,7 +125,13 @@ impl<'a> App<'a> {
   /// Storage handler (not reuired)
   pub fn init(mut self) -> Self {
     match StorageHandler::new(&self.config.file_path).init() {
-      Ok(storage_handler) => self.storage_handler = Some(storage_handler),
+      Ok(storage_handler) => {
+        if let Some(active_layout_name) = storage_handler.get_active_layout_name() {
+          self.config.layout.active_layout_name(active_layout_name);
+        }
+
+        self.storage_handler = Some(storage_handler);
+      },
       Err(_) => {}
     }
 
@@ -245,6 +251,7 @@ impl<'a> App<'a> {
               if let Some(storage_handler) = self.storage_handler.as_mut() {
                 let layout_name_new = self.config.layout.switch_active_layout();
                 storage_handler.switch_layout(layout_name_new);
+                // println!("{:?}", storage_handler.get_data());
               }
             },
             'l' => self.switch_active_window(ActiveWindowEnum::Stats),
