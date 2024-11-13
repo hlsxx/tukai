@@ -97,18 +97,18 @@ impl Layout {
     }
   }
 
-  pub fn init_layout(&mut self) -> Result<(), io::Error> {
-    let storage_handler = StorageHandler::new("test.tukai")
-      .init()?;
+  // pub fn init(&mut self) -> Result<(), io::Error> {
+  //   let storage_handler = StorageHandler::new("test.tukai")
+  //     .init()?;
+  //
+  //   if let Some(layout_name) = storage_handler.get_active_layout_name() {
+  //     self.active_layout_name = layout_name;
+  //   }
+  //
+  //   Ok(())
+  // }
 
-    if let Some(layout_name) = storage_handler.get_active_layout_name() {
-      self.active_layout_name = layout_name;
-    }
-
-    Ok(())
-  }
-
-  pub fn switch_active_layout(&mut self) {
+  pub fn switch_active_layout(&mut self) -> LayoutName {
     if self.active_layout_name == LayoutName::Neptune {
       self.active_layout_name = LayoutName::Venus;
     } else if self.active_layout_name == LayoutName::Venus {
@@ -116,6 +116,8 @@ impl Layout {
     } else {
       self.active_layout_name = LayoutName::Neptune;
     }
+
+    self.active_layout_name.clone()
   }
 
   fn get_layout_colors(&self) -> &LayoutColors {

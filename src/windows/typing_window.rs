@@ -376,7 +376,7 @@ impl TypingWindow {
   }
 
   pub fn render_popup(
-    &mut self,
+    &self,
     frame: &mut Frame,
     layout: &TukaiLayout
   ) {

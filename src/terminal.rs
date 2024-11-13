@@ -1,6 +1,7 @@
 use crossterm::event::KeyModifiers;
 use crate::config::Package;
 use crate::event_handler::{EventHandler, TukaiEvent};
+use crate::storage::storage_handler::StorageHandler;
 use crate::tools::loader::Loader;
 use crate::windows::{
   typing_window::TypingWindow,
@@ -12,6 +13,7 @@ use crate::layout::Layout as TukaiLayout;
 use crate::traits::Window;
 
 use std::error;
+use std::path::{Path, PathBuf};
 use ratatui::{
   crossterm::event::{KeyCode, KeyEvent},
   layout::{Alignment, Constraint, Flex, Layout, Rect},
@@ -28,10 +30,57 @@ enum ActiveWindowEnum {
   Stats
 }
 
-pub struct App<'a> {
-  layout: TukaiLayout,
+pub struct AppConfig {
+  file_path: PathBuf,
+  layout: TukaiLayout
+}
 
-  config_package: Package,
+impl AppConfig {
+  pub fn default() -> Self {
+    Self {
+      file_path: PathBuf::from("tukai.bin"),
+      layout: TukaiLayout::default()
+    }
+  }
+}
+
+pub struct AppConfigBuilder {
+  file_path: Option<PathBuf>,
+  layout: Option<TukaiLayout>
+}
+
+impl AppConfigBuilder {
+  pub fn new() -> Self {
+    Self {
+      file_path: None,
+      layout: None
+    }
+  }
+
+  pub fn file_path<P: AsRef<Path>>(mut self, file_path: P) -> Self {
+    self.file_path = Some(file_path.as_ref().to_path_buf());
+    self
+  }
+
+  pub fn layout(mut self, layout: TukaiLayout) -> Self {
+    self.layout = Some(layout);
+    self
+  }
+
+  pub fn build(self) -> AppConfig {
+    let config_default = AppConfig::default();
+
+    AppConfig {
+      file_path: self.file_path.unwrap_or(config_default.file_path),
+      layout: self.layout.unwrap_or(config_default.layout)
+    }
+  }
+}
+
+pub struct App<'a> {
+  config: AppConfig,
+
+  storage_handler: Option<StorageHandler>,
 
   is_exit: bool,
 
@@ -48,11 +97,11 @@ pub struct App<'a> {
 impl<'a> App<'a> {
 
   /// Creates new Tukai App
-  pub fn new(config_package: Package) -> Self {
+  pub fn new(config: AppConfig) -> Self {
     Self {
-      layout: TukaiLayout::default(),
+      config,
 
-      config_package,
+      storage_handler: None,
 
       is_exit: false,
 
@@ -67,8 +116,18 @@ impl<'a> App<'a> {
     }
   }
 
+  fn get_config_layout(&self) -> &TukaiLayout {
+    &self.config.layout
+  }
+
+  /// Inits the App
+  ///
+  /// Storage handler (not reuired)
   pub fn init(mut self) -> Self {
-    let _ = self.layout.init_layout();
+    match StorageHandler::new(&self.config.file_path).init() {
+      Ok(storage_handler) => self.storage_handler = Some(storage_handler),
+      Err(_) => {}
+    }
 
     self
   }
@@ -127,16 +186,16 @@ impl<'a> App<'a> {
         }
 
         // Renders
-        self.typing_window.render(frame, &self.layout, main_layout[0]);
-        self.typing_window.render_instructions(frame, &self.layout, main_layout[1]);
+        self.typing_window.render(frame, &self.get_config_layout(), main_layout[0]);
+        self.typing_window.render_instructions(frame, &self.get_config_layout(), main_layout[1]);
 
         if self.typing_window.is_popup_visible() {
-          self.typing_window.render_popup(frame, &self.layout);
+          self.typing_window.render_popup(frame, &self.get_config_layout());
         }
       },
       ActiveWindowEnum::Stats => {
-        self.stats_window.render(frame, &self.layout, main_layout[0]);
-        self.stats_window.render_instructions(frame, &self.layout, main_layout[1]);
+        self.stats_window.render(frame, &self.get_config_layout(), main_layout[0]);
+        self.stats_window.render_instructions(frame, &self.get_config_layout(), main_layout[1]);
       }
     }
   }
@@ -155,7 +214,14 @@ impl<'a> App<'a> {
     self.typing_window.reset();
   }
 
+  /// Exits running application
+  ///
+  /// Try to flush storage data
   fn exit(&mut self) {
+    if let Some(storage_handler) = &self.storage_handler {
+      storage_handler.flush().expect("Error occured while saving into the file");
+    }
+
     self.is_exit = true;
   }
 
@@ -168,14 +234,19 @@ impl<'a> App<'a> {
     self.active_window = switch_to_window;
   }
 
-  /// If the child window does not consume the event, check the keycodes.
+  /// If the child window does not consume the event, check the keycodes
   fn handle_events(&mut self, key_event: KeyEvent) {
     if key_event.modifiers.contains(KeyModifiers::CONTROL) {
       match key_event.code {
         KeyCode::Char(c) => {
           match c {
             'r' => self.reset(),
-            's' => self.layout.switch_active_layout(),
+            's' => {
+              if let Some(storage_handler) = self.storage_handler.as_mut() {
+                let layout_name_new = self.config.layout.switch_active_layout();
+                storage_handler.switch_layout(layout_name_new);
+              }
+            },
             'l' => self.switch_active_window(ActiveWindowEnum::Stats),
             'c' => self.exit(),
             _ => {}

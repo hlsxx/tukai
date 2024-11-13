@@ -16,17 +16,23 @@ mod common;
 use core::error;
 use config::Config;
 use event_handler::EventHandler;
-use terminal::App;
+use layout::Layout as TukaiLayout;
+use terminal::{App, AppConfigBuilder};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn error::Error>> {
-  let config_package = Config::get_package()?;
+  // let config_package = Config::get_package()?;
   let mut terminal = ratatui::init();
   let mut event_handler = EventHandler::new();
 
+  let app_config = AppConfigBuilder::new()
+    .file_path("tukai.bin")
+    .layout(TukaiLayout::default())
+    .build();
+
   terminal.clear()?;
 
-  let app_result = App::new(config_package)
+  let app_result = App::new(app_config)
     .init()
     .run(&mut event_handler, &mut terminal)
     .await;

@@ -144,10 +144,8 @@ impl StorageHandler {
   /// Gets the stats from the storage
   fn get_data_stats_mut(&mut self) -> Option<&mut Vec<Stat>> {
     if let Some(StorageDataValue::Stats(stats)) = self.data.get_mut(&StorageDataType::Stats) {
-      println!("SOME");
       Some(stats)
     } else {
-      println!("NONE");
       None
     }
   }
@@ -163,7 +161,7 @@ impl StorageHandler {
   }
 
   /// Flush all data
-  fn flush(&self) -> Result<(), std::io::Error> {
+  pub fn flush(&self) -> Result<(), std::io::Error> {
     let data_bytes = bincode::serialize(&self.data)
       .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
 
@@ -177,6 +175,18 @@ impl StorageHandler {
     if let Some(stats) = self.get_data_stats_mut() {
       stats.push(stat.clone());
       return self.flush().is_ok();
+    }
+
+    false
+  }
+
+  pub fn switch_layout(
+    &mut self,
+    layout_name_changed: LayoutName
+  ) -> bool {
+    if let Some(StorageDataValue::Layout(layout_name)) = self.data.get_mut(&StorageDataType::Layout) {
+      *layout_name = layout_name_changed;
+      return true;
     }
 
     false
