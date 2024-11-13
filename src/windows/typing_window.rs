@@ -46,6 +46,8 @@ impl Stats {
 }
 
 pub struct TypingWindow {
+  // storage_handler: Option<&'a mut StorageHandler>,
+
   /// Random generated text
   pub generated_text: String,
 
@@ -82,6 +84,8 @@ pub struct TypingWindow {
 impl Window for TypingWindow {
   fn default() -> Self {
     Self {
+      // storage_handler,
+
       generated_text: Generator::generate_random_string(50),
       input: String::new(),
 
@@ -213,7 +217,7 @@ impl TypingWindow {
   }
 
   /// Stops the running typing process
-  pub fn stop(&mut self) {
+  pub fn stop(&mut self, storage_handler: Option<&mut StorageHandler>) {
     self.is_running = false;
     self.is_popup_visible = true;
 
@@ -226,10 +230,9 @@ impl TypingWindow {
       );
 
       // TODO: Some action if not set into the binary
-      // StorageHandler::new("tukai.bin")
-      //   .init()
-      //   .unwrap()
-      //   .insert_into_stats(&stat);
+      if let Some(storage_handler) = storage_handler {
+        storage_handler.insert_into_stats(&stat);
+      }
 
       self.stat = Some(stat);
     }

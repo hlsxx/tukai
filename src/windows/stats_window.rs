@@ -78,7 +78,7 @@ impl Window for StatsWindow {
     let storage_handler = StorageHandler::new("tukai.bin")
       .init()
       .unwrap();
-
+    
     let stats = storage_handler.get_data_stats_reversed().unwrap();
 
     let block = Block::new()

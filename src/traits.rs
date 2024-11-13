@@ -4,9 +4,10 @@ use ratatui::{
   layout::Rect, style::Color, Frame
 };
 
-use crate::layout::Layout as TukaiLayout;
+use crate::{layout::Layout as TukaiLayout, storage::storage_handler::StorageHandler};
 
 pub trait Window {
+  //fn default(storage_handle: Option<&mut StorageHandler>) -> Self;
   fn default() -> Self;
 
   /// Handle events

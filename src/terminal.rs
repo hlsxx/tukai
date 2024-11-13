@@ -188,7 +188,7 @@ impl<'a> App<'a> {
         self.typing_window.time_secs = self.time_secs;
 
         if self.typing_window.get_remaining_time() == 0 {
-          self.typing_window.stop();
+          self.typing_window.stop(self.storage_handler.as_mut());
         }
 
         // Renders
