@@ -25,8 +25,9 @@ pub enum LayoutColorTypeEnum {
 
 #[derive(PartialEq, Eq, Hash, Debug, Serialize, Deserialize, Clone)]
 pub enum LayoutName {
-  Venus,
   Neptune,
+  Deadpool,
+  Wolverine,
   Anime,
   Premium
 }
@@ -48,19 +49,19 @@ pub struct Layout {
 
 impl Layout {
   pub fn default() -> Self {
-    let venus = LayoutColors {
-      primary: (207, 112, 154),
-
-      text: (207, 112, 154),
-      text_done: (156, 86, 153),
-
-      text_current: (100, 100, 100),
-      text_current_bg: (50, 50, 50),
-
-      background: (252, 252, 252),
-      error: (214, 90, 90),
-    };
-
+    // let venus = LayoutColors {
+    //   primary: (207, 112, 154),
+    //
+    //   text: (207, 112, 154),
+    //   text_done: (156, 86, 153),
+    //
+    //   text_current: (100, 100, 100),
+    //   text_current_bg: (50, 50, 50),
+    //
+    //   background: (252, 252, 252),
+    //   error: (214, 90, 90),
+    // };
+    //
     let neptune = LayoutColors {
       primary: (108, 181, 230),
       text: (232, 232, 232),
@@ -71,6 +72,30 @@ impl Layout {
 
       background: (37, 40, 46),
       error: (214, 90, 90),
+    };
+
+    let deadpool = LayoutColors {
+      primary: (139,35,35),
+      text: (210, 210, 210),
+
+      text_done: (232, 232, 232),
+      text_current: (23,23,23),
+      text_current_bg: (210, 210, 210),
+
+      background: (33, 29, 29),
+      error: (110, 110, 110),
+    };
+
+    let wolverine = LayoutColors {
+      primary: (196, 166, 51),
+      text: (196, 166, 51),
+
+      text_done: (232, 232, 232),
+      text_current: (23,23,23),
+      text_current_bg: (210, 210, 210),
+
+      background: (10, 14, 18),
+      error: (110, 110, 110),
     };
 
     let anime = LayoutColors {
@@ -87,8 +112,10 @@ impl Layout {
 
     let mut layouts = HashMap::new();
 
-    layouts.insert(LayoutName::Venus, venus);
+    // layouts.insert(LayoutName::Venus, venus);
     layouts.insert(LayoutName::Neptune, neptune);
+    layouts.insert(LayoutName::Deadpool, deadpool);
+    layouts.insert(LayoutName::Wolverine, wolverine);
     layouts.insert(LayoutName::Anime, anime);
 
     Self {
@@ -113,11 +140,23 @@ impl Layout {
     self.active_layout_name = active_layout_name;
   }
 
+  pub fn get_active_layout_title(&self) -> &str {
+    match self.active_layout_name {
+      LayoutName::Neptune => "Neptune",
+      LayoutName::Anime => "Anime",
+      LayoutName::Premium => "Premium",
+      LayoutName::Deadpool => "🩸🔞 Deadpool",
+      LayoutName::Wolverine => "💪🍺 Wolverine"
+    }
+  }
+
   pub fn switch_active_layout(&mut self) -> LayoutName {
     if self.active_layout_name == LayoutName::Neptune {
-      self.active_layout_name = LayoutName::Venus;
-    } else if self.active_layout_name == LayoutName::Venus {
       self.active_layout_name = LayoutName::Anime;
+    } else if self.active_layout_name == LayoutName::Anime {
+      self.active_layout_name = LayoutName::Deadpool;
+    } else if self.active_layout_name == LayoutName::Deadpool {
+      self.active_layout_name = LayoutName::Wolverine;
     } else {
       self.active_layout_name = LayoutName::Neptune;
     }

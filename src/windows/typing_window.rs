@@ -155,8 +155,13 @@ impl Window for TypingWindow {
     layout: &TukaiLayout,
     area: Rect
   ) {
+    let block_title = common::get_title(
+      layout.get_active_layout_title(),
+      "Typing"
+    );
+
     let block = Block::new()
-      .title(common::get_title("Stats"))
+      .title(block_title)
       .title_bottom(self.motto.as_ref())
       .title_style(Style::default().fg(layout.get_primary_color()))
       .title_alignment(Alignment::Center)

@@ -82,7 +82,7 @@ impl Window for StatsWindow {
     let stats = storage_handler.get_data_stats_reversed().unwrap();
 
     let block = Block::new()
-      .title(common::get_title("Typing"))
+      .title(common::get_title(layout.get_active_layout_title(), "Stats"))
       .title_style(Style::new().fg(layout.get_primary_color()))
       .borders(Borders::ALL)
       .border_style(Style::default().fg(layout.get_primary_color()))
