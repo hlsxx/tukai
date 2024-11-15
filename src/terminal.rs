@@ -1,8 +1,6 @@
 use crossterm::event::KeyModifiers;
-use crate::config::Package;
 use crate::event_handler::{EventHandler, TukaiEvent};
 use crate::storage::storage_handler::StorageHandler;
-use crate::tools::loader::Loader;
 use crate::windows::{
   typing_window::TypingWindow,
   stats_window::StatsWindow
@@ -16,10 +14,7 @@ use std::error;
 use std::path::{Path, PathBuf};
 use ratatui::{
   crossterm::event::{KeyCode, KeyEvent},
-  layout::{Alignment, Constraint, Flex, Layout, Rect},
-  style::{Color, Style, Stylize},
-  text::{Line, Span, Text},
-  widgets::{Block, Clear, Paragraph},
+  layout::{Constraint, Layout},
   DefaultTerminal,
   Frame
 };
@@ -77,8 +72,10 @@ impl AppConfigBuilder {
   }
 }
 
-pub struct App<'a> {
+pub struct App {
   config: AppConfig,
+
+  // version: Option<String>,
 
   storage_handler: Option<StorageHandler>,
 
@@ -86,7 +83,6 @@ pub struct App<'a> {
 
   time_secs: u32,
 
-  loader: Loader<'a>,
   active_window: ActiveWindowEnum,
 
   // Windows
@@ -94,12 +90,14 @@ pub struct App<'a> {
   stats_window: StatsWindow
 }
 
-impl<'a> App<'a> {
+impl App {
 
   /// Creates new Tukai App
   pub fn new(config: AppConfig) -> Self {
     Self {
       config,
+
+      // version: None,
 
       storage_handler: None,
 
@@ -107,7 +105,7 @@ impl<'a> App<'a> {
 
       time_secs: 0,
 
-      loader: Loader::new(),
+      //loader: Loader::new(),
 
       active_window: ActiveWindowEnum::Typing,
 
@@ -119,6 +117,10 @@ impl<'a> App<'a> {
   fn get_config_layout(&self) -> &TukaiLayout {
     &self.config.layout
   }
+
+  // fn get_version(&self) -> String {
+  //   self.version.clone().unwrap_or("x.x.x".to_string())
+  // }
 
   /// Inits the App
   ///
@@ -134,6 +136,15 @@ impl<'a> App<'a> {
       },
       Err(_) => {}
     }
+
+    // match FileHandler::read_bytes_from_file("Cargo.toml") {
+    //   Ok(toml_data) => {
+    //     let toml_config = str::from_utf8(&toml_data).unwrap();
+    //     let tukai_config = toml::from_str::<Config>(&toml_config).unwrap();
+    //     self.version = Some(tukai_config.package.version);
+    //   },
+    //   Err(_) => {}
+    // }
 
     self
   }

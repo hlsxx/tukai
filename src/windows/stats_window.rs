@@ -1,12 +1,11 @@
-use crate::{common, layout::LayoutColorTypeEnum, storage::storage_handler::{self, StorageHandler}, traits::Window, widgets::instructions::{Instruction, InstructionWidget}};
+use crate::{common, layout::LayoutColorTypeEnum, storage::storage_handler::StorageHandler, traits::Window, widgets::instructions::{Instruction, InstructionWidget}};
 
-use crossterm::event::{KeyCode, KeyEvent};
-use std::env;
+use crossterm::event::KeyEvent;
 
 use ratatui::{
   layout::{Alignment, Constraint, Rect},
   style::{Style, Stylize},
-  widgets::{block::Title, Block, BorderType, Borders, Cell, Padding, Paragraph, Row, Table},
+  widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table},
   Frame
 };
 
@@ -14,18 +13,12 @@ use crate::layout::Layout as TukaiLayout;
 use crate::traits::ToDark;
 
 pub struct StatsWindow {
-  pub input: String,
-
   is_active: bool
 }
 
 impl Window for StatsWindow {
   fn default() -> Self {
-    let path = env::current_dir().expect("Error getting current path");
-
     Self {
-      input: path.to_string_lossy().into_owned(),
-
       is_active: false
     }
   }
@@ -38,7 +31,8 @@ impl Window for StatsWindow {
     self.is_active
   }
 
-  fn handle_events(&mut self, key: KeyEvent) -> bool {
+  #[allow(dead_code)]
+  fn handle_events(&mut self, _key: KeyEvent) -> bool {
     false
     // match key.code {
     //   KeyCode::Char(c) => self.input.push(c),

@@ -1,9 +1,9 @@
-use std::{collections::HashMap, io};
+use std::collections::HashMap;
 
 use ratatui::style::Color;
 use serde::{Deserialize, Serialize};
 
-use crate::{storage::storage_handler::{self, StorageHandler}, traits::ToColor};
+use crate::traits::ToColor;
 
 /// Type alias for representing an RGB color as a tuple
 type RgbColor = (u8, u8, u8);
@@ -14,6 +14,7 @@ impl ToColor for RgbColor {
   }
 }
 
+#[allow(dead_code)]
 pub enum LayoutColorTypeEnum {
   Primary,
   Secondary,
@@ -26,16 +27,15 @@ pub enum LayoutColorTypeEnum {
 #[derive(PartialEq, Eq, Hash, Debug, Serialize, Deserialize, Clone)]
 pub enum LayoutName {
   Neptune,
-  Deadpool,
-  Wolverine,
   Anime,
-  Premium
+  Deadpool,
+  Wolverine
 }
 
 pub struct LayoutColors {
   primary: RgbColor,
   text: RgbColor,
-  text_done: RgbColor,
+  // text_done: RgbColor,
   text_current: RgbColor,
   text_current_bg: RgbColor,
   background: RgbColor,
@@ -66,7 +66,7 @@ impl Layout {
       primary: (108, 181, 230),
       text: (232, 232, 232),
 
-      text_done: (232, 232, 232),
+      // text_done: (232, 232, 232),
       text_current: (25, 74, 107),
       text_current_bg: (200, 200, 200),
 
@@ -78,7 +78,7 @@ impl Layout {
       primary: (139,35,35),
       text: (210, 210, 210),
 
-      text_done: (232, 232, 232),
+      // text_done: (232, 232, 232),
       text_current: (23,23,23),
       text_current_bg: (210, 210, 210),
 
@@ -88,9 +88,9 @@ impl Layout {
 
     let wolverine = LayoutColors {
       primary: (196, 166, 51),
-      text: (196, 166, 51),
+      text: (200, 200, 200),
 
-      text_done: (232, 232, 232),
+      // text_done: (232, 232, 232),
       text_current: (23,23,23),
       text_current_bg: (210, 210, 210),
 
@@ -100,7 +100,7 @@ impl Layout {
 
     let anime = LayoutColors {
       primary: (216, 175, 193),
-      text_done: (207, 147, 150),
+      // text_done: (207, 147, 150),
 
       text: (237, 237, 237),
       text_current: (50, 50, 50),
@@ -112,7 +112,6 @@ impl Layout {
 
     let mut layouts = HashMap::new();
 
-    // layouts.insert(LayoutName::Venus, venus);
     layouts.insert(LayoutName::Neptune, neptune);
     layouts.insert(LayoutName::Deadpool, deadpool);
     layouts.insert(LayoutName::Wolverine, wolverine);
@@ -124,18 +123,6 @@ impl Layout {
     }
   }
 
-  // pub fn init(&mut self) -> Result<(), io::Error> {
-  //   let storage_handler = StorageHandler::new("test.tukai")
-  //     .init()?;
-  //
-  //   if let Some(layout_name) = storage_handler.get_active_layout_name() {
-  //     self.active_layout_name = layout_name;
-  //   }
-  //
-  //   Ok(())
-  // }
-  //
-
   pub fn active_layout_name(&mut self, active_layout_name: LayoutName) {
     self.active_layout_name = active_layout_name;
   }
@@ -143,8 +130,7 @@ impl Layout {
   pub fn get_active_layout_title(&self) -> &str {
     match self.active_layout_name {
       LayoutName::Neptune => "Neptune",
-      LayoutName::Anime => "Anime",
-      LayoutName::Premium => "Premium",
+      LayoutName::Anime => "🌸 Anime",
       LayoutName::Deadpool => "🩸🔞 Deadpool",
       LayoutName::Wolverine => "💪🍺 Wolverine"
     }
@@ -176,9 +162,9 @@ impl Layout {
     self.get_layout_colors().text.to_color()
   }
 
-  pub fn get_text_done_color(&self) -> Color {
-    self.get_layout_colors().text_done.to_color()
-  }
+  // pub fn get_text_done_color(&self) -> Color {
+  //   self.get_layout_colors().text_done.to_color()
+  // }
 
   pub fn get_text_current_color(&self) -> Color {
     self.get_layout_colors().text_current.to_color()

@@ -11,19 +11,19 @@ pub enum TukaiEvent {
 }
 
 pub struct EventHandler {
-  tx: mpsc::UnboundedSender<TukaiEvent>,
+  _tx: mpsc::UnboundedSender<TukaiEvent>,
   rx: mpsc::UnboundedReceiver<TukaiEvent>,
-  task: tokio::task::JoinHandle<()>,
+  _task: tokio::task::JoinHandle<()>,
 }
 
 impl EventHandler {
   pub fn new() -> Self {
     let tick_rate = Duration::from_secs(1);
-    let (tx, rx) = mpsc::unbounded_channel::<TukaiEvent>();
+    let (_tx, rx) = mpsc::unbounded_channel::<TukaiEvent>();
 
-    let tx_clone = tx.clone();
+    let tx_clone = _tx.clone();
 
-    let task = tokio::spawn(async move {
+    let _task = tokio::spawn(async move {
       let mut reader = EventStream::new();
       let mut interval = tokio::time::interval(tick_rate);
 
@@ -48,9 +48,9 @@ impl EventHandler {
     });
 
     Self {
-      tx,
+      _tx,
       rx,
-      task
+      _task
     }
   }
 

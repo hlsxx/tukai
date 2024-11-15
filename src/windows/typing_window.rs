@@ -1,10 +1,9 @@
-use std::{collections::{HashMap, HashSet}, path::Path};
+use std::collections::HashSet;
 
 use crossterm::event::{KeyCode, KeyEvent};
 
 use ratatui::{
-  layout::{Alignment, Constraint, Flex, Layout, Rect}, style::{Color, Modifier, Style, Stylize}, text::{Line, Span, Text}, widgets::{
-    block::{Position, Title}, Block, BorderType, Borders, Clear, Padding, Paragraph, Wrap
+  layout::{Alignment, Constraint, Flex, Layout, Rect}, style::{Modifier, Style, Stylize}, text::{Line, Span, Text}, widgets::{Block, BorderType, Borders, Clear, Padding, Paragraph, Wrap
   }, Frame
 };
 
@@ -271,6 +270,7 @@ impl TypingWindow {
   }
 
   // Gets the last stat
+  #[allow(dead_code)]
   pub fn get_last_stat(&self) -> Option<&Stat> {
     if let Some(last_stat) = &self.stat {
       Some(&last_stat)

@@ -1,5 +1,7 @@
+#[allow(dead_code)]
 pub struct StatHelper {}
 
+#[allow(dead_code)]
 impl StatHelper {
 
   /// Calculates raw WPM
