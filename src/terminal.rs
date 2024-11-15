@@ -1,4 +1,5 @@
 use crossterm::event::KeyModifiers;
+use crate::configs::app_config::AppConfig;
 use crate::event_handler::{EventHandler, TukaiEvent};
 use crate::storage::storage_handler::StorageHandler;
 use crate::windows::{
@@ -11,7 +12,6 @@ use crate::layout::Layout as TukaiLayout;
 use crate::traits::Window;
 
 use std::error;
-use std::path::{Path, PathBuf};
 use ratatui::{
   crossterm::event::{KeyCode, KeyEvent},
   layout::{Constraint, Layout},
@@ -25,55 +25,9 @@ enum ActiveWindowEnum {
   Stats
 }
 
-pub struct AppConfig {
-  file_path: PathBuf,
-  layout: TukaiLayout
-}
-
-impl AppConfig {
-  pub fn default() -> Self {
-    Self {
-      file_path: PathBuf::from("tukai.bin"),
-      layout: TukaiLayout::default()
-    }
-  }
-}
-
-pub struct AppConfigBuilder {
-  file_path: Option<PathBuf>,
-  layout: Option<TukaiLayout>
-}
-
-impl AppConfigBuilder {
-  pub fn new() -> Self {
-    Self {
-      file_path: None,
-      layout: None
-    }
-  }
-
-  pub fn file_path<P: AsRef<Path>>(mut self, file_path: P) -> Self {
-    self.file_path = Some(file_path.as_ref().to_path_buf());
-    self
-  }
-
-  pub fn layout(mut self, layout: TukaiLayout) -> Self {
-    self.layout = Some(layout);
-    self
-  }
-
-  pub fn build(self) -> AppConfig {
-    let config_default = AppConfig::default();
-
-    AppConfig {
-      file_path: self.file_path.unwrap_or(config_default.file_path),
-      layout: self.layout.unwrap_or(config_default.layout)
-    }
-  }
-}
 
 pub struct App {
-  config: AppConfig,
+  pub config: AppConfig,
 
   // version: Option<String>,
 
@@ -87,6 +41,7 @@ pub struct App {
 
   // Windows
   typing_window: TypingWindow,
+
   stats_window: StatsWindow
 }
 
@@ -105,8 +60,6 @@ impl App {
 
       time_secs: 0,
 
-      //loader: Loader::new(),
-
       active_window: ActiveWindowEnum::Typing,
 
       typing_window: TypingWindow::default(),
@@ -115,7 +68,7 @@ impl App {
   }
 
   fn get_config_layout(&self) -> &TukaiLayout {
-    &self.config.layout
+    &self.config.get_layout()
   }
 
   // fn get_version(&self) -> String {
@@ -126,10 +79,10 @@ impl App {
   ///
   /// Storage handler (not reuired)
   pub fn init(mut self) -> Self {
-    match StorageHandler::new(&self.config.file_path).init() {
+    match StorageHandler::new(&self.config.get_file_path()).init() {
       Ok(storage_handler) => {
         if let Some(active_layout_name) = storage_handler.get_active_layout_name() {
-          self.config.layout.active_layout_name(active_layout_name);
+          self.config.get_layout_mut().active_layout_name(active_layout_name);
         }
 
         self.storage_handler = Some(storage_handler);
@@ -260,7 +213,7 @@ impl App {
             'r' => self.reset(),
             's' => {
               if let Some(storage_handler) = self.storage_handler.as_mut() {
-                let layout_name_new = self.config.layout.switch_active_layout();
+                let layout_name_new = self.config.get_layout_mut().switch_active_layout();
                 storage_handler.switch_layout(layout_name_new);
                 // println!("{:?}", storage_handler.get_data());
               }

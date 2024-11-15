@@ -15,7 +15,8 @@ mod common;
 use core::error;
 use event_handler::EventHandler;
 use layout::Layout as TukaiLayout;
-use terminal::{App, AppConfigBuilder};
+use terminal::App;
+use configs::app_config::AppConfigBuilder;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn error::Error>> {

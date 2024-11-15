@@ -27,6 +27,7 @@ pub enum LayoutColorTypeEnum {
 #[derive(PartialEq, Eq, Hash, Debug, Serialize, Deserialize, Clone)]
 pub enum LayoutName {
   Neptune,
+  Rust,
   Anime,
   Deadpool,
   Wolverine
@@ -35,7 +36,6 @@ pub enum LayoutName {
 pub struct LayoutColors {
   primary: RgbColor,
   text: RgbColor,
-  // text_done: RgbColor,
   text_current: RgbColor,
   text_current_bg: RgbColor,
   background: RgbColor,
@@ -49,24 +49,10 @@ pub struct Layout {
 
 impl Layout {
   pub fn default() -> Self {
-    // let venus = LayoutColors {
-    //   primary: (207, 112, 154),
-    //
-    //   text: (207, 112, 154),
-    //   text_done: (156, 86, 153),
-    //
-    //   text_current: (100, 100, 100),
-    //   text_current_bg: (50, 50, 50),
-    //
-    //   background: (252, 252, 252),
-    //   error: (214, 90, 90),
-    // };
-    //
     let neptune = LayoutColors {
       primary: (108, 181, 230),
       text: (232, 232, 232),
 
-      // text_done: (232, 232, 232),
       text_current: (25, 74, 107),
       text_current_bg: (200, 200, 200),
 
@@ -74,11 +60,21 @@ impl Layout {
       error: (214, 90, 90),
     };
 
+    let rust = LayoutColors {
+      primary: (150, 63, 17),
+      text: (255, 178, 137),
+
+      text_current: (23,23,23),
+      text_current_bg: (210, 210, 210),
+
+      background: (24, 8, 2),
+      error: (200, 200, 200),
+    };
+
     let deadpool = LayoutColors {
       primary: (139,35,35),
       text: (210, 210, 210),
 
-      // text_done: (232, 232, 232),
       text_current: (23,23,23),
       text_current_bg: (210, 210, 210),
 
@@ -90,7 +86,6 @@ impl Layout {
       primary: (196, 166, 51),
       text: (200, 200, 200),
 
-      // text_done: (232, 232, 232),
       text_current: (23,23,23),
       text_current_bg: (210, 210, 210),
 
@@ -100,7 +95,6 @@ impl Layout {
 
     let anime = LayoutColors {
       primary: (216, 175, 193),
-      // text_done: (207, 147, 150),
 
       text: (237, 237, 237),
       text_current: (50, 50, 50),
@@ -113,6 +107,7 @@ impl Layout {
     let mut layouts = HashMap::new();
 
     layouts.insert(LayoutName::Neptune, neptune);
+    layouts.insert(LayoutName::Rust, rust);
     layouts.insert(LayoutName::Deadpool, deadpool);
     layouts.insert(LayoutName::Wolverine, wolverine);
     layouts.insert(LayoutName::Anime, anime);
@@ -130,6 +125,7 @@ impl Layout {
   pub fn get_active_layout_title(&self) -> &str {
     match self.active_layout_name {
       LayoutName::Neptune => "Neptune",
+      LayoutName::Rust => "🦀 Rust",
       LayoutName::Anime => "🌸 Anime",
       LayoutName::Deadpool => "🩸🔞 Deadpool",
       LayoutName::Wolverine => "💪🍺 Wolverine"
@@ -138,6 +134,8 @@ impl Layout {
 
   pub fn switch_active_layout(&mut self) -> LayoutName {
     if self.active_layout_name == LayoutName::Neptune {
+      self.active_layout_name = LayoutName::Rust;
+    } else if self.active_layout_name == LayoutName::Rust {
       self.active_layout_name = LayoutName::Anime;
     } else if self.active_layout_name == LayoutName::Anime {
       self.active_layout_name = LayoutName::Deadpool;
@@ -161,10 +159,6 @@ impl Layout {
   pub fn get_text_color(&self) -> Color {
     self.get_layout_colors().text.to_color()
   }
-
-  // pub fn get_text_done_color(&self) -> Color {
-  //   self.get_layout_colors().text_done.to_color()
-  // }
 
   pub fn get_text_current_color(&self) -> Color {
     self.get_layout_colors().text_current.to_color()
