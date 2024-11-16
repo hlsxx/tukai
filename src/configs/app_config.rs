@@ -1,24 +1,25 @@
-use std::{borrow::BorrowMut, path::{Path, PathBuf}};
+use std::path::{Path, PathBuf};
+use std::cell::{Ref, RefCell, RefMut};
 use crate::layout::Layout as TukaiLayout;
 
 pub struct AppConfig {
   file_path: PathBuf,
-  layout: TukaiLayout
+  layout: RefCell<TukaiLayout>
 }
 
 impl AppConfig {
   pub fn default() -> Self {
     Self {
       file_path: PathBuf::from("tukai.bin"),
-      layout: TukaiLayout::default()
+      layout: RefCell::new(TukaiLayout::default())
     }
   }
 
-  pub fn get_layout(&self) -> &TukaiLayout {
-    &self.layout
+  pub fn get_layout(&self) -> Ref<TukaiLayout> {
+    self.layout.borrow()
   }
 
-  pub fn get_layout_mut(&mut self) -> &mut TukaiLayout {
+  pub fn get_layout_mut(&mut self) -> RefMut<TukaiLayout> {
     self.layout.borrow_mut()
   }
 
@@ -29,7 +30,7 @@ impl AppConfig {
 
 pub struct AppConfigBuilder {
   file_path: Option<PathBuf>,
-  layout: Option<TukaiLayout>
+  layout: Option<RefCell<TukaiLayout>>
 }
 
 impl AppConfigBuilder {
@@ -46,7 +47,7 @@ impl AppConfigBuilder {
   }
 
   pub fn layout(mut self, layout: TukaiLayout) -> Self {
-    self.layout = Some(layout);
+    self.layout = Some(RefCell::new(layout));
     self
   }
 

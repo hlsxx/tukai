@@ -67,8 +67,8 @@ impl App {
     }
   }
 
-  fn get_config_layout(&self) -> &TukaiLayout {
-    &self.config.get_layout()
+  fn get_config_layout(&self) -> std::cell::Ref<TukaiLayout> {
+    self.config.get_layout()
   }
 
   // fn get_version(&self) -> String {
