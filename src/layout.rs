@@ -1,5 +1,6 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, hash::Hash};
 
+use maplit::hashmap;
 use ratatui::style::Color;
 use serde::{Deserialize, Serialize};
 
@@ -42,78 +43,100 @@ pub struct LayoutColors {
   error: RgbColor
 }
 
+impl LayoutColors {
+  pub fn new(
+    primary: RgbColor,
+    text: RgbColor,
+    text_current: RgbColor,
+    text_current_bg: RgbColor,
+    background: RgbColor,
+    error: RgbColor,
+  ) -> Self {
+    Self {
+      primary,
+      text,
+      text_current,
+      text_current_bg,
+      background,
+      error
+    }
+  }
+}
+
 pub struct Layout {
   layouts: HashMap<LayoutName, LayoutColors>,
+  transitions: HashMap<LayoutName, LayoutName>,
   active_layout_name: LayoutName
 }
 
 impl Layout {
   pub fn default() -> Self {
-    let neptune = LayoutColors {
-      primary: (108, 181, 230),
-      text: (232, 232, 232),
+    use LayoutName::*;
 
-      text_current: (25, 74, 107),
-      text_current_bg: (200, 200, 200),
-
-      background: (37, 40, 46),
-      error: (214, 90, 90),
+    let layouts = hashmap! {
+      Neptune => {
+        LayoutColors::new(
+         (108, 181, 230),
+         (232, 232, 232),
+         (25, 74, 107),
+         (200, 200, 200),
+         (37, 40, 46),
+         (214, 90, 90),
+        )
+      },
+      Anime => {
+        LayoutColors::new(
+          (216, 175, 193),
+          (237, 237, 237),
+          (50, 50, 50),
+          (202, 175, 216),
+          (81, 104, 125),
+          (44, 56, 65),
+        )
+      },
+      Deadpool => {
+        LayoutColors::new(
+          (139, 35, 35),
+          (210, 210, 210),
+          (23, 23, 23),
+          (210, 210, 210),
+          (33, 29, 29),
+          (110, 110, 110),
+        )
+      },
+      Wolverine => {
+        LayoutColors::new(
+          (196, 166, 51),
+          (200, 200, 200),
+          (23,23,23),
+          (210, 210, 210),
+          (10, 14, 18),
+          (110, 110, 110),
+        )
+      },
+      Rust => {
+        LayoutColors::new(
+          (150, 63, 17),
+          (255, 178, 137),
+          (23,23,23),
+          (210, 210, 210),
+          (24, 8, 2),
+          (200, 200, 200),
+        )
+      }
     };
 
-    let rust = LayoutColors {
-      primary: (150, 63, 17),
-      text: (255, 178, 137),
-
-      text_current: (23,23,23),
-      text_current_bg: (210, 210, 210),
-
-      background: (24, 8, 2),
-      error: (200, 200, 200),
-    };
-
-    let deadpool = LayoutColors {
-      primary: (139,35,35),
-      text: (210, 210, 210),
-
-      text_current: (23,23,23),
-      text_current_bg: (210, 210, 210),
-
-      background: (33, 29, 29),
-      error: (110, 110, 110),
-    };
-
-    let wolverine = LayoutColors {
-      primary: (196, 166, 51),
-      text: (200, 200, 200),
-
-      text_current: (23,23,23),
-      text_current_bg: (210, 210, 210),
-
-      background: (10, 14, 18),
-      error: (110, 110, 110),
-    };
-
-    let anime = LayoutColors {
-      primary: (216, 175, 193),
-
-      text: (237, 237, 237),
-      text_current: (50, 50, 50),
-      text_current_bg: (202, 175, 216),
-
-      background: (81, 104, 125),
-      error: (44, 56, 65),
-    };
-
-    let mut layouts = HashMap::new();
-
-    layouts.insert(LayoutName::Neptune, neptune);
-    layouts.insert(LayoutName::Rust, rust);
-    layouts.insert(LayoutName::Deadpool, deadpool);
-    layouts.insert(LayoutName::Wolverine, wolverine);
-    layouts.insert(LayoutName::Anime, anime);
+    let transitions = HashMap::from([
+      (Neptune, Anime),
+      (Anime, Deadpool),
+      (Deadpool, Wolverine),
+      (Wolverine, Rust),
+      (Rust, Neptune),
+    ]);
 
     Self {
       layouts,
+      transitions,
       active_layout_name: LayoutName::Neptune
     }
   }
@@ -133,17 +156,9 @@ impl Layout {
   }
 
   pub fn switch_active_layout(&mut self) -> LayoutName {
-    if self.active_layout_name == LayoutName::Neptune {
-      self.active_layout_name = LayoutName::Rust;
-    } else if self.active_layout_name == LayoutName::Rust {
-      self.active_layout_name = LayoutName::Anime;
-    } else if self.active_layout_name == LayoutName::Anime {
-      self.active_layout_name = LayoutName::Deadpool;
-    } else if self.active_layout_name == LayoutName::Deadpool {
-      self.active_layout_name = LayoutName::Wolverine;
-    } else {
-      self.active_layout_name = LayoutName::Neptune;
-    }
+    if let Some(next_layout_name) = self.transitions.get(&self.active_layout_name) {
+      self.active_layout_name = next_layout_name.clone();
+    };
 
     self.active_layout_name.clone()
   }
