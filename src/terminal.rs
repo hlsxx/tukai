@@ -1,4 +1,3 @@
-use crossterm::cursor::{DisableBlinking, RestorePosition};
 use crossterm::event::KeyModifiers;
 use crate::configs::app_config::AppConfig;
 use crate::event_handler::{EventHandler, TukaiEvent};
