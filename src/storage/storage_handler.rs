@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::io;
 use std::path::{Path, PathBuf};
+use maplit::hashmap;
 use serde::{Deserialize, Serialize};
 
 use crate::file_handler::FileHandler;
@@ -76,22 +77,18 @@ impl StorageHandler {
     Ok(self)
   }
 
-  /// Inits empty data and write into the file
+  /// Inits empty data and write into the storage file
   fn init_empty_data(&mut self) -> Result<(), io::Error> {
-    let mut empty_data: StorageData = HashMap::new();
+    use StorageDataType::*;
 
-    let default_stats = StorageDataValue::Stats(Vec::new());
-    let default_activities= StorageDataValue::Activites(Vec::new());
-    let default_layout = StorageDataValue::Layout(LayoutName::Neptune);
+    self.data = hashmap! {
+      Stats => StorageDataValue::Stats(Vec::new()),
+      Activities => StorageDataValue::Activites(Vec::new()),
+      Layout => StorageDataValue::Layout(LayoutName::Neptune)
+    };
 
-    empty_data.insert(StorageDataType::Stats, default_stats);
-    empty_data.insert(StorageDataType::Activities, default_activities);
-    empty_data.insert(StorageDataType::Layout, default_layout);
-
-    let data_bytes = bincode::serialize(&empty_data).unwrap();
+    let data_bytes = bincode::serialize(&self.data).unwrap();
     FileHandler::write_bytes_into_file(&self.file_path, &data_bytes)?;
-
-    self.data = empty_data;
 
     Ok(())
   }

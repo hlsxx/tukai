@@ -1,21 +1,19 @@
-use std::fs::File;
 use rand::{seq::SliceRandom, Rng};
-use std::io::{self, BufRead};
 
-pub struct Generator {
-}
+pub struct Generator {}
 
 impl Generator {
-  pub fn generate_random_string(amount: usize) -> String {
-    let mut words = Vec::new();
 
-    if let Ok(file) = File::open("words/en.txt") {
-      for line in io::BufReader::new(file).lines() {
-        if let Ok(word) = line {
-          words.push(word);
-        }
-      }
-    }
+  /// Generates a random string of words
+  ///
+  /// This method generates a string containing random
+  /// words from the words/en.txt file
+  pub fn generate_random_string(amount: usize) -> String {
+    let words_string = include_str!("../../words/en.txt");
+
+    let words = words_string.lines()
+      .map(|line| line)
+      .collect::<Vec<&str>>();
 
     let mut rng = rand::thread_rng();
 
@@ -28,6 +26,7 @@ impl Generator {
     text
   }
 
+  /// Generates a random motto for the block bottom title
   pub fn generate_random_motto() -> String {
     let mottos = vec![
       "Practice today, master tomorrow",

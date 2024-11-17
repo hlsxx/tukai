@@ -4,7 +4,7 @@ pub struct FileHandler {}
 
 impl FileHandler {
 
-  // Opens a file for reading, writing creating if it not exist
+  /// Opens a file for reading, writing creating if it not exist
   fn open_file<P: AsRef<Path>>(path: P) -> Result<File, std::io::Error> {
     OpenOptions::new()
       .read(true)
