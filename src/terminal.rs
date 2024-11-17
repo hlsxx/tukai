@@ -1,3 +1,4 @@
+use crossterm::cursor::{DisableBlinking, RestorePosition};
 use crossterm::event::KeyModifiers;
 use crate::configs::app_config::AppConfig;
 use crate::event_handler::{EventHandler, TukaiEvent};
@@ -215,7 +216,6 @@ impl App {
               if let Some(storage_handler) = self.storage_handler.as_mut() {
                 let layout_name_new = self.config.get_layout_mut().switch_active_layout();
                 storage_handler.switch_layout(layout_name_new);
-                // println!("{:?}", storage_handler.get_data());
               }
             },
             'l' => self.switch_active_window(ActiveWindowEnum::Stats),

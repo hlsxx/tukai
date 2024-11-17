@@ -324,6 +324,8 @@ impl TypingWindow {
 
   /// Reset typing window
   pub fn reset(&mut self) {
+    self.is_running = false;
+
     self.generated_text = Generator::generate_random_string(
       self.config.time_limit as usize
     );
@@ -407,7 +409,10 @@ impl TypingWindow {
 
       Line::from(""),
       Line::from(vec![
-        Span::from("Try again"),
+        Span::from("Try again").style(
+          Style::default().fg(layout.get_primary_color())
+        ),
+
         Span::from(" <CTRL + R>").style(
           Style::default().fg(layout.get_primary_color()).bold()),
       ]),

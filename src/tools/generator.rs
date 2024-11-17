@@ -19,7 +19,7 @@ impl Generator {
 
     let mut rng = rand::thread_rng();
 
-    let text = words.choose_multiple(&mut rng, amount * 3)
+    let text = words.choose_multiple(&mut rng, amount * 2)
       .fold(String::new(), |mut acc, c| {
         acc.push_str(format!("{} ", c).as_str());
         acc
