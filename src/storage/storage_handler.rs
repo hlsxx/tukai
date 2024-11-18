@@ -36,8 +36,14 @@ pub struct StorageHandler {
 impl StorageHandler {
 
   pub fn new<P: AsRef<Path>>(file_path: P) -> Self {
+    let local_dir_path = dirs::data_local_dir()
+      .unwrap_or(PathBuf::from("/tmp"));
+
+    let full_path = local_dir_path.join("tukai")
+      .join(file_path);
+
     Self {
-      file_path: file_path.as_ref().to_owned(),
+      file_path: full_path,
       data: HashMap::new()
     }
   }
@@ -212,6 +218,12 @@ mod tests {
       5,
       60
     )
+  }
+
+  #[test]
+  fn storage_local_dir_initialization() {
+    let storage_handler = get_storage_handler();
+    // println!("{:?}", storage_handler);
   }
 
   #[test]
