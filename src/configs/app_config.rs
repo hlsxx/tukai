@@ -9,11 +9,8 @@ pub struct AppConfig {
 
 impl AppConfig {
   pub fn default() -> Self {
-    let file_path = dirs::data_local_dir()
-      .expect("Local dir not available");
-
     Self {
-      file_path: file_path.join("tukai.bin"),
+      file_path: PathBuf::from("tukai.bin"),
       layout: RefCell::new(TukaiLayout::default())
     }
   }
@@ -45,10 +42,7 @@ impl AppConfigBuilder {
   }
 
   pub fn file_path<P: AsRef<Path>>(mut self, file_path: P) -> Self {
-    let full_file_path = dirs::data_local_dir()
-      .expect("Local dir not available");
-
-    self.file_path = Some(full_file_path.join(file_path));
+    self.file_path = Some(file_path.as_ref().to_path_buf());
     self
   }
 

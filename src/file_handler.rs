@@ -1,4 +1,4 @@
-use std::{fs::{File, OpenOptions}, io::{Read, Write}, path::Path};
+use std::{fs::{create_dir_all, File, OpenOptions}, io::{Read, Write}, path::Path};
 
 pub struct FileHandler {}
 
@@ -6,6 +6,12 @@ impl FileHandler {
 
   /// Opens a file for reading, writing creating if it not exist
   fn open_file<P: AsRef<Path>>(path: P) -> Result<File, std::io::Error> {
+    let path_buf = path.as_ref().to_path_buf();
+
+    if let Some(parent_dir) = path_buf.parent() {
+      create_dir_all(parent_dir)?;
+    }
+
     OpenOptions::new()
       .read(true)
       .write(true)

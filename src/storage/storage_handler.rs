@@ -223,7 +223,6 @@ mod tests {
   #[test]
   fn storage_local_dir_initialization() {
     let storage_handler = get_storage_handler();
-    // println!("{:?}", storage_handler);
   }
 
   #[test]
