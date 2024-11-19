@@ -1,5 +1,5 @@
 use crossterm::event::KeyModifiers;
-use serde::{Serialize, Deserialize};
+use serde::Deserialize;
 use crate::configs::app_config::AppConfig;
 use crate::event_handler::{EventHandler, TukaiEvent};
 use crate::storage::storage_handler::StorageHandler;

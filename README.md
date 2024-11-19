@@ -12,7 +12,9 @@
   <img src="https://github.com/hlsxx/tukai/blob/master/blob/example.gif" alt="Tukai" style="width:100%; max-height:400px" />
 </div>
 
-A terminal-based touch typing application built in Rust using the [Ratatui](https://github.com/crossterm-rs/ratatui) library. The app provides an interactive typing experience with switchable templates, designed to help users improve their typing speed and accuracy.
+</br>
+
+A terminal-based touch typing application built in Rust using the [Ratatui](https://github.com/ratatui/ratatui) library. The app provides an interactive typing experience with switchable templates, designed to help users improve their typing speed and accuracy.
 
 ### Features
 - **Terminal-Based**: Simple, lightweight, and runs in the terminal for easy accessibility on any platform
@@ -27,6 +29,11 @@ A terminal-based touch typing application built in Rust using the [Ratatui](http
 
 To get a local copy up and running follow these simple example steps.
 
+### Installation from the Cargo
+```sh
+cargo install tukai
+
+```
 ### Installation
 
 #### Step 1. Install Rust
