@@ -23,11 +23,18 @@ A terminal-based touch typing application built in Rust using the [Ratatui](http
 - **Switchable Templates**: Choose between different templates to customize the typing practice experience
 - **Stats preview**: A built-in stats preview of already done tests
 
-
-
 ## Getting Started
 
 To get a local copy up and running follow these simple example steps.
+
+### Arch Linux installation
+
+[tukai](https://aur.archlinux.org/packages/tukai) is available as a package in the [AUR](https://aur.archlinux.org).<br>
+You can install it with your preferred [AUR helper](https://wiki.archlinux.org/title/AUR_helpers). example:
+
+```sh
+paru -S tukai
+```
 
 ### Installation from the Cargo
 ```sh
