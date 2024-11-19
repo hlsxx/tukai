@@ -1,4 +1,5 @@
 use crossterm::event::KeyModifiers;
+use serde::{Serialize, Deserialize};
 use crate::configs::app_config::AppConfig;
 use crate::event_handler::{EventHandler, TukaiEvent};
 use crate::storage::storage_handler::StorageHandler;
@@ -25,11 +26,22 @@ enum ActiveWindowEnum {
   Stats
 }
 
+#[derive(Deserialize)]
+#[allow(unused)]
+pub struct Package {
+  pub version: String
+}
+
+#[derive(Deserialize)]
+#[allow(unused)]
+pub struct Config {
+  pub package: Package
+}
 
 pub struct App {
   pub config: AppConfig,
 
-  // version: Option<String>,
+  version: Option<String>,
 
   storage_handler: Option<StorageHandler>,
 
@@ -52,7 +64,7 @@ impl App {
     Self {
       config,
 
-      // version: None,
+      version: None,
 
       storage_handler: None,
 
@@ -71,9 +83,9 @@ impl App {
     self.config.get_layout()
   }
 
-  // fn get_version(&self) -> String {
-  //   self.version.clone().unwrap_or("x.x.x".to_string())
-  // }
+  fn get_version(&self) -> String {
+    self.version.clone().unwrap_or(String::from("x.x.x"))
+  }
 
   /// Inits the App
   ///
@@ -90,14 +102,10 @@ impl App {
       Err(_) => {}
     }
 
-    // match FileHandler::read_bytes_from_file("Cargo.toml") {
-    //   Ok(toml_data) => {
-    //     let toml_config = str::from_utf8(&toml_data).unwrap();
-    //     let tukai_config = toml::from_str::<Config>(&toml_config).unwrap();
-    //     self.version = Some(tukai_config.package.version);
-    //   },
-    //   Err(_) => {}
-    // }
+    // Read version form Cargo.toml
+    let app_toml = include_str!("./../Cargo.toml");
+    let app_config = toml::from_str::<Config>(app_toml).unwrap();
+    self.version = Some(app_config.package.version);
 
     self
   }
@@ -156,7 +164,12 @@ impl App {
         }
 
         // Renders
-        self.typing_window.render(frame, &self.get_config_layout(), main_layout[0]);
+        self.typing_window.render(
+          frame,
+          &self.get_config_layout(),
+          &self.get_version(),
+          main_layout[0]);
+
         self.typing_window.render_instructions(frame, &self.get_config_layout(), main_layout[1]);
 
         if self.typing_window.is_popup_visible() {
@@ -164,7 +177,12 @@ impl App {
         }
       },
       ActiveWindowEnum::Stats => {
-        self.stats_window.render(frame, &self.get_config_layout(), main_layout[0]);
+        self.stats_window.render(
+          frame,
+          &self.get_config_layout(),
+          &self.get_version(),
+          main_layout[0]);
+
         self.stats_window.render_instructions(frame, &self.get_config_layout(), main_layout[1]);
       }
     }

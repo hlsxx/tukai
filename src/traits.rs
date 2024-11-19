@@ -26,7 +26,7 @@ pub trait Window {
   fn render_instructions(&self, frame: &mut Frame, layout: &TukaiLayout, area: Rect);
 
   /// Render window
-  fn render(&self, frame: &mut Frame, layout: &TukaiLayout, area: Rect);
+  fn render(&self, frame: &mut Frame, layout: &TukaiLayout, version: &String, area: Rect);
 
 }
 

@@ -67,6 +67,7 @@ impl Window for StatsWindow {
     &self,
     frame: &mut Frame,
     layout: &TukaiLayout,
+    version: &String,
     area: Rect
   ) {
     let storage_handler = StorageHandler::new("tukai.bin")
@@ -75,8 +76,14 @@ impl Window for StatsWindow {
     
     let stats = storage_handler.get_data_stats_reversed().unwrap();
 
+    let block_title = common::get_title(
+      version,
+      layout.get_active_layout_title(),
+      "Stats"
+    );
+
     let block = Block::new()
-      .title(common::get_title(layout.get_active_layout_title(), "Stats"))
+      .title(block_title)
       .title_style(Style::new().fg(layout.get_primary_color()))
       .borders(Borders::ALL)
       .border_style(Style::default().fg(layout.get_primary_color()))

@@ -152,9 +152,11 @@ impl Window for TypingWindow {
     &self,
     frame: &mut Frame,
     layout: &TukaiLayout,
+    version: &String,
     area: Rect
   ) {
     let block_title = common::get_title(
+      version,
       layout.get_active_layout_title(),
       "Typing"
     );

@@ -4,7 +4,6 @@ mod tools;
 mod windows;
 mod configs;
 mod event_handler;
-mod config;
 mod layout;
 mod widgets;
 mod file_handler;
