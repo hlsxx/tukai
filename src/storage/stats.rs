@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use super::helpers::stat_helper::StatHelper;
+use super::stat_helper::StatHelper;
 
 #[derive(Serialize, Deserialize, Hash, PartialEq, Eq, Debug, Clone)]
 pub enum TypingDuration {

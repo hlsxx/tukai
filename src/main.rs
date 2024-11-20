@@ -1,20 +1,16 @@
-mod terminal;
-mod traits;
-mod tools;
+mod app;
 mod windows;
 mod configs;
 mod event_handler;
 mod layout;
-mod widgets;
 mod file_handler;
-mod helpers;
 mod storage;
-mod common;
+mod helper;
 
 use core::error;
 use event_handler::EventHandler;
 use layout::Layout as TukaiLayout;
-use terminal::App;
+use app::App;
 use configs::app_config::AppConfigBuilder;
 
 #[tokio::main]

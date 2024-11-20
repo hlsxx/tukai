@@ -1,4 +1,9 @@
-use crate::{common, layout::LayoutColorTypeEnum, storage::storage_handler::StorageHandler, traits::Window, widgets::instructions::{Instruction, InstructionWidget}};
+use crate::{
+  helper::get_title,
+  layout::LayoutColorTypeEnum,
+  storage::storage_handler::StorageHandler,
+  windows::{Window, Instruction, InstructionWidget, ToDark}
+};
 
 use crossterm::event::KeyEvent;
 
@@ -10,7 +15,6 @@ use ratatui::{
 };
 
 use crate::layout::Layout as TukaiLayout;
-use crate::traits::ToDark;
 
 pub struct StatsWindow {
   is_active: bool
@@ -76,7 +80,7 @@ impl Window for StatsWindow {
     
     let stats = storage_handler.get_data_stats_reversed().unwrap();
 
-    let block_title = common::get_title(
+    let block_title = get_title(
       version,
       layout.get_active_layout_title(),
       "Stats"

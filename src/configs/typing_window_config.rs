@@ -1,4 +1,4 @@
-use crate::traits::ConfigBuilder;
+use crate::configs::ConfigBuilder;
 
 pub struct TypingWindowConfig {
   pub time_limit: u32

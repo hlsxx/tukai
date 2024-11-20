@@ -4,7 +4,21 @@ use maplit::hashmap;
 use ratatui::style::Color;
 use serde::{Deserialize, Serialize};
 
-use crate::traits::ToColor;
+pub trait ToColor {
+  /// Converts the `(u8, u8, u8)` tuple to a `Color::Rgb`
+  ///
+  /// # Example
+  ///
+  /// ```
+  /// use ratatui::style::Color
+  ///
+  /// let rgb: (u8, u8, u8) = (128, 64, 255);
+  /// let color = rgb.to_color();
+  ///
+  /// assert_eq!(color, Color::Rgb(128, 64, 255));
+  /// ```
+  fn to_color(self) -> Color;
+}
 
 /// Type alias for representing an RGB color as a tuple
 type RgbColor = (u8, u8, u8);

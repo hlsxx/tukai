@@ -3,18 +3,23 @@ use std::collections::HashSet;
 use crossterm::event::{KeyCode, KeyEvent};
 
 use ratatui::{
-  layout::{Alignment, Constraint, Flex, Layout, Rect}, style::{Modifier, Style, Stylize}, text::{Line, Span, Text}, widgets::{Block, BorderType, Borders, Clear, Padding, Paragraph, Wrap
-  }, Frame
+  layout::{Alignment, Constraint, Flex, Layout, Rect},
+  style::{Modifier, Style, Stylize},
+  text::{Line, Span, Text},
+  widgets::{Block, BorderType, Borders, Clear, Padding, Paragraph, Wrap},
+  Frame
 };
 
-use crate::common;
-use crate::storage::stats::{Stat, TypingDuration};
-use crate::storage::storage_handler::StorageHandler;
-use crate::configs::typing_window_config::TypingWindowConfig;
-use crate::layout::{Layout as TukaiLayout, LayoutColorTypeEnum};
-use crate::tools::generator::Generator;
-use crate::traits::{ToDark, Window};
-use crate::widgets::instructions::{Instruction, InstructionWidget};
+use crate::{
+  helper::{get_title, Generator},
+  layout::{Layout as TukaiLayout, LayoutColorTypeEnum},
+  storage::{
+    storage_handler::StorageHandler,
+    stats::{Stat, TypingDuration}
+  },
+  windows::{Window, Instruction, InstructionWidget, ToDark},
+  configs::typing_window_config::TypingWindowConfig
+};
 
 pub struct Stats {
   mistakes_indexes: HashSet<usize>
@@ -155,7 +160,7 @@ impl Window for TypingWindow {
     version: &String,
     area: Rect
   ) {
-    let block_title = common::get_title(
+    let block_title = get_title(
       version,
       layout.get_active_layout_title(),
       "Typing"

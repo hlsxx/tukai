@@ -9,8 +9,7 @@ use crate::windows::{
 };
 
 use crate::layout::Layout as TukaiLayout;
-
-use crate::traits::Window;
+use crate::windows::Window;
 
 use std::error;
 use ratatui::{

@@ -1,7 +1,5 @@
-#[allow(dead_code)]
-pub struct StatHelper {}
+pub struct StatHelper;
 
-#[allow(dead_code)]
 impl StatHelper {
 
   /// Calculates raw WPM
@@ -26,7 +24,7 @@ impl StatHelper {
     chars_counter: usize,
     mistakes_counter: usize
   ) -> f32 {
-    let accuracy = (chars_counter.saturating_sub(mistakes_counter * 100)) as f32 / chars_counter as f32;
+    let accuracy = ((chars_counter.saturating_sub(mistakes_counter)) as f32 / chars_counter as f32) * 100.0;
     (accuracy * 100.0).round() / 100.0
   }
 

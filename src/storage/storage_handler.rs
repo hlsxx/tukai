@@ -8,7 +8,8 @@ use crate::file_handler::FileHandler;
 use crate::layout::LayoutName;
 
 use super::stats::Stat;
-use super::activities::Activities;
+
+pub type Activities = Vec<String>;
 
 #[derive(Deserialize, Serialize, Hash, PartialEq, Eq, Debug)]
 pub enum StorageDataType {
