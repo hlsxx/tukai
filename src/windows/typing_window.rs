@@ -337,6 +337,8 @@ impl TypingWindow {
       self.config.time_limit as usize
     );
 
+    self.stats = Stats::default();
+
     self.cursor_index = 0;
     self.input = String::new();
     self.is_popup_visible = false;
