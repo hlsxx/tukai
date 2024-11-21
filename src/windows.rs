@@ -1,9 +1,14 @@
 pub mod stats_window;
 pub mod typing_window;
 
-use crossterm::event::KeyEvent;
-use ratatui::{layout::Rect, Frame};
-use ratatui::{style::{Color, Style, Stylize}, text::{Line, Span, Text}, widgets::Paragraph};
+use ratatui::{
+  layout::Rect, Frame,
+  style::{Color, Style, Stylize},
+  text::{Line, Span, Text},
+  widgets::Paragraph,
+  crossterm::event::KeyEvent
+};
+
 use crate::layout::{LayoutColorTypeEnum, Layout as TukaiLayout};
 
 pub struct Instruction<'a> {
@@ -13,7 +18,6 @@ pub struct Instruction<'a> {
 }
 
 impl<'a> Instruction<'a> {
-
   pub fn new(
     title: &'a str,
     shortcut: &'a str,
@@ -25,7 +29,6 @@ impl<'a> Instruction<'a> {
       color_type
     }
   }
-
 }
 
 pub struct InstructionWidget<'a> {
@@ -94,36 +97,4 @@ pub trait Window {
 
   /// Render window
   fn render(&self, frame: &mut Frame, layout: &TukaiLayout, version: &String, area: Rect);
-}
-
-#[allow(unused)]
-pub trait ToDark {
-  /// Converts the `(u8, u8, u8)` tuple to a `Color::Rgb`
-  ///
-  /// # Example
-  ///
-  /// ```
-  /// use ratatui::style::Color
-  ///
-  /// let rgb: (u8, u8, u8) = (128, 64, 255);
-  /// let color = rgb.to_color();
-  ///
-  /// assert_eq!(color, Color::Rgb(128, 64, 255));
-  /// ```
-  fn to_dark(self) -> Color;
-}
-
-impl ToDark for Color {
-  fn to_dark(self) -> Color {
-    match self {
-      Color::Rgb(r, g, b) => {
-        let darkened_r = (r as f32 * (1.0 - 0.5)) as u8;
-        let darkened_g = (g as f32 * (1.0 - 0.5)) as u8;
-        let darkened_b = (b as f32 * (1.0 - 0.5)) as u8;
-
-        Color::Rgb(darkened_r, darkened_g, darkened_b)
-      },
-      _ => self
-    }
-  }
 }

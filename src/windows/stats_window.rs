@@ -2,12 +2,11 @@ use crate::{
   helper::get_title,
   layout::LayoutColorTypeEnum,
   storage::storage_handler::StorageHandler,
-  windows::{Window, Instruction, InstructionWidget, ToDark}
+  windows::{Window, Instruction, InstructionWidget}
 };
 
-use crossterm::event::KeyEvent;
-
 use ratatui::{
+  crossterm::event::KeyEvent,
   layout::{Alignment, Constraint, Rect},
   style::{Style, Stylize},
   widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table},
@@ -15,6 +14,7 @@ use ratatui::{
 };
 
 use crate::layout::Layout as TukaiLayout;
+use crate::helper::ToDark;
 
 pub struct StatsWindow {
   is_active: bool
@@ -38,11 +38,6 @@ impl Window for StatsWindow {
   #[allow(dead_code)]
   fn handle_events(&mut self, _key: KeyEvent) -> bool {
     false
-    // match key.code {
-    //   KeyCode::Char(c) => self.input.push(c),
-    //   KeyCode::Backspace => { let _ = self.input.pop(); },
-    //   _ => ()
-    // }
   }
 
   fn render_instructions(

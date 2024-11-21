@@ -1,6 +1,6 @@
 use std::{error, io, time::Duration};
 
-use crossterm::event::{EventStream, KeyEvent, Event};
+use ratatui::crossterm::event::{Event, KeyEvent, EventStream};
 use tokio::sync::mpsc;
 use futures::{FutureExt, StreamExt};
 

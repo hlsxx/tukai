@@ -1,8 +1,7 @@
 use std::collections::HashSet;
 
-use crossterm::event::{KeyCode, KeyEvent};
-
 use ratatui::{
+  crossterm::event::{KeyCode, KeyEvent},
   layout::{Alignment, Constraint, Flex, Layout, Rect},
   style::{Modifier, Style, Stylize},
   text::{Line, Span, Text},
@@ -11,22 +10,25 @@ use ratatui::{
 };
 
 use crate::{
-  helper::{get_title, Generator},
+  helper::{get_title, Generator, ToDark},
   layout::{Layout as TukaiLayout, LayoutColorTypeEnum},
   storage::{
     storage_handler::StorageHandler,
     stats::{Stat, TypingDuration}
   },
-  windows::{Window, Instruction, InstructionWidget, ToDark},
+  windows::{Window, Instruction, InstructionWidget},
   configs::typing_window_config::TypingWindowConfig
 };
 
-pub struct Stats {
+/// Handler for incorrect symbols
+///
+/// Insert incorrect symbol into the set
+pub struct MistakeHandler {
   mistakes_indexes: HashSet<usize>
 }
 
-impl Stats {
-  fn default() -> Self {
+impl MistakeHandler {
+  fn new() -> Self {
     Self {
       mistakes_indexes: HashSet::new()
     }
@@ -50,16 +52,14 @@ impl Stats {
 }
 
 pub struct TypingWindow {
-  // storage_handler: Option<&'a mut StorageHandler>,
-
   /// Random generated text
   pub generated_text: String,
 
   /// User typed input
   pub input: String,
 
-  /// TODO: User statistics after the run is completed
-  pub stats: Stats,
+  /// Handle incorrect symbols
+  pub mistake_handler: MistakeHandler,
 
   /// User statistics after the run is completed
   pub stat: Option<Stat>,
@@ -88,12 +88,10 @@ pub struct TypingWindow {
 impl Window for TypingWindow {
   fn default() -> Self {
     Self {
-      // storage_handler,
-
       generated_text: Generator::generate_random_string(50),
       input: String::new(),
+      mistake_handler: MistakeHandler::new(),
 
-      stats: Stats::default(),
       stat: None,
 
       is_active: false,
@@ -101,11 +99,9 @@ impl Window for TypingWindow {
       is_popup_visible: false,
 
       time_secs: 0,
-
       cursor_index: 0,
 
       config: TypingWindowConfig::default(),
-
       motto: Generator::generate_random_motto()
     }
   }
@@ -216,18 +212,29 @@ impl Window for TypingWindow {
 
 impl TypingWindow {
 
-  /// If is popup visible
+  /// Returns whether the popup is visible
   pub fn is_popup_visible(&self) -> bool {
     self.is_popup_visible
   }
 
+  /// Returns whether typing has begun
+  pub fn is_running(&self) -> bool {
+     self.is_running
+  }
+
   /// Starts the running typing process
+  ///
+  /// Unsets last stat
   fn run(&mut self) {
     self.is_running = true;
     self.stat = None;
   }
 
   /// Stops the running typing process
+  ///
+  /// Makes the popup window visible
+  ///
+  /// Inserts the created stat into storage
   pub fn stop(&mut self, storage_handler: Option<&mut StorageHandler>) {
     self.is_running = false;
     self.is_popup_visible = true;
@@ -236,7 +243,7 @@ impl TypingWindow {
       let stat = Stat::new(
         TypingDuration::Minute,
         self.input.len(),
-        self.stats.get_mistakes_counter(),
+        self.mistake_handler.get_mistakes_counter(),
         self.config.time_limit as usize,
       );
 
@@ -249,15 +256,20 @@ impl TypingWindow {
     }
   }
 
-  fn validate_input_char(&mut self, c: char) {
+  /// Validates an inserted char
+  ///
+  /// If it is not valid, insert it into the set of mistakes
+  fn validate_input_char(&mut self, inserted_char: char) {
     if let Some(generated_char) = self.generated_text.chars().nth(self.cursor_index) {
-      if generated_char != c {
-        self.stats.add_to_mistakes_indexes(self.cursor_index);
+      if generated_char != inserted_char {
+        self.mistake_handler.add_to_mistakes_indexes(self.cursor_index);
       }
     }
   }
 
   /// Moves the cursor position forward
+  ///
+  /// Also validates a char
   fn move_cursor_forward_with(&mut self, c: char) {
     self.validate_input_char(c);
     self.input.push(c);
@@ -265,28 +277,21 @@ impl TypingWindow {
   }
 
   /// Moves the cursor position backward
+  ///
+  /// Remove the incorrect symbol from the set if its exists
   fn move_cursor_backward(&mut self) {
     if !self.input.pop().is_some() {
       return;
     }
 
     self.cursor_index -= 1;
-    if self.stats.is_char_mistaken(self.cursor_index) {
-      self.stats.remove_from_mistakes_indexes(self.cursor_index);
+
+    if self.mistake_handler.is_char_mistaken(self.cursor_index) {
+      self.mistake_handler.remove_from_mistakes_indexes(self.cursor_index);
     }
   }
 
-  // Gets the last stat
-  #[allow(dead_code)]
-  pub fn get_last_stat(&self) -> Option<&Stat> {
-    if let Some(last_stat) = &self.stat {
-      Some(&last_stat)
-    } else {
-      None
-    }
-  }
-
-  /// Gets raw wpm
+  /// Gets the raw WPM
   pub fn get_calculated_raw_wpm(&self) -> usize {
     if let Some(last_stat) = &self.stat {
       last_stat.get_raw_wpm()
@@ -295,7 +300,7 @@ impl TypingWindow {
     }
   }
 
-  /// Gets average WPM
+  /// Gets the average WPM
   pub fn get_calculated_wpm(&self) -> usize {
     if let Some(last_stat) = &self.stat {
       last_stat.get_average_wpm()
@@ -304,7 +309,7 @@ impl TypingWindow {
     }
   }
 
-  /// Gets accuracy
+  /// Gets the accuracy
   pub fn get_calculated_accuracy(&self) -> f32 {
     if let Some(last_stat) = &self.stat {
       last_stat.get_accuracy()
@@ -324,12 +329,7 @@ impl TypingWindow {
     self.config.time_limit.checked_sub(self.time_secs).unwrap_or(0)
   }
 
-  /// Returns if typing already began
-  pub fn is_running(&self) -> bool {
-     self.is_running
-  }
-
-  /// Reset typing window
+  /// Resets all necessary properties
   pub fn reset(&mut self) {
     self.is_running = false;
 
@@ -337,8 +337,7 @@ impl TypingWindow {
       self.config.time_limit as usize
     );
 
-    self.stats = Stats::default();
-
+    self.mistake_handler = MistakeHandler::new();
     self.cursor_index = 0;
     self.input = String::new();
     self.is_popup_visible = false;
@@ -394,6 +393,9 @@ impl TypingWindow {
     Paragraph::new(text).wrap(Wrap { trim: true } )
   }
 
+  /// Renders a popup window
+  ///
+  /// Used after the run is completed
   pub fn render_popup(
     &self,
     frame: &mut Frame,

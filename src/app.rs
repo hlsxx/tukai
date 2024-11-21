@@ -1,4 +1,3 @@
-use crossterm::event::KeyModifiers;
 use serde::Deserialize;
 use crate::configs::app_config::AppConfig;
 use crate::event_handler::{EventHandler, TukaiEvent};
@@ -13,7 +12,7 @@ use crate::windows::Window;
 
 use std::error;
 use ratatui::{
-  crossterm::event::{KeyCode, KeyEvent},
+  crossterm::event::{KeyCode, KeyEvent, KeyModifiers},
   layout::{Constraint, Layout},
   DefaultTerminal,
   Frame

@@ -94,9 +94,9 @@ impl ToDark for Color {
   fn to_dark(self) -> Color {
     match self {
       Color::Rgb(r, g, b) => {
-        let darkened_r = (r as f32 * (1.0 - 0.5)) as u8;
-        let darkened_g = (g as f32 * (1.0 - 0.5)) as u8;
-        let darkened_b = (b as f32 * (1.0 - 0.5)) as u8;
+        let darkened_r = (r as f32 * (1.0 - 0.2)) as u8;
+        let darkened_g = (g as f32 * (1.0 - 0.2)) as u8;
+        let darkened_b = (b as f32 * (1.0 - 0.2)) as u8;
 
         Color::Rgb(darkened_r, darkened_g, darkened_b)
       },
@@ -104,5 +104,3 @@ impl ToDark for Color {
     }
   }
 }
-
-
