@@ -9,7 +9,10 @@ use ratatui::{
   crossterm::event::KeyEvent
 };
 
-use crate::layout::{LayoutColorTypeEnum, Layout as TukaiLayout};
+use crate::{
+  helper::ToDark,
+  layout::{LayoutColorTypeEnum, Layout as TukaiLayout}
+};
 
 pub struct Instruction<'a> {
   title: &'a str,
@@ -60,14 +63,18 @@ impl<'a> InstructionWidget<'a> {
   }
 
   pub fn get_paragraph(&self) -> Paragraph {
-    let instructions_spans = self.instructions.iter().flat_map(|instruction| {
-      let color = self.get_instruction_color(&instruction.color_type);
+    let instructions_spans = self.instructions.iter()
+      .enumerate()
+      .flat_map(|(index, instruction)| {
+        let color = self.get_instruction_color(&instruction.color_type);
 
-      vec![
-        Span::from(format!(" {}", instruction.title)).style(Style::default().fg(color)),
-        Span::from(format!("<{}>", instruction.shortcut)).style(Style::default().fg(color).bold()),
-      ]
-    }).collect::<Vec<Span>>();
+        vec![
+          Span::from(format!(" {}", instruction.title)).style(Style::default().fg(color.to_dark())),
+          Span::from(
+            format!(" {}{}", instruction.shortcut, if index != self.instructions.len() - 1 { " |" } else { "" })
+          ).style(Style::default().fg(color).bold()),
+        ]
+      }).collect::<Vec<Span>>();
 
     Paragraph::new(Text::from(Line::from(instructions_spans)))
   }

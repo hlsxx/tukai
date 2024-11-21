@@ -193,10 +193,10 @@ impl Window for TypingWindow {
   ) {
     let mut instruction_widget = InstructionWidget::new(layout);
 
-    instruction_widget.add_instruction(Instruction::new("Exit", "ESC", LayoutColorTypeEnum::Secondary));
-    instruction_widget.add_instruction(Instruction::new("Reset", "CTRL + R", LayoutColorTypeEnum::Secondary));
-    instruction_widget.add_instruction(Instruction::new("Layout", "CTRL + S", LayoutColorTypeEnum::Secondary));
-    instruction_widget.add_instruction(Instruction::new("Stats", "CTRL + L", LayoutColorTypeEnum::Secondary));
+    instruction_widget.add_instruction(Instruction::new("Exit", "esc", LayoutColorTypeEnum::Secondary));
+    instruction_widget.add_instruction(Instruction::new("Reset", "ctrl + r", LayoutColorTypeEnum::Secondary));
+    instruction_widget.add_instruction(Instruction::new("Layout", "ctrl + s", LayoutColorTypeEnum::Secondary));
+    instruction_widget.add_instruction(Instruction::new("Stats window", "ctrl + l", LayoutColorTypeEnum::Secondary));
 
     let block = Block::new()
       .padding(Padding::new(0, 0, area.height / 2, 0));

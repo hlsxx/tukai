@@ -48,8 +48,8 @@ impl Window for StatsWindow {
   ) {
     let mut instruction_widget = InstructionWidget::new(layout);
 
-    instruction_widget.add_instruction(Instruction::new("Exit", "ESC", LayoutColorTypeEnum::Secondary));
-    instruction_widget.add_instruction(Instruction::new("Typing", "CTRL + J", LayoutColorTypeEnum::Secondary));
+    instruction_widget.add_instruction(Instruction::new("Exit", "esc", LayoutColorTypeEnum::Secondary));
+    instruction_widget.add_instruction(Instruction::new("Typing", "ctrl + j", LayoutColorTypeEnum::Secondary));
 
     let block = Block::new()
       .padding(Padding::new(0, 0, area.height / 2, 0));
