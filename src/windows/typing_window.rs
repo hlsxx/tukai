@@ -409,14 +409,20 @@ impl TypingWindow {
       .border_style(Style::new().fg(layout.get_primary_color()));
 
     let text = Text::from(vec![
-      Line::from(format!("🔥 Average WPM: {}", self.get_calculated_wpm()))
-        .style(Style::default().fg(layout.get_primary_color())),
+      Line::from(vec![
+        Span::from("🔥 Average WPM: "),
+        Span::from(format!("{}", self.get_calculated_wpm())).bold()
+      ]).style(Style::default().fg(layout.get_primary_color())),
 
-      Line::from(format!("🎯 Accuracy: {}%", self.get_calculated_accuracy()))
-        .style(Style::default().fg(layout.get_primary_color())),
+      Line::from(vec![
+        Span::from("🎯 Accuracy: "),
+        Span::from(format!("{}%", self.get_calculated_accuracy())).bold()
+      ]).style(Style::default().fg(layout.get_primary_color())),
 
-      Line::from(format!("🥩 Raw WPM: {}", self.get_calculated_raw_wpm()))
-        .style(Style::default().fg(layout.get_primary_color().to_dark())),
+      Line::from(vec![
+        Span::from("🥩 Raw WPM: "),
+        Span::from(format!("{}", self.get_calculated_raw_wpm())).bold()
+      ]).style(Style::default().fg(layout.get_primary_color().to_dark())),
 
       Line::from(""),
       Line::from(vec![
@@ -424,7 +430,7 @@ impl TypingWindow {
           Style::default().fg(layout.get_primary_color())
         ),
 
-        Span::from(" <CTRL + R>").style(
+        Span::from(" ctrl + r").style(
           Style::default().fg(layout.get_primary_color()).bold()),
       ]),
     ]);
@@ -432,8 +438,7 @@ impl TypingWindow {
     let p = Paragraph::new(text)
       .block(block)
       .alignment(Alignment::Center)
-      .centered()
-      .bold();
+      .centered();
 
     let vertical = Layout::vertical([Constraint::Percentage(22)]).flex(Flex::Center);
     let horizontal = Layout::horizontal([Constraint::Percentage(22)]).flex(Flex::Center);
