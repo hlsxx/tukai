@@ -67,9 +67,11 @@ impl PlatformApi {
   fn is_caps_lock_on() -> bool {
     use winapi::um::winuser::{GetKeyState, VK_CAPITAL};
     unsafe { GetKeyState(VK_CAPITAL) & 0x0001 != 0 }
-  } #[cfg(target_os = "linux")]
+  }
+
+  #[cfg(target_os = "linux")]
   fn is_caps_lock_on_wayland() -> bool {
-    true
+    false
   }
 
   #[cfg(target_os = "linux")]
@@ -94,11 +96,11 @@ impl PlatformApi {
   fn is_caps_lock_on() -> bool {
     use std::env;
 
-    if env::var("WAYLAND_DISPLAY").is_ok() {
-      PlatformApi::is_caps_lock_on_wayland()
-    } else {
-      PlatformApi::is_caps_lock_on_x11()
+    if env::var("DISPLAY").is_ok() {
+      return PlatformApi::is_caps_lock_on_x11();
     }
+
+    false
   }
 }
 
