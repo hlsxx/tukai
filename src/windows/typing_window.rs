@@ -349,11 +349,15 @@ impl TypingWindow {
 
     let color = if self.is_active() { layout.get_primary_color() } else { layout.get_primary_color().to_dark() };
 
-    let span = Span::from(
-      format!("⏳{}", self.get_remaining_time().to_string()))
-      .style(Style::default().fg(color).bold());
+    let remaining_time_line = Line::from(vec![
+      Span::from(
+        format!("⏳{}", self.get_remaining_time().to_string()))
+        .style(Style::default().fg(color).bold())
+    ]);
 
-    let remaining_time_line = Line::from(vec![span]);
+    let capslock_on_line = Line::from(vec![
+      Span::from("❗CAPSLOCK ON").style(Style::default().fg(layout.get_error_color()).bold())
+    ]);
 
     let text_line = self.generated_text.chars()
       .enumerate()
@@ -384,9 +388,17 @@ impl TypingWindow {
       })
       .collect::<Line>();
 
+    let empty_line = Line::from(Vec::new());
+
     lines.push(remaining_time_line);
-    lines.push(Line::from(Vec::new()));
+
+    lines.push(empty_line.clone());
+
     lines.push(text_line);
+
+    lines.push(empty_line);
+
+    lines.push(capslock_on_line);
 
     let text = Text::from(lines);
 
