@@ -68,9 +68,6 @@ pub struct TypingWindow {
   /// Popup is visible
   is_popup_visible: bool,
 
-  /// CAPSLOCK is on
-  is_capslock_on: bool,
-
   pub time_secs: u32,
 
   /// The current cursor index withing generated_text
@@ -95,7 +92,6 @@ impl Window for TypingWindow {
       is_active: false,
       is_running: false,
       is_popup_visible: false,
-      is_capslock_on: PlatformApi::is_capslock_on(),
 
       time_secs: 0,
       cursor_index: 0,
@@ -119,11 +115,6 @@ impl Window for TypingWindow {
   }
 
   fn handle_events(&mut self, key: KeyEvent) -> bool {
-    if key.code == KeyCode::CapsLock {
-      self.is_capslock_on = !self.is_capslock_on;
-      return true;
-    }
-
     if self.cursor_index > 0 && !self.is_running() {
       return false;
     }
@@ -351,7 +342,7 @@ impl TypingWindow {
   fn get_capslock_line(&self, layout: &TukaiLayout) -> Line {
     let mut spans = Vec::new();
 
-    if self.is_capslock_on {
+    if PlatformApi::is_capslock_on() {
       spans.push(Span::from("❗CAPSLOCK ON").style(Style::default().fg(layout.get_error_color()).bold()));
     }
 

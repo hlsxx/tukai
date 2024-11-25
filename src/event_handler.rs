@@ -78,7 +78,7 @@ impl PlatformApi {
 
   #[cfg(target_os = "linux")]
   fn is_capslock_on_x11() -> bool {
-    use x11::xlib::{XOpenDisplay, XkbGetIndicatorState};
+    use x11::xlib::{XCloseDisplay, XOpenDisplay, XkbGetIndicatorState};
     use std::ptr;
 
     let display = unsafe { XOpenDisplay(ptr::null()) };
@@ -90,6 +90,8 @@ impl PlatformApi {
 
     let mut state: u32 = 0;
     let result = unsafe { XkbGetIndicatorState(display, 0x0100, &mut state) };
+
+    unsafe { XCloseDisplay(display) };
 
     result == 0 && state & 0x01 != 0
   }
