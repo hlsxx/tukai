@@ -60,22 +60,24 @@ impl EventHandler {
   }
 }
 
-struct PlatformApi;
+pub struct PlatformApi;
 
 impl PlatformApi {
+  #[allow(inactive_code)]
   #[cfg(target_os = "windows")]
-  fn is_caps_lock_on() -> bool {
+  fn is_capslock_on() -> bool {
     use winapi::um::winuser::{GetKeyState, VK_CAPITAL};
     unsafe { GetKeyState(VK_CAPITAL) & 0x0001 != 0 }
   }
 
   #[cfg(target_os = "linux")]
-  fn is_caps_lock_on_wayland() -> bool {
+  #[allow(unused)]
+  fn is_capslock_on_wayland() -> bool {
     false
   }
 
   #[cfg(target_os = "linux")]
-  fn is_caps_lock_on_x11() -> bool {
+  fn is_capslock_on_x11() -> bool {
     use x11::xlib::{XOpenDisplay, XkbGetIndicatorState};
     use std::ptr;
 
@@ -93,23 +95,13 @@ impl PlatformApi {
   }
 
   #[cfg(target_os = "linux")]
-  fn is_caps_lock_on() -> bool {
+  pub fn is_capslock_on() -> bool {
     use std::env;
 
     if env::var("DISPLAY").is_ok() {
-      return PlatformApi::is_caps_lock_on_x11();
+      return PlatformApi::is_capslock_on_x11();
     }
 
     false
   }
 }
-
-mod tests {
-  use super::PlatformApi;
-
-  #[test]
-  fn is_capslock_on_test() {
-    println!("{:?}", PlatformApi::is_caps_lock_on());
-  }
-}
-
