@@ -7,9 +7,9 @@ use crate::{
 
 use ratatui::{
   crossterm::event::KeyEvent,
-  layout::{Alignment, Constraint, Rect},
+  layout::{Alignment, Constraint, Direction, Layout, Rect},
   style::{Style, Stylize},
-  widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table},
+  widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table, TableState},
   Frame
 };
 
@@ -72,6 +72,14 @@ impl Window for StatsWindow {
     let storage_handler = StorageHandler::new("tukai.bin")
       .init()
       .unwrap();
+
+    let chunks = Layout::default()
+      .direction(Direction::Horizontal)
+      .constraints(vec![
+        Constraint::Percentage(70),
+        Constraint::Percentage(30)
+      ])
+      .split(area);
     
     let stats = storage_handler.get_data_stats_reversed().unwrap();
 
@@ -123,6 +131,7 @@ impl Window for StatsWindow {
       .block(block)
       .column_spacing(1)
       .style(Style::new().bg(layout.get_background_color()))
+      .highlight_symbol("X")
       .header(
         Row::new(vec![
           Cell::from("⏳ Duration")
@@ -139,7 +148,66 @@ impl Window for StatsWindow {
         ]).bottom_margin(1)
       );
 
-    frame.render_widget(table, area);
-  }
+    let right_widget = self.get_right_widget(&layout, &storage_handler);
 
+    frame.render_widget(&table, chunks[0]);
+    frame.render_widget(right_widget, chunks[1]);
+  }
+}
+
+impl StatsWindow {
+  fn get_right_widget(
+    &self,
+    layout: &TukaiLayout,
+    storage_handler: &StorageHandler
+  ) -> Table {
+    let stats = storage_handler.get_data_stats_bets().unwrap();
+
+    let block = Block::new()
+      .title("BEST SCORE")
+      .title_style(Style::new().fg(layout.get_primary_color()))
+      .borders(Borders::ALL)
+      .border_style(Style::default().fg(layout.get_primary_color()))
+      .border_type(BorderType::Rounded);
+
+    let default_cell_style = Style::default()
+      .fg(layout.get_text_color());
+
+    let rows = stats.iter()
+      .map(|stat| {
+        Row::new(vec![
+          Cell::from(stat.get_average_wpm().to_string())
+            .style(default_cell_style),
+
+          Cell::from(format!("{}%", stat.get_accuracy().to_string()))
+            .style(default_cell_style),
+        ])
+      }).collect::<Vec<Row>>();
+
+    let widths = [
+      Constraint::Percentage(50),
+      Constraint::Percentage(50),
+    ];
+
+    let default_header_cell_style = Style::default()
+      .fg(layout.get_primary_color())
+      .bold();
+
+    let table = Table::new(rows, widths)
+      .block(block)
+      .column_spacing(1)
+      .style(Style::new().bg(layout.get_background_color()))
+      .highlight_symbol("X")
+      .header(
+        Row::new(vec![
+          Cell::from("🔥 Average WPM")
+            .style(default_header_cell_style),
+
+          Cell::from("🎯 Accuracy")
+            .style(default_header_cell_style),
+        ]).bottom_margin(1)
+      );
+
+    table
+  }
 }

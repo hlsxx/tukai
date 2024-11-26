@@ -137,6 +137,18 @@ impl StorageHandler {
     }
   }
 
+  pub fn get_data_stats_bets(&self) -> Option<Vec<Stat>> {
+    if let Some(StorageDataValue::Stats(stats)) = self.data.get(&StorageDataType::Stats) {
+      stats.clone().sort_by(|a, b| {
+        a.get_average_wpm().cmp(&b.get_average_wpm())
+      });
+
+      Some(stats.to_owned())
+    } else {
+      None
+    }
+  }
+
   pub fn get_active_layout_name(&self) -> Option<LayoutName> {
     if let Some(StorageDataValue::Layout(layout)) = self.data.get(&StorageDataType::Layout) {
       Some(layout.clone())

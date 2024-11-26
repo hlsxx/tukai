@@ -15,7 +15,7 @@ dirs = "5.0.1"
 futures = "0.3.31"
 maplit = "1.0.2"
 rand = "0.8.5"
-ratatui = "0.28.1"
+ratatui = "0.29.0"
 serde = { version = "1.0.214", features = ["derive"] }
 tokio = { version = "1.41.0", features = ["full"] }
 toml = "0.8.19"
