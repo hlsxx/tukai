@@ -123,7 +123,6 @@ call
 camera
 campaign
 can
-cancer
 candidate
 capital
 car
@@ -208,7 +207,6 @@ decision
 deep
 defense
 degree
-Democrat
 democratic
 describe
 design
@@ -396,7 +394,6 @@ huge
 human
 hundred
 husband
-I
 idea
 identify
 if
@@ -754,8 +751,6 @@ service
 set
 seven
 several
-sex
-sexual
 shake
 share
 she
