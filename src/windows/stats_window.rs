@@ -6,11 +6,7 @@ use crate::{
 };
 
 use ratatui::{
-  crossterm::event::KeyEvent,
-  layout::{Alignment, Constraint, Direction, Layout, Rect},
-  style::{Style, Stylize},
-  widgets::{Block, BorderType, Borders, Cell, Padding, Row, Table, TableState},
-  Frame
+  crossterm::event::KeyEvent, layout::{Alignment, Constraint, Direction, Layout, Rect}, style::{Style, Stylize}, symbols, widgets::{Axis, Block, BorderType, Borders, Cell, Chart, Dataset, GraphType, Padding, Row, Table, TableState}, Frame
 };
 
 use crate::layout::Layout as TukaiLayout;
@@ -80,6 +76,14 @@ impl Window for StatsWindow {
         Constraint::Percentage(30)
       ])
       .split(area);
+
+    let left_widget = Layout::default()
+      .direction(Direction::Vertical)
+      .constraints(vec![
+        Constraint::Percentage(50),
+        Constraint::Percentage(50)
+      ])
+      .split(chunks[0]);
     
     let stats = storage_handler.get_data_stats_reversed().unwrap();
 
@@ -148,9 +152,48 @@ impl Window for StatsWindow {
         ]).bottom_margin(1)
       );
 
+    let datasets = vec![
+      Dataset::default()
+        .name("data1")
+        .marker(symbols::Marker::Dot)
+        .graph_type(GraphType::Scatter)
+        .style(Style::default().cyan())
+        .data(&[(0.0, 5.0), (1.0, 6.0), (1.5, 6.434)]),
+      Dataset::default()
+        .name("data2")
+        .marker(symbols::Marker::Braille)
+        .graph_type(GraphType::Line)
+        .style(Style::default().magenta())
+        .data(&[(4.0, 5.0), (5.0, 8.0), (7.66, 13.5)]),
+    ];
+
+    let x_axis = Axis::default()
+      .title("X Axis".red())
+      .style(Style::default().white())
+      .bounds([0.0, 100.0]);
+
+    let y_axis = Axis::default()
+      .title("Y Axis".red())
+      .style(Style::default().white())
+      .bounds([0.0, 100.0])
+      .labels(["0", "50", "100"]);
+
+    let chart_block = Block::new()
+      .title_style(Style::new().fg(layout.get_primary_color()))
+      .borders(Borders::ALL)
+      .border_style(Style::default().fg(layout.get_primary_color()))
+      .border_type(BorderType::Rounded);
+
+    let chart = Chart::new(datasets)
+      .block(chart_block)
+      .style(Style::new().bg(layout.get_background_color()))
+      .x_axis(x_axis)
+      .y_axis(y_axis);
+
     let right_widget = self.get_right_widget(&layout, &storage_handler);
 
-    frame.render_widget(&table, chunks[0]);
+    frame.render_widget(table, left_widget[0]);
+    frame.render_widget(chart, left_widget[1]);
     frame.render_widget(right_widget, chunks[1]);
   }
 }
