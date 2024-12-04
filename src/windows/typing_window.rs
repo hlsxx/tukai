@@ -159,6 +159,7 @@ impl Window for TypingWindow {
 
     let block = Block::new()
       .title(block_title)
+      .title_alignment(Alignment::Left)
       .title_bottom(self.motto.as_ref())
       .title_style(Style::default().fg(layout.get_primary_color()))
       .title_alignment(Alignment::Center)
