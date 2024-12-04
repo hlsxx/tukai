@@ -156,7 +156,6 @@ impl Window for StatsWindow {
 
     let datasets = vec![
       Dataset::default()
-        .name("WPM")
         .marker(symbols::Marker::Dot)
         .graph_type(GraphType::Scatter)
         .style(Style::default().fg(layout.get_text_color()))
@@ -202,7 +201,7 @@ impl StatsWindow {
     let stats = storage_handler.get_data_stats_bets().unwrap();
 
     let block = Block::new()
-      .title("BEST SCORE")
+      .title(" Best score ")
       .title_style(Style::new().fg(layout.get_primary_color()))
       .borders(Borders::ALL)
       .border_style(Style::default().fg(layout.get_primary_color()))

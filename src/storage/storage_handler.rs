@@ -159,11 +159,10 @@ impl StorageHandler {
 
   pub fn get_data_stats_bets(&self) -> Option<Vec<Stat>> {
     if let Some(StorageDataValue::Stats(stats)) = self.data.get(&StorageDataType::Stats) {
-      stats.clone().sort_by(|a, b| {
-        a.get_average_wpm().cmp(&b.get_average_wpm())
-      });
+      let mut x = stats.clone();
+      x.sort_by(|a, b| b.get_average_wpm().cmp(&a.get_average_wpm()));
 
-      Some(stats.to_owned())
+      Some(x)
     } else {
       None
     }
