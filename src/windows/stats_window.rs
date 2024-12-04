@@ -152,31 +152,26 @@ impl Window for StatsWindow {
         ]).bottom_margin(1)
       );
 
+    let (best_wpm, chart_data) = storage_handler.get_data_for_chart();
+
     let datasets = vec![
       Dataset::default()
-        .name("data1")
+        .name("WPM")
         .marker(symbols::Marker::Dot)
         .graph_type(GraphType::Scatter)
-        .style(Style::default().cyan())
-        .data(&[(0.0, 5.0), (1.0, 6.0), (1.5, 6.434)]),
-      Dataset::default()
-        .name("data2")
-        .marker(symbols::Marker::Braille)
-        .graph_type(GraphType::Line)
-        .style(Style::default().magenta())
-        .data(&[(4.0, 5.0), (5.0, 8.0), (7.66, 13.5)]),
+        .style(Style::default().fg(layout.get_text_color()))
+        .data(&chart_data)
     ];
 
     let x_axis = Axis::default()
-      .title("X Axis".red())
       .style(Style::default().white())
       .bounds([0.0, 100.0]);
 
     let y_axis = Axis::default()
-      .title("Y Axis".red())
-      .style(Style::default().white())
-      .bounds([0.0, 100.0])
-      .labels(["0", "50", "100"]);
+      .title("Words per minute")
+      .style(Style::default().fg(layout.get_primary_color()))
+      .bounds([0.0, best_wpm as f64])
+      .labels((0..=best_wpm).step_by(25).map(|y| y.to_string()).collect::<Vec<String>>());
 
     let chart_block = Block::new()
       .title_style(Style::new().fg(layout.get_primary_color()))

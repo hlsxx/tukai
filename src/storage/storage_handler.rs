@@ -125,6 +125,26 @@ impl StorageHandler {
     &self.data
   }
 
+  pub fn get_data_for_chart(&self) -> (usize, Vec<(f64, f64)>) {
+    if let Some(StorageDataValue::Stats(stats)) = self.data.get(&StorageDataType::Stats) {
+      let mut best_wpm = 0_usize;
+
+      let dataset = stats.iter().enumerate()
+        .rev()
+        .map(|(index, stat)| {
+          let stat_wpm = stat.get_average_wpm();
+
+          best_wpm = best_wpm.max(stat_wpm);
+
+          (index as f64, stat_wpm as f64)
+        }).collect::<Vec<(f64, f64)>>();
+
+      (best_wpm + 10, dataset)
+    } else {
+      (100, Vec::new())
+    }
+  }
+
   pub fn get_data_stats_reversed(&self) -> Option<Vec<Stat>> {
     if let Some(StorageDataValue::Stats(stats)) = self.data.get(&StorageDataType::Stats) {
       let stats_reversed = stats.iter()
