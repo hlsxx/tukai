@@ -17,30 +17,36 @@ use crate::{
 
 /// Handler for incorrect symbols
 ///
-/// Insert incorrect symbol into the set
+/// Inserts incorrect characters into a HashSet
 pub struct MistakeHandler {
   mistakes_indexes: HashSet<usize>
 }
 
 impl MistakeHandler {
+
+  /// Creates MistakeHandler with empty HashSet
   fn new() -> Self {
     Self {
       mistakes_indexes: HashSet::new()
     }
   }
 
+  /// Verifies if the character is mistaken
   pub fn is_char_mistaken(&self, char_index: usize) -> bool {
     self.mistakes_indexes.contains(&char_index)
   }
 
-  pub fn remove_from_mistakes_indexes(&mut self, char_index: usize) -> bool {
-    self.mistakes_indexes.remove(&char_index)
-  }
-
+  /// Adds the typed character into the mistakes
   pub fn add_to_mistakes_indexes(&mut self, char_index: usize) -> bool {
     self.mistakes_indexes.insert(char_index)
   }
 
+  /// Removes the typed character from mistakes
+  pub fn remove_from_mistakes_indexes(&mut self, char_index: usize) -> bool {
+    self.mistakes_indexes.remove(&char_index)
+  }
+
+  /// Gets the current mistake count
   pub fn get_mistakes_counter(&self) -> usize {
     self.mistakes_indexes.len()
   }
@@ -50,13 +56,13 @@ pub struct TypingWindow {
   /// Random generated text
   pub generated_text: String,
 
-  /// User typed input
+  /// User whole typed input
   pub input: String,
 
-  /// Handle incorrect symbols
+  /// Handle incorrect characters
   pub mistake_handler: MistakeHandler,
 
-  /// User statistics after the run is completed
+  /// User statistics after the current run is completed
   pub stat: Option<Stat>,
 
   /// The TypingWindow is currently active window
@@ -84,19 +90,25 @@ impl Window for TypingWindow {
   fn default() -> Self {
     Self {
       generated_text: Generator::generate_random_string(50),
+
       input: String::new(),
+
       mistake_handler: MistakeHandler::new(),
 
       stat: None,
 
       is_active: false,
+
       is_running: false,
+
       is_popup_visible: false,
 
       time_secs: 0,
+
       cursor_index: 0,
 
       config: TypingWindowConfig::default(),
+
       motto: Generator::generate_random_motto()
     }
   }
