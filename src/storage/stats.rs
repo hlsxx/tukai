@@ -2,6 +2,14 @@ use serde::{Deserialize, Serialize};
 use super::stat_helper::StatHelper;
 
 #[derive(Serialize, Deserialize, Hash, PartialEq, Eq, Debug, Clone)]
+/// Represents the available durations for the test
+///
+/// This enum defines default durations
+///
+/// # Variants
+/// - `ThirtySec` - 30 seconds typing duration
+/// - `Minute` - 60 seconds typing duration
+/// - `ThreeMinutes` - 180 seconds typing duration
 pub enum TypingDuration {
   ThirtySec,
   Minute,
@@ -34,12 +42,21 @@ impl TypingDuration {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Stat {
   duration: TypingDuration,
+
   average_wpm: usize,
+
   raw_wpm: usize,
-  accuracy: f32
+
+  accuracy: f64
 }
 
 impl Stat {
+  /// Creates a new Stat
+  ///
+  /// Calculates the:
+  ///   * WPM
+  ///   * Raw WPM
+  ///   * Accuracy
   pub fn new(
     duration: TypingDuration,
     chars_counter: usize,
@@ -54,19 +71,23 @@ impl Stat {
     }
   }
 
+  /// Returns the duration
   pub fn get_duration(&self) -> &TypingDuration {
     &self.duration
   }
 
+  /// Returns the average wpm
   pub fn get_average_wpm(&self) -> usize {
     self.average_wpm
   }
 
+  /// Returns the raw WPM
   pub fn get_raw_wpm(&self) -> usize {
     self.raw_wpm
   }
 
-  pub fn get_accuracy(&self) -> f32 {
+  /// Returns the accuracy
+  pub fn get_accuracy(&self) -> f64 {
     self.accuracy
   }
 

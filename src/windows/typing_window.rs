@@ -46,7 +46,7 @@ impl MistakeHandler {
     self.mistakes_indexes.remove(&char_index)
   }
 
-  /// Gets the current mistake count
+  /// Returns the current mistake count
   pub fn get_mistakes_counter(&self) -> usize {
     self.mistakes_indexes.len()
   }
@@ -299,7 +299,7 @@ impl TypingWindow {
     }
   }
 
-  /// Gets the raw WPM
+  /// Returns the raw WPM
   pub fn get_calculated_raw_wpm(&self) -> usize {
     if let Some(last_stat) = &self.stat {
       last_stat.get_raw_wpm()
@@ -308,7 +308,7 @@ impl TypingWindow {
     }
   }
 
-  /// Gets the average WPM
+  /// Returns the average WPM
   pub fn get_calculated_wpm(&self) -> usize {
     if let Some(last_stat) = &self.stat {
       last_stat.get_average_wpm()
@@ -317,8 +317,8 @@ impl TypingWindow {
     }
   }
 
-  /// Gets the accuracy
-  pub fn get_calculated_accuracy(&self) -> f32 {
+  /// Returns the accuracy
+  pub fn get_calculated_accuracy(&self) -> f64 {
     if let Some(last_stat) = &self.stat {
       last_stat.get_accuracy()
     } else {
@@ -351,7 +351,7 @@ impl TypingWindow {
     self.is_popup_visible = false;
   }
 
-  /// Gets the CAPSLOCK message line
+  /// Returns the CAPSLOCK message line
   fn get_capslock_line(&self, layout: &TukaiLayout) -> Line {
     let mut spans = Vec::new();
 
