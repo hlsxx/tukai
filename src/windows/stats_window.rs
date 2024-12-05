@@ -241,7 +241,10 @@ impl StatsWindow {
     layout: &TukaiLayout,
     chart_widget_data: &'a (usize, Vec<(f64, f64)>)
   ) -> Chart<'a> {
-    let (best_wpm, chart_data) = chart_widget_data;
+    let (mut best_wpm, chart_data) = chart_widget_data;
+
+    // Validate best_wpm
+    best_wpm = if best_wpm < 25 { 50 } else { best_wpm };
 
     let datasets = vec![
       Dataset::default()
@@ -253,13 +256,13 @@ impl StatsWindow {
 
     let x_axis = Axis::default()
       .style(Style::default().white())
-      .bounds([0.0, 100.0]);
+      .bounds([0.0, best_wpm as f64]);
 
     let y_axis = Axis::default()
       .title("Words per minute")
       .style(Style::default().fg(layout.get_primary_color()))
-      .bounds([0.0, *best_wpm as f64])
-      .labels((0..=*best_wpm).step_by(25).map(|y| y.to_string()).collect::<Vec<String>>());
+      .bounds([0.0, best_wpm as f64])
+      .labels((0..=best_wpm).step_by(25).map(|y| y.to_string()).collect::<Vec<String>>());
 
     let chart_block = Block::new()
       .title_style(Style::new().fg(layout.get_primary_color()))

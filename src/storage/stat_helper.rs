@@ -24,9 +24,8 @@ impl StatHelper {
     chars_counter: usize,
     mistakes_counter: usize
   ) -> f64 {
-    0.0
-    // let accuracy = ((chars_counter as f64 - mistakes_counter as f64) / chars_counter as f64) * 100.0;
-    // (accuracy * 100.0).round() / 100.0
+    let accuracy = ((chars_counter as f64 - mistakes_counter as f64) / chars_counter as f64) * 100.0;
+    (accuracy * 100.0).round() / 100.0
   }
 
 }

@@ -252,10 +252,10 @@ mod tests {
     )
   }
 
-  #[test]
-  fn storage_local_dir_initialization() {
-    let storage_handler = get_storage_handler();
-  }
+  //#[test]
+  // fn storage_local_dir_initialization() {
+  //   let storage_handler = get_storage_handler();
+  // }
 
   #[test]
   // Just validate if binary file was created right

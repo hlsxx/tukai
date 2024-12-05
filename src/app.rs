@@ -49,7 +49,6 @@ pub struct App {
 
   active_window: ActiveWindowEnum,
 
-  // Windows
   typing_window: TypingWindow,
 
   stats_window: StatsWindow
@@ -73,6 +72,7 @@ impl App {
       active_window: ActiveWindowEnum::Typing,
 
       typing_window: TypingWindow::default(),
+
       stats_window: StatsWindow::default()
     }
   }
