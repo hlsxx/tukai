@@ -139,7 +139,7 @@ impl StorageHandler {
           (index as f64, stat_wpm as f64)
         }).collect::<Vec<(f64, f64)>>();
 
-      (best_wpm + 10, dataset)
+      (best_wpm, dataset)
     } else {
       (100, Vec::new())
     }

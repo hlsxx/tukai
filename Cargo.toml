@@ -1,6 +1,6 @@
 [package]
 name = "tukai"
-version = "0.1.0"
+version = "0.1.2"
 edition = "2021"
 authors = ["hlsxx"]
 description = "The app provides an interactive typing experience with switchable templates, designed to help users improve their typing speed and accuracy."
