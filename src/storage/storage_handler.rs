@@ -17,7 +17,6 @@ pub enum StorageDataType {
   Activities,
   Layout
 }
-
 #[derive(Deserialize, Serialize, Debug)]
 pub enum StorageDataValue {
   Stats(Vec<Stat>),
@@ -32,6 +31,11 @@ pub struct StorageHandler {
 
   // Data stored in the binary file
   data: StorageData,
+}
+
+pub struct StatOverview {
+  pub total_average_wpm: usize,
+  pub total_average_accuracy: f64
 }
 
 impl StorageHandler {
@@ -123,6 +127,14 @@ impl StorageHandler {
   #[allow(unused)]
   pub fn get_data(&self) -> &StorageData {
     &self.data
+  }
+
+  /// Returns whole stats overview
+  pub fn get_data_for_overview(&self) -> StatOverview {
+    StatOverview {
+      total_average_wpm: 100,
+      total_average_accuracy: 80.0
+    }
   }
 
   pub fn get_data_for_chart(&self) -> (usize, Vec<(f64, f64)>) {
