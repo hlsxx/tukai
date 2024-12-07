@@ -234,7 +234,7 @@ impl App {
               }
             },
             'l' => self.switch_active_window(ActiveWindowEnum::Stats),
-            'j' => self.switch_active_window(ActiveWindowEnum::Typing),
+            'h' => self.switch_active_window(ActiveWindowEnum::Typing),
             'c' => self.exit(),
             _ => {}
           }
