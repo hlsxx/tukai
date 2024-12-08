@@ -16,6 +16,12 @@ pub enum TypingDuration {
   ThreeMinutes
 }
 
+impl Default for TypingDuration {
+  fn default() -> Self {
+    Self::Minute
+  }
+}
+
 impl TypingDuration {
   pub fn to_string(&self) -> String {
     let time = match self {
@@ -39,7 +45,7 @@ impl TypingDuration {
   }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Stat {
   duration: TypingDuration,
 

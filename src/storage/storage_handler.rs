@@ -33,6 +33,9 @@ pub struct StorageHandler {
   data: StorageData,
 }
 
+/// Total stats overview
+///
+/// Includes average WPM | average accuracy
 pub struct StatOverview {
   pub total_average_wpm: usize,
   pub total_average_accuracy: f64
@@ -131,9 +134,19 @@ impl StorageHandler {
 
   /// Returns whole stats overview
   pub fn get_data_for_overview(&self) -> StatOverview {
+    let (sum_wpm, sum_accuracy, stats_count) = if let Some(stats) = self.get_data_stats() {
+      let (sum_wpm, sum_accuracy) = stats.iter().fold((0, 0.0), |(wpm, acc), stat| {
+        (wpm + stat.get_average_wpm(), acc + stat.get_accuracy())
+      });
+
+      (sum_wpm, sum_accuracy, stats.len())
+    } else {
+      (0, 0.0, 0)
+    };
+
     StatOverview {
-      total_average_wpm: 100,
-      total_average_accuracy: 80.0
+      total_average_wpm: sum_wpm / stats_count,
+      total_average_accuracy: (sum_accuracy / stats_count as f64).round()
     }
   }
 
@@ -188,9 +201,18 @@ impl StorageHandler {
     }
   }
 
-  /// Gets the stats from the storage
+  /// Gets mut stats from the storage
   fn get_data_stats_mut(&mut self) -> Option<&mut Vec<Stat>> {
     if let Some(StorageDataValue::Stats(stats)) = self.data.get_mut(&StorageDataType::Stats) {
+      Some(stats)
+    } else {
+      None
+    }
+  }
+
+  /// Gets stats from the storage
+  fn get_data_stats(&self) -> Option<&Vec<Stat>> {
+    if let Some(StorageDataValue::Stats(stats)) = self.data.get(&StorageDataType::Stats) {
       Some(stats)
     } else {
       None
