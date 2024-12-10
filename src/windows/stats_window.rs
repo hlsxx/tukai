@@ -86,8 +86,8 @@ impl Window for StatsWindow {
     let right_widget = Layout::default()
       .direction(Direction::Vertical)
       .constraints(vec![
-        Constraint::Percentage(20),
-        Constraint::Percentage(80)
+        Constraint::Length(5),
+        Constraint::Percentage(100)
       ])
       .split(chunks[1]);
     
@@ -310,7 +310,15 @@ impl StatsWindow {
       ]),
     ];
 
+    let block = Block::new()
+      .title(" Total score ")
+      .title_style(Style::new().fg(layout.get_primary_color()))
+      .borders(Borders::ALL)
+      .border_style(Style::default().fg(layout.get_primary_color()))
+      .border_type(BorderType::Rounded);
+
     let p = Paragraph::new(text)
+      .block(block)
       .style(Style::new().bg(layout.get_background_color()))
       .alignment(Alignment::Left);
 
