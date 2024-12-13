@@ -144,9 +144,11 @@ impl StorageHandler {
       (0, 0.0, 0)
     };
 
+    let accuracy = (sum_accuracy / stats_count as f64).round();
+
     StatOverview {
-      total_average_wpm: sum_wpm / stats_count,
-      total_average_accuracy: (sum_accuracy / stats_count as f64).round()
+      total_average_wpm: sum_wpm.checked_div(stats_count).unwrap_or(0),
+      total_average_accuracy: if accuracy.is_nan() { 0.0 } else { accuracy }
     }
   }
 
