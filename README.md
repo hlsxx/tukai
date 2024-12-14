@@ -27,13 +27,12 @@ A terminal-based touch typing application built in Rust using the [Ratatui](http
 
 To get a local copy up and running follow these simple example steps.
 
-### Arch Linux installation
+### Arch Linux
 
-[tukai](https://aur.archlinux.org/packages/tukai) is available as a package in the [AUR](https://aur.archlinux.org).<br>
-You can install it with your preferred [AUR helper](https://wiki.archlinux.org/title/AUR_helpers). example:
+tukai is available in the Arch Linux [extra repository](https://archlinux.org/packages/extra/x86_64/tukai/).
 
 ```sh
-paru -S tukai
+pacman -S tukai
 ```
 
 ### Installation from the Cargo
