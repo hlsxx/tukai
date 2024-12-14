@@ -269,7 +269,7 @@ impl StatsWindow {
       .bounds([0.0, chart_data.len() as f64]);
 
     let y_axis = Axis::default()
-      .style(Style::default().fg(layout.get_primary_color()))
+      .style(Style::default().fg(layout.get_text_color()))
       .bounds([0.0, 125 as f64])
       .labels((0..=125).step_by(25).map(|y| y.to_string()).collect::<Vec<String>>());
 
