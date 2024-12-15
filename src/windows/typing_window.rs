@@ -11,7 +11,7 @@ use ratatui::{
 
 use crate::{
   configs::typing_window_config::TypingWindowConfig, event_handler::PlatformApi, helper::{get_title, Generator, ToDark}, layout::{Layout as TukaiLayout, LayoutColorTypeEnum}, storage::{
-    stats::{Stat, TypingDuration}, storage_handler::StorageHandler
+    stats::Stat, storage_handler::StorageHandler
   }, windows::{Instruction, InstructionWidget, Window}
 };
 
@@ -249,10 +249,9 @@ impl TypingWindow {
 
     if self.stat.is_none() {
       let stat = Stat::new(
-        TypingDuration::Minute,
+        &self.config.typing_duration,
         self.input.len(),
         self.mistake_handler.get_mistakes_counter(),
-        self.config.time_limit as usize,
       );
 
       // TODO: Some action if not set into the binary
@@ -333,8 +332,10 @@ impl TypingWindow {
   }
 
   /// Calculate the remaining time
-  pub fn get_remaining_time(&self) -> u32 {
-    self.config.time_limit.checked_sub(self.time_secs).unwrap_or(0)
+  pub fn get_remaining_time(&self) -> usize {
+    self.config.typing_duration.as_seconds()
+      .checked_sub(self.time_secs as usize)
+      .unwrap_or(0)
   }
 
   /// Resets all necessary properties
@@ -342,7 +343,7 @@ impl TypingWindow {
     self.is_running = false;
 
     self.generated_text = Generator::generate_random_string(
-      self.config.time_limit as usize
+      self.config.typing_duration.as_seconds()
     );
 
     self.mistake_handler = MistakeHandler::new();
