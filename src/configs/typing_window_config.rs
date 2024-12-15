@@ -60,7 +60,7 @@ impl TypingWindowConfig {
   /// ThirtySec
   /// Minute
   /// ThreeMinutes
-  fn switch_typing_duration(&mut self) {
+  pub fn switch_typing_duration(&mut self) {
     if self.typing_duration == TypingDuration::Minute {
       self.typing_duration = TypingDuration::ThreeMinutes;
     } else if self.typing_duration == TypingDuration::ThreeMinutes {

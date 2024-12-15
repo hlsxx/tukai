@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 
+use crossterm::event::KeyModifiers;
 use ratatui::{
   crossterm::event::{KeyCode, KeyEvent},
   layout::{Alignment, Constraint, Flex, Layout, Rect},
@@ -126,12 +127,22 @@ impl Window for TypingWindow {
     self.is_popup_visible = false;
   }
 
-  fn handle_events(&mut self, key: KeyEvent) -> bool {
+  fn handle_events(&mut self, key_event: KeyEvent) -> bool {
     if self.cursor_index > 0 && !self.is_running() {
       return false;
     }
 
-    match key.code {
+    if key_event.modifiers.contains(KeyModifiers::CONTROL) {
+      match key_event.code {
+        KeyCode::Char('t') => {
+          println!("xxx");
+          self.config.switch_typing_duration()
+        },
+        _ => {}
+      }
+    }
+
+    match key_event.code {
       KeyCode::Esc => {
         if self.is_popup_visible() {
           self.is_popup_visible = false;
