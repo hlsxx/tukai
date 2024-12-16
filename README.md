@@ -2,11 +2,9 @@
   <h3 align="center">Tukai</h3>
 
   <p align="center">
-    ⌨ Touch typing terminal based application
+    Terminal based touch typing application
   </p>
 </div>
-
-## About The Tukai
 
 <div align="center">
   <img src="https://github.com/hlsxx/tukai/blob/master/blob/example.gif" alt="Tukai" style="width:100%; max-height:400px" />
@@ -19,7 +17,6 @@ A terminal-based touch typing application built in Rust using the [Ratatui](http
 ### Features
 - **Terminal-Based**: Simple, lightweight, and runs in the terminal for easy accessibility on any platform
 - **Rust-Based**: Built with Rust for performance and reliability
-- **Touch Typing Practice**: Practice typing skills with real-time feedback on accuracy and speed
 - **Switchable Templates**: Choose between different templates to customize the typing practice experience
 - **Stats preview**: A built-in stats preview of already done tests
 
@@ -62,24 +59,13 @@ cargo build --release
 <!-- USAGE EXAMPLES -->
 ## Usage / Shortcuts
 
-- **ESC**:  Exit the application
-- **CTRL + R**:  Restart and generate a new text
-- **CTRL + S**: Switch between the templates
-- **CTRL + J (left arrow)**: Switch to the Typing screen
-- **CTRL + L (right arrow)**: Switch to the Stats screen
-
-<!-- ROADMAP -->
-## Roadmap
-
-- [x] Highlighted typed text
-- [x] Highlighted mistakes
-- [x] Calculate WPM and accuracy after the run
-- [x] Display remaining time
-- [x] Template switch
-- [ ]  Selectable type test times
-- [x]  Stats overview
-- [ ]  Activity overview
-- [ ]  Custom texts
+|  Key |  Alternate Key |  Action |
+| ------------ | ------------ | ------------ |
+|  esc  |   |  Exit the application |
+|   ctrl-r |   |  Restart and generate a new text |
+|   ctrl-s |   | Switch between templates  |
+|   ctrl-h  | ←  | Switch to the typing screen   |
+|   ctrl-l  | → | Switch to the stats screen   |
 
 <!-- LICENSE -->
 ## License
