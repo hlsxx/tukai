@@ -1,9 +1,9 @@
 use std::collections::HashSet;
 
-use crossterm::event::KeyModifiers;
+use crossterm::{cursor, event::KeyModifiers};
 use ratatui::{
   crossterm::event::{KeyCode, KeyEvent},
-  layout::{Alignment, Constraint, Flex, Layout, Rect},
+  layout::{Alignment, Constraint, Flex, Layout, Position, Rect},
   style::{Modifier, Style, Stylize},
   text::{Line, Span, Text},
   widgets::{Block, BorderType, Borders, Clear, Padding, Paragraph, Wrap},
@@ -201,6 +201,14 @@ impl Window for TypingWindow {
       .block(block)
       .alignment(Alignment::Center);
 
+    // let content_width = self.generated_text.lines()
+    //   .map(|line| line.len())
+    //   .max()
+    //   .unwrap_or(0);
+
+    // let start = area.x + (area.width.saturating_sub(content_width as u16) / 2);
+
+    // frame.set_cursor_position(Position::new(start, (area.height / 2) - 2));
     frame.render_widget(p, area);
   }
 
