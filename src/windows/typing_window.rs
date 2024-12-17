@@ -197,18 +197,14 @@ impl Window for TypingWindow {
         0
       ));
 
+    // let block_rect = &block.inner(area);
+    // let cursor_start_pos = block_rect.x;
+
     let p = self.get_paragraph(layout)
       .block(block)
-      .alignment(Alignment::Center);
+      .alignment(Alignment::Left);
 
-    // let content_width = self.generated_text.lines()
-    //   .map(|line| line.len())
-    //   .max()
-    //   .unwrap_or(0);
-
-    // let start = area.x + (area.width.saturating_sub(content_width as u16) / 2);
-
-    // frame.set_cursor_position(Position::new(start, (area.height / 2) - 2));
+    // frame.set_cursor_position(Position::new(cursor_start_pos, (area.height / 2) - 2));
     frame.render_widget(p, area);
   }
 
