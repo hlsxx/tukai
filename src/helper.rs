@@ -4,9 +4,11 @@ use ratatui::{
   style::Color
 };
 
+use crate::layout::LayoutName;
+
 pub struct Generator;
 
-pub fn get_title(version: &String, layout_name: &str, window_name: &str) -> Title<'static> {
+pub fn get_title(version: &String, layout_name: &LayoutName, window_name: &str) -> Title<'static> {
   Title::from(format!(" tukai v{} 》{} 》{} ", version, layout_name, window_name))
 }
 

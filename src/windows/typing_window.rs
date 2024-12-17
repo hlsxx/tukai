@@ -176,9 +176,15 @@ impl Window for TypingWindow {
   ) {
     let block_title = get_title(
       version,
-      layout.get_active_layout_title(),
+      layout.get_active_layout_name(),
       "Typing"
     );
+
+    let block_style = if let Some(bg_color) = layout.get_background_color() {
+      Style::default().bg(bg_color)
+    } else {
+      Style::default()
+    };
 
     let block = Block::new()
       .title(block_title)
@@ -186,7 +192,7 @@ impl Window for TypingWindow {
       .title_bottom(self.motto.as_ref())
       .title_style(Style::default().fg(layout.get_primary_color()))
       .title_alignment(Alignment::Center)
-      .style(Style::default().bg(layout.get_background_color()))
+      .style(block_style)
       .borders(Borders::ALL)
       .border_type(BorderType::Rounded)
       .border_style(Style::default().fg(layout.get_primary_color()))
@@ -224,10 +230,13 @@ impl Window for TypingWindow {
     let block = Block::new()
       .padding(Padding::new(0, 0, area.height / 2, 0));
 
-    let instructions = instruction_widget.get_paragraph()
+    let mut instructions = instruction_widget.get_paragraph()
       .block(block)
-      .alignment(Alignment::Center)
-      .bg(layout.get_background_color());
+      .alignment(Alignment::Center);
+
+    if let Some(bg_color) = layout.get_background_color() {
+      instructions = instructions.bg(bg_color.clone());
+    }
     
     frame.render_widget(instructions, area);
   }
@@ -446,8 +455,14 @@ impl TypingWindow {
   ) {
     let area = frame.area();
 
+    let block_style = if let Some(bg_color) = layout.get_background_color() {
+      Style::default().bg(bg_color)
+    } else {
+      Style::default()
+    };
+
     let block = Block::bordered()
-      .style(Style::default().bg(layout.get_background_color()))
+      .style(block_style)
       .border_type(BorderType::Rounded)
       .border_style(Style::new().fg(layout.get_primary_color()));
 

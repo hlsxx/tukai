@@ -48,10 +48,13 @@ impl Window for StatsWindow {
     let block = Block::new()
       .padding(Padding::new(0, 0, area.height / 2, 0));
 
-    let instructions = instruction_widget.get_paragraph()
+    let mut instructions = instruction_widget.get_paragraph()
       .block(block)
-      .alignment(Alignment::Center)
-      .bg(layout.get_background_color());
+      .alignment(Alignment::Center);
+
+    if let Some(bg_color) = layout.get_background_color() {
+      instructions = instructions.bg(bg_color.clone());
+    }
     
     frame.render_widget(instructions, area);
   }
@@ -152,11 +155,16 @@ impl StatsWindow {
       .fg(layout.get_primary_color())
       .bold();
 
+    let table_block_style = if let Some(bg_color) = layout.get_background_color() {
+      Style::default().bg(bg_color)
+    } else {
+      Style::default()
+    };
+
     let table = Table::new(rows, widths)
       .block(block)
       .column_spacing(1)
-      .style(Style::new().bg(layout.get_background_color()))
-      .highlight_symbol("X")
+      .style(table_block_style)
       .header(
         Row::new(vec![
           Cell::from("🔥 Average WPM")
@@ -179,7 +187,7 @@ impl StatsWindow {
   ) -> Table<'a> {
     let block_title = get_title(
       version,
-      layout.get_active_layout_title(),
+      layout.get_active_layout_name(),
       "Stats"
     );
 
@@ -221,10 +229,16 @@ impl StatsWindow {
       .fg(layout.get_primary_color())
       .bold();
 
+    let table_style = if let Some(bg_color) = layout.get_background_color() {
+      Style::default().bg(bg_color)
+    } else {
+      Style::default()
+    };
+
     let table = Table::new(rows, widths)
       .block(block)
       .column_spacing(1)
-      .style(Style::new().bg(layout.get_background_color()))
+      .style(table_style)
       .highlight_symbol("X")
       .header(
         Row::new(vec![
@@ -280,9 +294,15 @@ impl StatsWindow {
       .border_style(Style::default().fg(layout.get_primary_color()))
       .border_type(BorderType::Rounded);
 
+    let chart_style = if let Some(bg_color) = layout.get_background_color() {
+      Style::default().bg(bg_color)
+    } else {
+      Style::default()
+    };
+
     let chart = Chart::new(datasets)
       .block(chart_block)
-      .style(Style::new().bg(layout.get_background_color()))
+      .style(chart_style)
       .x_axis(x_axis)
       .y_axis(y_axis);
 
@@ -317,9 +337,15 @@ impl StatsWindow {
       .border_style(Style::default().fg(layout.get_primary_color()))
       .border_type(BorderType::Rounded);
 
+    let p_style = if let Some(bg_color) = layout.get_background_color() {
+      Style::default().bg(bg_color)
+    } else {
+      Style::default()
+    };
+
     let p = Paragraph::new(text)
       .block(block)
-      .style(Style::new().bg(layout.get_background_color()))
+      .style(p_style)
       .alignment(Alignment::Left);
 
     p

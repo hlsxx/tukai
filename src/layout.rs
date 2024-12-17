@@ -1,4 +1,4 @@
-use std::{collections::HashMap, hash::Hash};
+use std::{collections::HashMap, fmt::Display, hash::Hash};
 
 use maplit::hashmap;
 use ratatui::style::Color;
@@ -41,6 +41,7 @@ pub enum LayoutColorTypeEnum {
 
 #[derive(PartialEq, Eq, Hash, Debug, Serialize, Deserialize, Clone)]
 pub enum LayoutName {
+  Default,
   Neptune,
   Rust,
   Anime,
@@ -48,12 +49,29 @@ pub enum LayoutName {
   Wolverine
 }
 
+impl Display for LayoutName {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    use LayoutName::*;
+
+    let display_text = match self {
+      Default => "",
+      Neptune => "Neptune",
+      Rust => "🦀 Rust",
+      Anime => "🌸 Anime",
+      Deadpool => "🩸🔞 Deadpool",
+      Wolverine => "💪🍺 Wolverine"
+    };
+
+    write!(f, "{}", display_text)
+  }
+}
+
 pub struct LayoutColors {
   primary: RgbColor,
   text: RgbColor,
   text_current: RgbColor,
   text_current_bg: RgbColor,
-  background: RgbColor,
+  background: Option<RgbColor>,
   error: RgbColor
 }
 
@@ -63,7 +81,7 @@ impl LayoutColors {
     text: RgbColor,
     text_current: RgbColor,
     text_current_bg: RgbColor,
-    background: RgbColor,
+    background: Option<RgbColor>,
     error: RgbColor,
   ) -> Self {
     Self {
@@ -88,13 +106,23 @@ impl Layout {
     use LayoutName::*;
 
     let layouts = hashmap! {
+      Default => {
+        LayoutColors::new(
+         (108, 181, 230),
+         (232, 232, 232),
+         (25, 74, 107),
+         (200, 200, 200),
+         None,
+         (214, 90, 90),
+        )
+      },
       Neptune => {
         LayoutColors::new(
          (108, 181, 230),
          (232, 232, 232),
          (25, 74, 107),
          (200, 200, 200),
-         (37, 40, 46),
+         Some((37, 40, 46)),
          (214, 90, 90),
         )
       },
@@ -104,7 +132,7 @@ impl Layout {
           (222, 135, 174),
           (49, 45, 51),
           (222, 170, 146),
-          (31, 27, 30),
+          Some((31, 27, 30)),
           (227, 138, 138),
         )
       },
@@ -114,7 +142,7 @@ impl Layout {
           (210, 210, 210),
           (23, 23, 23),
           (210, 210, 210),
-          (33, 29, 29),
+          Some((33, 29, 29)),
           (110, 110, 110),
         )
       },
@@ -124,7 +152,7 @@ impl Layout {
           (200, 200, 200),
           (23,23,23),
           (210, 210, 210),
-          (10, 14, 18),
+          Some((10, 14, 18)),
           (110, 110, 110),
         )
       },
@@ -134,39 +162,36 @@ impl Layout {
           (255, 178, 137),
           (255, 178, 137),
           (150, 63, 17),
-          (24, 8, 2),
+          Some((24, 8, 2)),
           (120, 120, 120),
         )
       }
     };
 
     let transitions = HashMap::from([
+      (Default, Neptune),
       (Neptune, Anime),
       (Anime, Deadpool),
       (Deadpool, Wolverine),
       (Wolverine, Rust),
-      (Rust, Neptune),
+      (Rust, Default)
     ]);
 
     Self {
       layouts,
       transitions,
-      active_layout_name: LayoutName::Neptune
+      active_layout_name: LayoutName::Default
     }
   }
 
+  /// Returns the currect active layout name
+  pub fn get_active_layout_name(&self) -> &LayoutName {
+    &self.active_layout_name
+  }
+
+  /// Sets a new active layout name
   pub fn active_layout_name(&mut self, active_layout_name: LayoutName) {
     self.active_layout_name = active_layout_name;
-  }
-
-  pub fn get_active_layout_title(&self) -> &str {
-    match self.active_layout_name {
-      LayoutName::Neptune => "Neptune",
-      LayoutName::Rust => "🦀 Rust",
-      LayoutName::Anime => "🌸 Anime",
-      LayoutName::Deadpool => "🩸🔞 Deadpool",
-      LayoutName::Wolverine => "💪🍺 Wolverine"
-    }
   }
 
   pub fn switch_active_layout(&mut self) -> LayoutName {
@@ -177,6 +202,7 @@ impl Layout {
     self.active_layout_name.clone()
   }
 
+  /// Returns the layout colors
   fn get_layout_colors(&self) -> &LayoutColors {
     self.layouts.get(&self.active_layout_name).unwrap()
   }
@@ -201,7 +227,11 @@ impl Layout {
     self.get_layout_colors().error.to_color()
   }
 
-  pub fn get_background_color(&self) -> Color {
-    self.get_layout_colors().background.to_color()
+  pub fn get_background_color(&self) -> Option<Color> {
+    if let Some(bg_color)= self.get_layout_colors().background {
+      Some(bg_color.to_color())
+    } else {
+      None
+    }
   }
 }
