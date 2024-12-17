@@ -54,7 +54,7 @@ impl Display for LayoutName {
     use LayoutName::*;
 
     let display_text = match self {
-      Default => "",
+      Default => "Default",
       Neptune => "Neptune",
       Rust => "🦀 Rust",
       Anime => "🌸 Anime",
@@ -108,12 +108,12 @@ impl Layout {
     let layouts = hashmap! {
       Default => {
         LayoutColors::new(
-         (108, 181, 230),
-         (232, 232, 232),
+         (125, 181, 114),
+         (200, 200, 200),
          (25, 74, 107),
          (200, 200, 200),
          None,
-         (214, 90, 90),
+         (179, 80, 80),
         )
       },
       Neptune => {
