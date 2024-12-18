@@ -82,10 +82,6 @@ impl App {
     &self.config
   }
 
-  fn get_config_layout(&self) -> std::cell::Ref<TukaiLayout> {
-    self.config.get_layout()
-  }
-
   fn get_version(&self) -> String {
     self.version.clone().unwrap_or(String::from("x.x.x"))
   }
@@ -232,6 +228,7 @@ impl App {
         KeyCode::Char(c) => {
           match c {
             'r' => self.reset(),
+            't' => self.config.toggle_transparent_bg(),
             's' => {
               if let Some(storage_handler) = self.storage_handler.as_mut() {
                 let layout_name_new = self.config.get_layout_mut().switch_active_layout();

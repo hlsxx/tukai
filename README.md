@@ -61,9 +61,10 @@ cargo build --release
 
 |  Key |  Alternate Key |  Action |
 | ------------ | ------------ | ------------ |
-|  esc  |   |  Exit the application |
+|  ctrl-c  | esc  |  Exit the application |
 |   ctrl-r |   |  Restart and generate a new text |
 |   ctrl-s |   | Switch between templates  |
+|   ctrl-t |   | Switch transparent background  |
 |   ctrl-h  | ←  | Switch to the typing screen   |
 |   ctrl-l  | → | Switch to the stats screen   |
 

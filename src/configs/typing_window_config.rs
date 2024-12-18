@@ -54,6 +54,7 @@ impl Default for TypingWindowConfig {
   }
 }
 
+#[allow(unused)]
 impl TypingWindowConfig {
   /// Switch the typing duration
   ///

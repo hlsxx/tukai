@@ -6,7 +6,6 @@ use ratatui::{
   crossterm::event::KeyEvent, layout::{Alignment, Constraint, Direction, Layout, Rect}, style::{Style, Stylize}, symbols, text::{Line, Span}, widgets::{Axis, Block, BorderType, Borders, Cell, Chart, Dataset, GraphType, Padding, Paragraph, Row, Table}, Frame
 };
 
-use crate::layout::Layout as TukaiLayout;
 use crate::helper::ToDark;
 
 pub struct StatsWindow {
@@ -41,6 +40,7 @@ impl Window for StatsWindow {
     let mut instruction_widget = InstructionWidget::new(&app_layout);
 
     instruction_widget.add_instruction(Instruction::new("Exit", "esc", LayoutColorTypeEnum::Secondary));
+    instruction_widget.add_instruction(Instruction::new("Transparent", "ctrl + t", LayoutColorTypeEnum::Secondary));
     instruction_widget.add_instruction(Instruction::new("Typing", "ctrl + h", LayoutColorTypeEnum::Secondary));
 
     let block = Block::new()

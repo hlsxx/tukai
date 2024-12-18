@@ -39,6 +39,11 @@ impl AppConfig {
     &self.file_path
   }
 
+  /// Toggles background (transparent|layout color)
+  pub fn toggle_transparent_bg(&mut self) {
+    self.has_transparent_bg = !self.has_transparent_bg;
+  }
+
   /// Returns the background color
   ///
   /// If has_transparent_bg not equals true
@@ -81,10 +86,10 @@ impl AppConfigBuilder {
   }
 
   /// Sets if the app background is transparent
-  pub fn has_transparent_bg(mut self, has_transparent_bg: bool) -> Self {
-    self.has_transparent_bg = has_transparent_bg;
-    self
-  }
+  // pub fn has_transparent_bg(mut self, has_transparent_bg: bool) -> Self {
+  //   self.has_transparent_bg = has_transparent_bg;
+  //   self
+  // }
 
   pub fn build(self) -> AppConfig {
     let config_default = AppConfig::default();

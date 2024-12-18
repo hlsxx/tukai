@@ -1,9 +1,8 @@
 use std::collections::HashSet;
 
-use crossterm::{cursor, event::KeyModifiers};
 use ratatui::{
   crossterm::event::{KeyCode, KeyEvent},
-  layout::{Alignment, Constraint, Flex, Layout, Position, Rect},
+  layout::{Alignment, Constraint, Flex, Layout, Rect},
   style::{Modifier, Style, Stylize},
   text::{Line, Span, Text},
   widgets::{Block, BorderType, Borders, Clear, Padding, Paragraph, Wrap},
@@ -132,15 +131,15 @@ impl Window for TypingWindow {
       return false;
     }
 
-    if key_event.modifiers.contains(KeyModifiers::CONTROL) {
-      match key_event.code {
-        KeyCode::Char('t') => {
-          println!("xxx");
-          self.config.switch_typing_duration()
-        },
-        _ => {}
-      }
-    }
+    // if key_event.modifiers.contains(KeyModifiers::CONTROL) {
+    //   match key_event.code {
+    //     KeyCode::Char('t') => {
+    //       println!("xxx");
+    //       self.config.switch_typing_duration()
+    //     },
+    //     _ => {}
+    //   }
+    // }
 
     match key_event.code {
       KeyCode::Esc => {
@@ -223,6 +222,7 @@ impl Window for TypingWindow {
     instruction_widget.add_instruction(Instruction::new("Exit", "esc", LayoutColorTypeEnum::Secondary));
     instruction_widget.add_instruction(Instruction::new("Reset", "ctrl + r", LayoutColorTypeEnum::Secondary));
     instruction_widget.add_instruction(Instruction::new("Layout", "ctrl + s", LayoutColorTypeEnum::Secondary));
+    instruction_widget.add_instruction(Instruction::new("Transparent", "ctrl + t", LayoutColorTypeEnum::Secondary));
     instruction_widget.add_instruction(Instruction::new("Stats window", "ctrl + l", LayoutColorTypeEnum::Secondary));
 
     let block = Block::new()
