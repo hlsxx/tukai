@@ -1,8 +1,5 @@
 use crate::{
-  helper::get_title,
-  layout::LayoutColorTypeEnum,
-  storage::{stats::Stat, storage_handler::{StatOverview, StorageHandler}},
-  windows::{Instruction, InstructionWidget, Window}
+  configs::app_config::AppConfig, helper::get_title, layout::LayoutColorTypeEnum, storage::{stats::Stat, storage_handler::{StatOverview, StorageHandler}}, windows::{Instruction, InstructionWidget, Window}
 };
 
 use ratatui::{
@@ -37,10 +34,11 @@ impl Window for StatsWindow {
   fn render_instructions(
     &self,
     frame: &mut Frame,
-    layout: &TukaiLayout,
+    app_config: &AppConfig,
     area: Rect
   ) {
-    let mut instruction_widget = InstructionWidget::new(layout);
+    let app_layout = app_config.get_layout();
+    let mut instruction_widget = InstructionWidget::new(&app_layout);
 
     instruction_widget.add_instruction(Instruction::new("Exit", "esc", LayoutColorTypeEnum::Secondary));
     instruction_widget.add_instruction(Instruction::new("Typing", "ctrl + h", LayoutColorTypeEnum::Secondary));
@@ -48,21 +46,18 @@ impl Window for StatsWindow {
     let block = Block::new()
       .padding(Padding::new(0, 0, area.height / 2, 0));
 
-    let mut instructions = instruction_widget.get_paragraph()
+    let instructions = instruction_widget.get_paragraph()
       .block(block)
-      .alignment(Alignment::Center);
+      .alignment(Alignment::Center)
+      .style(app_config.get_bg_color());
 
-    if let Some(bg_color) = layout.get_background_color() {
-      instructions = instructions.bg(bg_color.clone());
-    }
-    
     frame.render_widget(instructions, area);
   }
 
   fn render(
     &self,
     frame: &mut Frame,
-    layout: &TukaiLayout,
+    app_config: &AppConfig,
     version: &String,
     area: Rect
   ) {
@@ -96,17 +91,17 @@ impl Window for StatsWindow {
     
     let last_runs_table_widget_data = storage_handler.get_data_stats_reversed().unwrap();
     let last_runs_table_widget = self.get_last_runs_table_widget(
-      &layout,
+      &app_config,
       &last_runs_table_widget_data,
       version);
 
     let chart_widget_data = storage_handler.get_data_for_chart();
-    let chart_widget = self.get_chart_widget(&layout, &chart_widget_data);
+    let chart_widget = self.get_chart_widget(&app_config, &chart_widget_data);
 
-    let best_score_widget = self.get_best_score_widget(&layout, &storage_handler);
+    let best_score_widget = self.get_best_score_widget(&app_config, &storage_handler);
 
     let chart_widget_data = storage_handler.get_data_for_overview();
-    let stats_overview_widget = self.get_stats_overview_widget(&layout, &chart_widget_data);
+    let stats_overview_widget = self.get_stats_overview_widget(&app_config, &chart_widget_data);
 
     frame.render_widget(last_runs_table_widget, left_widget[0]);
     frame.render_widget(chart_widget, left_widget[1]);
@@ -120,20 +115,22 @@ impl StatsWindow {
   /// Returns the right widget (Best score)
   fn get_best_score_widget(
     &self,
-    layout: &TukaiLayout,
+    app_config: &AppConfig,
     storage_handler: &StorageHandler
   ) -> Table {
+    let app_layout = &app_config.get_layout();
+
     let stats = storage_handler.get_data_stats_bets().unwrap();
 
     let block = Block::new()
       .title(" Best score ")
-      .title_style(Style::new().fg(layout.get_primary_color()))
+      .title_style(Style::new().fg(app_layout.get_primary_color()))
       .borders(Borders::ALL)
-      .border_style(Style::default().fg(layout.get_primary_color()))
+      .border_style(Style::default().fg(app_layout.get_primary_color()))
       .border_type(BorderType::Rounded);
 
     let default_cell_style = Style::default()
-      .fg(layout.get_text_color());
+      .fg(app_layout.get_text_color());
 
     let rows = stats.iter()
       .map(|stat| {
@@ -152,19 +149,13 @@ impl StatsWindow {
     ];
 
     let default_header_cell_style = Style::default()
-      .fg(layout.get_primary_color())
+      .fg(app_layout.get_primary_color())
       .bold();
-
-    let table_block_style = if let Some(bg_color) = layout.get_background_color() {
-      Style::default().bg(bg_color)
-    } else {
-      Style::default()
-    };
 
     let table = Table::new(rows, widths)
       .block(block)
       .column_spacing(1)
-      .style(table_block_style)
+      .style(app_config.get_bg_color())
       .header(
         Row::new(vec![
           Cell::from("🔥 Average WPM")
@@ -181,31 +172,33 @@ impl StatsWindow {
   /// Gets the main table widget (Last runs)
   fn get_last_runs_table_widget<'a>(
     &self,
-    layout: &TukaiLayout,
+    app_config: &AppConfig,
     stats: &Vec<Stat>,
     version: &String
   ) -> Table<'a> {
+    let app_layout = &app_config.get_layout();
+
     let block_title = get_title(
       version,
-      layout.get_active_layout_name(),
+      app_layout.get_active_layout_name(),
       "Stats"
     );
 
     let block = Block::new()
       .title(block_title)
-      .title_style(Style::new().fg(layout.get_primary_color()))
+      .title_style(Style::new().fg(app_layout.get_primary_color()))
       .borders(Borders::ALL)
-      .border_style(Style::default().fg(layout.get_primary_color()))
+      .border_style(Style::default().fg(app_layout.get_primary_color()))
       .border_type(BorderType::Rounded);
 
     let default_cell_style = Style::default()
-      .fg(layout.get_text_color());
+      .fg(app_layout.get_text_color());
 
     let rows = stats.iter()
       .map(|stat| {
         Row::new(vec![
           Cell::from(stat.get_duration().to_string())
-            .style(Style::default().fg(layout.get_text_color().to_dark())),
+            .style(Style::default().fg(app_layout.get_text_color().to_dark())),
 
           Cell::from(stat.get_average_wpm().to_string())
             .style(default_cell_style),
@@ -214,7 +207,7 @@ impl StatsWindow {
             .style(default_cell_style),
 
           Cell::from(stat.get_raw_wpm().to_string())
-            .style(Style::default().fg(layout.get_text_color().to_dark()))
+            .style(Style::default().fg(app_layout.get_text_color().to_dark()))
         ])
       }).collect::<Vec<Row>>();
 
@@ -226,19 +219,13 @@ impl StatsWindow {
     ];
 
     let default_header_cell_style = Style::default()
-      .fg(layout.get_primary_color())
+      .fg(app_layout.get_primary_color())
       .bold();
-
-    let table_style = if let Some(bg_color) = layout.get_background_color() {
-      Style::default().bg(bg_color)
-    } else {
-      Style::default()
-    };
 
     let table = Table::new(rows, widths)
       .block(block)
       .column_spacing(1)
-      .style(table_style)
+      .style(app_config.get_bg_color())
       .highlight_symbol("X")
       .header(
         Row::new(vec![
@@ -262,9 +249,10 @@ impl StatsWindow {
   /// Gets the left bottom widget (Chart)
   fn get_chart_widget<'a>(
     &self,
-    layout: &TukaiLayout,
+    app_config: &AppConfig,
     chart_widget_data: &'a (usize, Vec<(f64, f64)>)
   ) -> Chart<'a> {
+    let app_layout = &app_config.get_layout();
     let (_best_wpm, chart_data) = chart_widget_data;
 
     // Validate best_wpm
@@ -274,7 +262,7 @@ impl StatsWindow {
       Dataset::default()
         .marker(symbols::Marker::Dot)
         .graph_type(GraphType::Scatter)
-        .style(Style::default().fg(layout.get_text_color()))
+        .style(Style::default().fg(app_layout.get_text_color()))
         .data(&chart_data)
     ];
 
@@ -283,26 +271,20 @@ impl StatsWindow {
       .bounds([0.0, chart_data.len() as f64]);
 
     let y_axis = Axis::default()
-      .style(Style::default().fg(layout.get_text_color()))
+      .style(Style::default().fg(app_layout.get_text_color()))
       .bounds([0.0, 125 as f64])
       .labels((0..=125).step_by(25).map(|y| y.to_string()).collect::<Vec<String>>());
 
     let chart_block = Block::new()
       .title_top(" WPM progress ")
-      .title_style(Style::new().fg(layout.get_primary_color()))
+      .title_style(Style::new().fg(app_layout.get_primary_color()))
       .borders(Borders::ALL)
-      .border_style(Style::default().fg(layout.get_primary_color()))
+      .border_style(Style::default().fg(app_layout.get_primary_color()))
       .border_type(BorderType::Rounded);
-
-    let chart_style = if let Some(bg_color) = layout.get_background_color() {
-      Style::default().bg(bg_color)
-    } else {
-      Style::default()
-    };
 
     let chart = Chart::new(datasets)
       .block(chart_block)
-      .style(chart_style)
+      .style(app_config.get_bg_color())
       .x_axis(x_axis)
       .y_axis(y_axis);
 
@@ -311,41 +293,37 @@ impl StatsWindow {
 
   fn get_stats_overview_widget<'a>(
     &self,
-    layout: &TukaiLayout,
+    app_config: &AppConfig,
     stat_overview: &'a StatOverview,
   ) -> Paragraph<'a> {
+    let app_layout = &app_config.get_layout();
+
     let text = vec![
       Line::default(),
 
       Line::from(vec![
-        Span::from(" Total average WPM: ").style(Style::default().fg(layout.get_text_color())),
+        Span::from(" Total average WPM: ").style(Style::default().fg(app_layout.get_text_color())),
         Span::from(stat_overview.total_average_wpm.to_string())
-          .style(Style::default().fg(layout.get_primary_color()).bold())
+          .style(Style::default().fg(app_layout.get_primary_color()).bold())
       ]),
 
       Line::from(vec![
-        Span::from(" Total average accuracy: ").style(Style::default().fg(layout.get_text_color())),
+        Span::from(" Total average accuracy: ").style(Style::default().fg(app_layout.get_text_color())),
         Span::from(format!("{}%", stat_overview.total_average_accuracy.to_string()))
-          .style(Style::default().fg(layout.get_primary_color()).bold())
+          .style(Style::default().fg(app_layout.get_primary_color()).bold())
       ]),
     ];
 
     let block = Block::new()
       .title(" Total score ")
-      .title_style(Style::new().fg(layout.get_primary_color()))
+      .title_style(Style::new().fg(app_layout.get_primary_color()))
       .borders(Borders::ALL)
-      .border_style(Style::default().fg(layout.get_primary_color()))
+      .border_style(Style::default().fg(app_layout.get_primary_color()))
       .border_type(BorderType::Rounded);
-
-    let p_style = if let Some(bg_color) = layout.get_background_color() {
-      Style::default().bg(bg_color)
-    } else {
-      Style::default()
-    };
 
     let p = Paragraph::new(text)
       .block(block)
-      .style(p_style)
+      .style(app_config.get_bg_color())
       .alignment(Alignment::Left);
 
     p

@@ -11,7 +11,7 @@ use ratatui::{
 };
 
 use crate::{
-  configs::typing_window_config::TypingWindowConfig, event_handler::PlatformApi, helper::{get_title, Generator, ToDark}, layout::{Layout as TukaiLayout, LayoutColorTypeEnum}, storage::{
+  configs::{app_config::AppConfig, typing_window_config::TypingWindowConfig}, event_handler::PlatformApi, helper::{get_title, Generator, ToDark}, layout::{Layout as TukaiLayout, LayoutColorTypeEnum}, storage::{
     stats::Stat, storage_handler::StorageHandler
   }, windows::{Instruction, InstructionWidget, Window}
 };
@@ -170,32 +170,28 @@ impl Window for TypingWindow {
   fn render(
     &self,
     frame: &mut Frame,
-    layout: &TukaiLayout,
+    app_config: &AppConfig,
     version: &String,
     area: Rect
   ) {
+    let app_layout = app_config.get_layout();
+
     let block_title = get_title(
       version,
-      layout.get_active_layout_name(),
+      app_layout.get_active_layout_name(),
       "Typing"
     );
-
-    let block_style = if let Some(bg_color) = layout.get_background_color() {
-      Style::default().bg(bg_color)
-    } else {
-      Style::default()
-    };
 
     let block = Block::new()
       .title(block_title)
       .title_alignment(Alignment::Left)
       .title_bottom(self.motto.as_ref())
-      .title_style(Style::default().fg(layout.get_primary_color()))
+      .title_style(Style::default().fg(app_layout.get_primary_color()))
       .title_alignment(Alignment::Center)
-      .style(block_style)
+      .style(app_config.get_bg_color())
       .borders(Borders::ALL)
       .border_type(BorderType::Rounded)
-      .border_style(Style::default().fg(layout.get_primary_color()))
+      .border_style(Style::default().fg(app_layout.get_primary_color()))
       .padding(Padding::new(
         40,
         40,
@@ -206,7 +202,7 @@ impl Window for TypingWindow {
     // let block_rect = &block.inner(area);
     // let cursor_start_pos = block_rect.x;
 
-    let p = self.get_paragraph(layout)
+    let p = self.get_paragraph(&app_layout)
       .block(block)
       .alignment(Alignment::Left);
 
@@ -217,10 +213,12 @@ impl Window for TypingWindow {
   fn render_instructions(
     &self,
     frame: &mut Frame,
-    layout: &TukaiLayout,
+    app_config: &AppConfig,
     area: Rect
   ) {
-    let mut instruction_widget = InstructionWidget::new(layout);
+    let app_layout = app_config.get_layout();
+
+    let mut instruction_widget = InstructionWidget::new(&app_layout);
 
     instruction_widget.add_instruction(Instruction::new("Exit", "esc", LayoutColorTypeEnum::Secondary));
     instruction_widget.add_instruction(Instruction::new("Reset", "ctrl + r", LayoutColorTypeEnum::Secondary));
@@ -230,14 +228,11 @@ impl Window for TypingWindow {
     let block = Block::new()
       .padding(Padding::new(0, 0, area.height / 2, 0));
 
-    let mut instructions = instruction_widget.get_paragraph()
+    let instructions = instruction_widget.get_paragraph()
       .block(block)
-      .alignment(Alignment::Center);
+      .alignment(Alignment::Center)
+      .style(app_config.get_bg_color());
 
-    if let Some(bg_color) = layout.get_background_color() {
-      instructions = instructions.bg(bg_color.clone());
-    }
-    
     frame.render_widget(instructions, area);
   }
 }
@@ -451,45 +446,40 @@ impl TypingWindow {
   pub fn render_popup(
     &self,
     frame: &mut Frame,
-    layout: &TukaiLayout
+    app_config: &AppConfig
   ) {
+    let app_layout = &app_config.get_layout();
     let area = frame.area();
 
-    let block_style = if let Some(bg_color) = layout.get_background_color() {
-      Style::default().bg(bg_color)
-    } else {
-      Style::default()
-    };
-
     let block = Block::bordered()
-      .style(block_style)
+      .style(app_config.get_bg_color())
       .border_type(BorderType::Rounded)
-      .border_style(Style::new().fg(layout.get_primary_color()));
+      .border_style(Style::new().fg(app_layout.get_primary_color()));
 
     let text = Text::from(vec![
       Line::from(vec![
         Span::from("🔥 Average WPM: "),
         Span::from(format!("{}", self.get_calculated_wpm())).bold()
-      ]).style(Style::default().fg(layout.get_primary_color())),
+      ]).style(Style::default().fg(app_layout.get_primary_color())),
 
       Line::from(vec![
         Span::from("🎯 Accuracy: "),
         Span::from(format!("{}%", self.get_calculated_accuracy())).bold()
-      ]).style(Style::default().fg(layout.get_primary_color())),
+      ]).style(Style::default().fg(app_layout.get_primary_color())),
 
       Line::from(vec![
         Span::from("🥩 Raw WPM: "),
         Span::from(format!("{}", self.get_calculated_raw_wpm())).bold()
-      ]).style(Style::default().fg(layout.get_primary_color().to_dark())),
+      ]).style(Style::default().fg(app_layout.get_primary_color().to_dark())),
 
       Line::from(""),
       Line::from(vec![
         Span::from("Try again").style(
-          Style::default().fg(layout.get_primary_color())
+          Style::default().fg(app_layout.get_primary_color())
         ),
 
         Span::from(" ctrl + r").style(
-          Style::default().fg(layout.get_primary_color()).bold()),
+          Style::default().fg(app_layout.get_primary_color()).bold()),
       ]),
     ]);
 

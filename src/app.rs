@@ -77,6 +77,11 @@ impl App {
     }
   }
 
+  /// Returns the App config
+  fn get_config(&self) -> &AppConfig {
+    &self.config
+  }
+
   fn get_config_layout(&self) -> std::cell::Ref<TukaiLayout> {
     self.config.get_layout()
   }
@@ -164,24 +169,24 @@ impl App {
         // Renders
         self.typing_window.render(
           frame,
-          &self.get_config_layout(),
+          self.get_config(),
           &self.get_version(),
           main_layout[0]);
 
-        self.typing_window.render_instructions(frame, &self.get_config_layout(), main_layout[1]);
+        self.typing_window.render_instructions(frame, &self.get_config(), main_layout[1]);
 
         if self.typing_window.is_popup_visible() {
-          self.typing_window.render_popup(frame, &self.get_config_layout());
+          self.typing_window.render_popup(frame, &self.get_config());
         }
       },
       ActiveWindowEnum::Stats => {
         self.stats_window.render(
           frame,
-          &self.get_config_layout(),
+          &self.get_config(),
           &self.get_version(),
           main_layout[0]);
 
-        self.stats_window.render_instructions(frame, &self.get_config_layout(), main_layout[1]);
+        self.stats_window.render_instructions(frame, &self.get_config(), main_layout[1]);
       }
     }
   }

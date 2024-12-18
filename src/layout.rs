@@ -41,7 +41,6 @@ pub enum LayoutColorTypeEnum {
 
 #[derive(PartialEq, Eq, Hash, Debug, Serialize, Deserialize, Clone)]
 pub enum LayoutName {
-  Default,
   Neptune,
   Rust,
   Anime,
@@ -54,7 +53,6 @@ impl Display for LayoutName {
     use LayoutName::*;
 
     let display_text = match self {
-      Default => "Default",
       Neptune => "Neptune",
       Rust => "🦀 Rust",
       Anime => "🌸 Anime",
@@ -71,7 +69,7 @@ pub struct LayoutColors {
   text: RgbColor,
   text_current: RgbColor,
   text_current_bg: RgbColor,
-  background: Option<RgbColor>,
+  background: RgbColor,
   error: RgbColor
 }
 
@@ -81,7 +79,7 @@ impl LayoutColors {
     text: RgbColor,
     text_current: RgbColor,
     text_current_bg: RgbColor,
-    background: Option<RgbColor>,
+    background: RgbColor,
     error: RgbColor,
   ) -> Self {
     Self {
@@ -106,23 +104,13 @@ impl Layout {
     use LayoutName::*;
 
     let layouts = hashmap! {
-      Default => {
-        LayoutColors::new(
-         (125, 181, 114),
-         (200, 200, 200),
-         (25, 74, 107),
-         (200, 200, 200),
-         None,
-         (179, 80, 80),
-        )
-      },
       Neptune => {
         LayoutColors::new(
          (108, 181, 230),
          (232, 232, 232),
          (25, 74, 107),
          (200, 200, 200),
-         Some((37, 40, 46)),
+         (37, 40, 46),
          (214, 90, 90),
         )
       },
@@ -132,7 +120,7 @@ impl Layout {
           (222, 135, 174),
           (49, 45, 51),
           (222, 170, 146),
-          Some((31, 27, 30)),
+          (31, 27, 30),
           (227, 138, 138),
         )
       },
@@ -142,7 +130,7 @@ impl Layout {
           (210, 210, 210),
           (23, 23, 23),
           (210, 210, 210),
-          Some((33, 29, 29)),
+          (33, 29, 29),
           (110, 110, 110),
         )
       },
@@ -152,7 +140,7 @@ impl Layout {
           (200, 200, 200),
           (23,23,23),
           (210, 210, 210),
-          Some((10, 14, 18)),
+          (10, 14, 18),
           (110, 110, 110),
         )
       },
@@ -162,25 +150,24 @@ impl Layout {
           (255, 178, 137),
           (255, 178, 137),
           (150, 63, 17),
-          Some((24, 8, 2)),
+          (24, 8, 2),
           (120, 120, 120),
         )
       }
     };
 
     let transitions = HashMap::from([
-      (Default, Neptune),
       (Neptune, Anime),
       (Anime, Deadpool),
       (Deadpool, Wolverine),
       (Wolverine, Rust),
-      (Rust, Default)
+      (Rust, Neptune)
     ]);
 
     Self {
       layouts,
       transitions,
-      active_layout_name: LayoutName::Default
+      active_layout_name: LayoutName::Neptune
     }
   }
 
@@ -227,11 +214,7 @@ impl Layout {
     self.get_layout_colors().error.to_color()
   }
 
-  pub fn get_background_color(&self) -> Option<Color> {
-    if let Some(bg_color)= self.get_layout_colors().background {
-      Some(bg_color.to_color())
-    } else {
-      None
-    }
+  pub fn get_background_color(&self) -> Color {
+    self.get_layout_colors().background.to_color()
   }
 }

@@ -39,11 +39,11 @@ impl Generator {
   /// Generates a random motto for the block bottom title
   pub fn generate_random_motto() -> String {
     let mottos = vec![
-      "Practice today, master tomorrow",
-      "Fingers on keys, progress with ease",
-      "Consistency breeds accuracy",
-      "Type smarter, not harder",
-      "Precision today, perfection tomorrow"
+      " Practice today, master tomorrow ",
+      " Fingers on keys, progress with ease ",
+      " Consistency breeds accuracy ",
+      " Type smarter, not harder ",
+      " Precision today, perfection tomorrow "
     ];
 
     let mut rng = rand::thread_rng();

@@ -10,8 +10,7 @@ use ratatui::{
 };
 
 use crate::{
-  helper::ToDark,
-  layout::{LayoutColorTypeEnum, Layout as TukaiLayout}
+  configs::app_config::AppConfig, helper::ToDark, layout::{Layout as TukaiLayout, LayoutColorTypeEnum}
 };
 
 pub struct Instruction<'a> {
@@ -81,8 +80,6 @@ impl<'a> InstructionWidget<'a> {
   }
 }
 
-
-
 pub trait Window {
   //fn default(storage_handle: Option<&mut StorageHandler>) -> Self;
   fn default() -> Self;
@@ -101,8 +98,8 @@ pub trait Window {
   }
 
   /// Render window instructions
-  fn render_instructions(&self, frame: &mut Frame, layout: &TukaiLayout, area: Rect);
+  fn render_instructions(&self, frame: &mut Frame, app_config: &AppConfig, area: Rect);
 
   /// Render window
-  fn render(&self, frame: &mut Frame, layout: &TukaiLayout, version: &String, area: Rect);
+  fn render(&self, frame: &mut Frame, layout: &AppConfig, version: &String, area: Rect);
 }
