@@ -56,22 +56,6 @@ impl Generator {
 }
 
 #[allow(unused)]
-pub trait ToColor {
-  /// Converts the `(u8, u8, u8)` tuple to a `Color::Rgb`
-  ///
-  /// # Example
-  ///
-  /// ```
-  /// use ratatui::style::Color
-  ///
-  /// let rgb: (u8, u8, u8) = (128, 64, 255);
-  /// let color = rgb.to_color();
-  ///
-  /// assert_eq!(color, Color::Rgb(128, 64, 255));
-  /// ```
-  fn to_color(self) -> Color;
-}
-
 #[allow(unused)]
 pub trait ToDark {
   /// Converts the `(u8, u8, u8)` tuple to a `Color::Rgb`

@@ -7,7 +7,6 @@ use crate::windows::{
   stats_window::StatsWindow
 };
 
-use crate::layout::Layout as TukaiLayout;
 use crate::windows::Window;
 
 use std::error;

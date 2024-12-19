@@ -14,8 +14,13 @@ use crate::{
 };
 
 pub struct Instruction<'a> {
+  // Instruction title text (description)
   title: &'a str,
+
+  // Instruction shortcut text
   shortcut: &'a str,
+
+  // Layout color
   color_type: LayoutColorTypeEnum
 }
 
@@ -62,6 +67,7 @@ impl<'a> InstructionWidget<'a> {
     self.instructions.push(instruction);
   }
 
+  /// Returns paragraph contains instructions
   pub fn get_paragraph(&self) -> Paragraph {
     let instructions_spans = self.instructions.iter()
       .enumerate()
