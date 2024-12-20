@@ -1,17 +1,18 @@
 mod app;
-mod windows;
-mod configs;
+mod config;
+mod file_handler;
+
+mod screens;
 mod event_handler;
 mod layout;
-mod file_handler;
 mod storage;
 mod helper;
 
 use core::error;
 use event_handler::EventHandler;
 use layout::Layout as TukaiLayout;
+use config::AppConfigBuilder;
 use app::App;
-use configs::app_config::AppConfigBuilder;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn error::Error>> {

@@ -1,5 +1,5 @@
-pub mod stats_window;
-pub mod typing_window;
+pub mod typing_screen;
+pub mod stats_screen;
 
 use ratatui::{
   layout::Rect, Frame,
@@ -10,7 +10,9 @@ use ratatui::{
 };
 
 use crate::{
-  configs::app_config::AppConfig, helper::ToDark, layout::{Layout as TukaiLayout, LayoutColorTypeEnum}
+  config::AppConfig,
+  helper::ToDark,
+  layout::{Layout as TukaiLayout, LayoutColorTypeEnum}
 };
 
 pub struct Instruction<'a> {
@@ -86,7 +88,7 @@ impl<'a> InstructionWidget<'a> {
   }
 }
 
-pub trait Window {
+pub trait Screen {
   //fn default(storage_handle: Option<&mut StorageHandler>) -> Self;
   fn default() -> Self;
 
@@ -94,18 +96,18 @@ pub trait Window {
   /// Returns `true` if event is consumed
   fn handle_events(&mut self, key: KeyEvent) -> bool;
 
-  /// Window is currently active
+  /// Screen is currently active
   fn is_active(&self) -> bool;
   fn toggle_active(&mut self);
 
-  /// After another window switched
+  /// After another screen switched
   fn hide(&mut self) {
     self.toggle_active();
   }
 
-  /// Render window instructions
+  /// Render screen instructions
   fn render_instructions(&self, frame: &mut Frame, app_config: &AppConfig, area: Rect);
 
-  /// Render window
+  /// Render screen
   fn render(&self, frame: &mut Frame, layout: &AppConfig, version: &String, area: Rect);
 }

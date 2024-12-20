@@ -1,13 +1,13 @@
 use serde::Deserialize;
-use crate::configs::app_config::AppConfig;
+use crate::config::AppConfig;
 use crate::event_handler::{EventHandler, TukaiEvent};
 use crate::storage::storage_handler::StorageHandler;
-use crate::windows::{
-  typing_window::TypingWindow,
-  stats_window::StatsWindow
-};
 
-use crate::windows::Window;
+use crate::screens::{
+  Screen,
+  typing_screen::TypingScreen,
+  stats_screen::StatsScreen
+};
 
 use std::error;
 use ratatui::{
@@ -18,7 +18,7 @@ use ratatui::{
 };
 
 #[derive(PartialEq, Hash, Eq)]
-enum ActiveWindowEnum {
+enum ActiveScreenEnum {
   Typing,
   Stats
 }
@@ -46,11 +46,11 @@ pub struct App {
 
   time_secs: u32,
 
-  active_window: ActiveWindowEnum,
+  active_window: ActiveScreenEnum,
 
-  typing_window: TypingWindow,
+  typing_window: TypingScreen,
 
-  stats_window: StatsWindow
+  stats_window: StatsScreen
 }
 
 impl App {
@@ -68,11 +68,11 @@ impl App {
 
       time_secs: 0,
 
-      active_window: ActiveWindowEnum::Typing,
+      active_window: ActiveScreenEnum::Typing,
 
-      typing_window: TypingWindow::default(),
+      typing_window: TypingScreen::default(),
 
-      stats_window: StatsWindow::default()
+      stats_window: StatsScreen::default()
     }
   }
 
@@ -146,7 +146,7 @@ impl App {
       .split(frame.area());
 
     match self.active_window {
-      ActiveWindowEnum::Typing => {
+      ActiveScreenEnum::Typing => {
         if self.typing_window.is_popup_visible() {
           if self.typing_window.is_active() {
             self.typing_window.toggle_active();
@@ -174,7 +174,7 @@ impl App {
           self.typing_window.render_popup(frame, &self.get_config());
         }
       },
-      ActiveWindowEnum::Stats => {
+      ActiveScreenEnum::Stats => {
         self.stats_window.render(
           frame,
           &self.get_config(),
@@ -188,7 +188,7 @@ impl App {
 
   fn handle_window_events(&mut self, key: KeyEvent) -> bool {
     let event_occured = match self.active_window {
-      ActiveWindowEnum::Typing => self.typing_window.handle_events(key),
+      ActiveScreenEnum::Typing => self.typing_window.handle_events(key),
       _ => false
     };
 
@@ -211,10 +211,10 @@ impl App {
     self.is_exit = true;
   }
 
-  fn switch_active_window(&mut self, switch_to_window: ActiveWindowEnum) {
+  fn switch_active_window(&mut self, switch_to_window: ActiveScreenEnum) {
     match switch_to_window {
-      ActiveWindowEnum::Stats => self.typing_window.hide(),
-      ActiveWindowEnum::Typing => self.stats_window.hide()
+      ActiveScreenEnum::Stats => self.typing_window.hide(),
+      ActiveScreenEnum::Typing => self.stats_window.hide()
     }
 
     self.active_window = switch_to_window;
@@ -234,8 +234,8 @@ impl App {
                 storage_handler.switch_layout(layout_name_new);
               }
             },
-            'l' => self.switch_active_window(ActiveWindowEnum::Stats),
-            'h' => self.switch_active_window(ActiveWindowEnum::Typing),
+            'l' => self.switch_active_window(ActiveScreenEnum::Stats),
+            'h' => self.switch_active_window(ActiveScreenEnum::Typing),
             'c' => self.exit(),
             _ => {}
           }
@@ -253,9 +253,9 @@ impl App {
     if key_event.code == KeyCode::Esc {
       self.exit();
     } else if key_event.code == KeyCode::Left {
-      self.active_window = ActiveWindowEnum::Typing;
+      self.active_window = ActiveScreenEnum::Typing;
     } else if key_event.code == KeyCode::Right {
-      self.active_window = ActiveWindowEnum::Stats;
+      self.active_window = ActiveScreenEnum::Stats;
     }
   }
 

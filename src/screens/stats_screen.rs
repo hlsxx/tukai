@@ -1,5 +1,5 @@
 use crate::{
-  configs::app_config::AppConfig, helper::get_title, layout::LayoutColorTypeEnum, storage::{stats::Stat, storage_handler::{StatOverview, StorageHandler}}, windows::{Instruction, InstructionWidget, Window}
+  config::AppConfig, helper::get_title, layout::LayoutColorTypeEnum, storage::{stats::Stat, storage_handler::{StatOverview, StorageHandler}}, screens::{Instruction, InstructionWidget, Screen}
 };
 
 use ratatui::{
@@ -8,11 +8,11 @@ use ratatui::{
 
 use crate::helper::ToDark;
 
-pub struct StatsWindow {
+pub struct StatsScreen {
   is_active: bool
 }
 
-impl Window for StatsWindow {
+impl Screen for StatsScreen {
   fn default() -> Self {
     Self {
       is_active: false
@@ -110,7 +110,7 @@ impl Window for StatsWindow {
   }
 }
 
-impl StatsWindow {
+impl StatsScreen {
 
   /// Returns the right widget (Best score)
   fn get_best_score_widget(

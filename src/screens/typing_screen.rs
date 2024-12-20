@@ -10,9 +10,9 @@ use ratatui::{
 };
 
 use crate::{
-  configs::{app_config::AppConfig, typing_window_config::TypingWindowConfig}, event_handler::PlatformApi, helper::{get_title, Generator, ToDark}, layout::{Layout as TukaiLayout, LayoutColorTypeEnum}, storage::{
+  config::{AppConfig, TypingScreenConfig}, event_handler::PlatformApi, helper::{get_title, Generator, ToDark}, layout::{Layout as TukaiLayout, LayoutColorTypeEnum}, storage::{
     stats::Stat, storage_handler::StorageHandler
-  }, windows::{Instruction, InstructionWidget, Window}
+  }, screens::{Instruction, InstructionWidget, Screen}
 };
 
 /// Handler for incorrect symbols
@@ -52,7 +52,7 @@ impl MistakeHandler {
   }
 }
 
-pub struct TypingWindow {
+pub struct TypingScreen {
   /// Random generated text
   pub generated_text: String,
 
@@ -65,7 +65,7 @@ pub struct TypingWindow {
   /// User statistics after the current run is completed
   pub stat: Option<Stat>,
 
-  /// The TypingWindow is currently active window
+  /// The TypingScreen is currently active window
   is_active: bool,
 
   /// Typing running
@@ -79,14 +79,14 @@ pub struct TypingWindow {
   /// The current cursor index withing generated_text
   cursor_index: usize,
 
-  /// The TypingWindow custom config
-  config: TypingWindowConfig,
+  /// The TypingScreen custom config
+  config: TypingScreenConfig,
 
   /// Block motto
   motto: String
 }
 
-impl Window for TypingWindow {
+impl Screen for TypingScreen {
   fn default() -> Self {
     Self {
       generated_text: Generator::generate_random_string(50),
@@ -107,7 +107,7 @@ impl Window for TypingWindow {
 
       cursor_index: 0,
 
-      config: TypingWindowConfig::default(),
+      config: TypingScreenConfig::default(),
 
       motto: Generator::generate_random_motto()
     }
@@ -237,7 +237,7 @@ impl Window for TypingWindow {
   }
 }
 
-impl TypingWindow {
+impl TypingScreen {
 
   /// Returns whether the popup is visible
   pub fn is_popup_visible(&self) -> bool {
@@ -345,7 +345,7 @@ impl TypingWindow {
   }
 
   #[allow(unused)]
-  pub fn config(mut self, config: TypingWindowConfig) -> Self {
+  pub fn config(mut self, config: TypingScreenConfig) -> Self {
     self.config = config;
     self
   }

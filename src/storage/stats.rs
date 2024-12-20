@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use super::stat_helper::StatHelper;
-use crate::configs::typing_window_config::TypingDuration;
+use crate::config::TypingDuration;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Stat {
