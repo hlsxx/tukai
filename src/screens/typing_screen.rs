@@ -160,7 +160,7 @@ impl Screen for TypingScreen {
     version: &String,
     area: Rect
   ) {
-    let app_config = self.config.borrow_mut();
+    let app_config = self.config.borrow();
     let app_layout = app_config.get_layout();
 
     let block_title = get_title(
@@ -334,9 +334,9 @@ impl TypingScreen {
 
   /// Calculate the remaining time
   pub fn get_remaining_time(&self) -> usize {
-    let app_config = self.config.borrow();
+    let app_config = &self.config.borrow();
 
-    app_config.typing_duration.clone().as_seconds()
+    app_config.typing_duration.as_seconds()
       .checked_sub(self.time_secs as usize)
       .unwrap_or(0)
   }

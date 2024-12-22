@@ -105,10 +105,13 @@ impl App {
   ///
   /// Storage handler (not reuired)
   pub fn init(mut self) -> Self {
-    match StorageHandler::new(&self.config.borrow().get_file_path()).init() {
+    let config = self.config.clone();
+    let mut config_mut = config.borrow_mut();
+
+    match StorageHandler::new(&config_mut.get_file_path()).init() {
       Ok(storage_handler) => {
         if let Some(active_layout_name) = storage_handler.get_active_layout_name() {
-          self.config.borrow_mut().get_layout_mut().active_layout_name(active_layout_name);
+          config_mut.get_layout_mut().active_layout_name(active_layout_name);
         }
 
         self.storage_handler = Some(storage_handler);
