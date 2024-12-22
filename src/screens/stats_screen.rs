@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::{
   config::AppConfig, helper::get_title, layout::LayoutColorTypeEnum, storage::{stats::Stat, storage_handler::{StatOverview, StorageHandler}}, screens::{Instruction, InstructionWidget, Screen}
 };
@@ -13,7 +15,7 @@ pub struct StatsScreen {
 }
 
 impl Screen for StatsScreen {
-  fn default() -> Self {
+  fn new(_config: Rc<AppConfig>) -> Self {
     Self {
       is_active: false
     }

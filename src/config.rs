@@ -5,6 +5,37 @@ use ratatui::style::Style;
 use serde::{Deserialize, Serialize};
 use crate::layout::Layout as TukaiLayout;
 
+#[derive(Serialize, Deserialize, Hash, PartialEq, Eq, Debug, Clone)]
+/// Represents the available durations for the test
+///
+/// This enum defines default durations
+///
+/// # Variants
+/// - `ThirtySec` - 30 seconds typing duration
+/// - `Minute` - 60 seconds typing duration
+/// - `ThreeMinutes` - 180 seconds typing duration
+pub enum TypingDuration {
+  ThirtySec,
+  Minute,
+  ThreeMinutes
+}
+
+impl Default for TypingDuration {
+  fn default() -> Self {
+    Self::Minute
+  }
+}
+
+impl TypingDuration {
+  pub fn as_seconds(&self) -> usize {
+    match self {
+      TypingDuration::ThirtySec => 30,
+      TypingDuration::Minute => 60,
+      TypingDuration::ThreeMinutes => 180
+    }
+  }
+}
+
 #[allow(unused)]
 pub trait ConfigBuilder<T> {
   fn new() -> Self;
@@ -19,7 +50,10 @@ pub struct AppConfig {
   layout: RefCell<TukaiLayout>,
 
   // App background is transparent
-  pub has_transparent_bg: bool
+  pub has_transparent_bg: bool,
+
+  // Typing duration
+  pub typing_duration: TypingDuration
 }
 
 impl AppConfig {
@@ -27,7 +61,8 @@ impl AppConfig {
     Self {
       file_path: PathBuf::from("tukai.bin"),
       layout: RefCell::new(TukaiLayout::default()),
-      has_transparent_bg: false
+      has_transparent_bg: false,
+      typing_duration: TypingDuration::default()
     }
   }
 
@@ -68,7 +103,10 @@ pub struct AppConfigBuilder {
   layout: Option<RefCell<TukaiLayout>>,
 
   // App background is transparent
-  has_transparent_bg: bool
+  has_transparent_bg: bool,
+
+  // Typing duration
+  typing_duration: Option<TypingDuration>,
 }
 
 impl AppConfigBuilder {
@@ -76,7 +114,8 @@ impl AppConfigBuilder {
     Self {
       file_path: None,
       layout: None,
-      has_transparent_bg: true
+      has_transparent_bg: true,
+      typing_duration: None
     }
   }
 
@@ -98,98 +137,8 @@ impl AppConfigBuilder {
     AppConfig {
       file_path: self.file_path.unwrap_or(config_default.file_path),
       layout: self.layout.unwrap_or(config_default.layout),
-      has_transparent_bg: self.has_transparent_bg
+      has_transparent_bg: self.has_transparent_bg,
+      typing_duration: self.typing_duration.unwrap_or(config_default.typing_duration)
     }
   }
 }
-
-#[derive(Serialize, Deserialize, Hash, PartialEq, Eq, Debug, Clone)]
-/// Represents the available durations for the test
-///
-/// This enum defines default durations
-///
-/// # Variants
-/// - `ThirtySec` - 30 seconds typing duration
-/// - `Minute` - 60 seconds typing duration
-/// - `ThreeMinutes` - 180 seconds typing duration
-pub enum TypingDuration {
-  ThirtySec,
-  Minute,
-  ThreeMinutes
-}
-
-impl Default for TypingDuration {
-  fn default() -> Self {
-    Self::Minute
-  }
-}
-
-impl TypingDuration {
-  pub fn as_seconds(&self) -> usize {
-    match self {
-      TypingDuration::ThirtySec => 30,
-      TypingDuration::Minute => 60,
-      TypingDuration::ThreeMinutes => 180
-    }
-  }
-}
-
-pub struct TypingScreenConfig {
-  pub typing_duration: TypingDuration,
-}
-
-impl Default for TypingScreenConfig {
-  fn default() -> Self {
-    Self {
-      typing_duration: TypingDuration::default()
-    }
-  }
-}
-
-#[allow(unused)]
-impl TypingScreenConfig {
-  /// Switch the typing duration
-  ///
-  /// ThirtySec
-  /// Minute
-  /// ThreeMinutes
-  pub fn switch_typing_duration(&mut self) {
-    if self.typing_duration == TypingDuration::Minute {
-      self.typing_duration = TypingDuration::ThreeMinutes;
-    } else if self.typing_duration == TypingDuration::ThreeMinutes {
-      self.typing_duration = TypingDuration::ThirtySec
-    } else if self.typing_duration == TypingDuration::ThirtySec {
-      self.typing_duration = TypingDuration::Minute
-    }
-  }
-}
-
-pub struct TypingScreenConfigBuilder {
-  typing_duration: Option<TypingDuration>
-}
-
-impl TypingScreenConfigBuilder {
-  #[allow(unused)]
-  fn time_limit(mut self, typing_duration: TypingDuration) -> Self {
-    self.typing_duration = Some(typing_duration);
-    self
-  }
-}
-
-impl ConfigBuilder<TypingScreenConfig> for TypingScreenConfigBuilder {
-  fn new() -> Self {
-    Self {
-      typing_duration: None
-    }
-  }
-
-  fn build(self) -> TypingScreenConfig {
-    let typing_window_config = TypingScreenConfig::default();
-
-    TypingScreenConfig {
-      typing_duration: self.typing_duration.unwrap_or(typing_window_config.typing_duration)
-    }
-  }
-}
-
-

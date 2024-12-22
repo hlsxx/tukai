@@ -1,5 +1,5 @@
 use serde::Deserialize;
-use crate::config::AppConfig;
+use crate::config::{AppConfig, TypingDuration};
 use crate::event_handler::{EventHandler, TukaiEvent};
 use crate::storage::storage_handler::StorageHandler;
 
@@ -10,6 +10,9 @@ use crate::screens::{
 };
 
 use std::error;
+use std::rc::Rc;
+use std::cell::RefCell;
+
 use ratatui::{
   crossterm::event::{KeyCode, KeyEvent, KeyModifiers},
   layout::{Constraint, Layout},
@@ -36,20 +39,28 @@ pub struct Config {
 }
 
 pub struct App {
-  pub config: AppConfig,
+  // App config
+  pub config: Rc<RefCell<AppConfig>>,
 
+  // Package verion from toml
   version: Option<String>,
 
+  // Storage handler
   storage_handler: Option<StorageHandler>,
 
+  // App was interrupted
   is_exit: bool,
 
+  // Time counter from start
   time_secs: u32,
 
+  // Active screen
   active_window: ActiveScreenEnum,
 
+  // Typing screen (ctrl-h)
   typing_window: TypingScreen,
 
+  // Stats screen (ctrl-l)
   stats_window: StatsScreen
 }
 
@@ -57,6 +68,11 @@ impl App {
 
   /// Creates new Tukai App
   pub fn new(config: AppConfig) -> Self {
+    let config = Rc::new(RefCell::new(config));
+
+    let typing_window = TypingScreen::new(Rc::clone(&config));
+    let stats_window = StatsScreen::new(Rc::clone(&config));
+
     Self {
       config,
 
@@ -70,9 +86,9 @@ impl App {
 
       active_window: ActiveScreenEnum::Typing,
 
-      typing_window: TypingScreen::default(),
+      typing_window,
 
-      stats_window: StatsScreen::default()
+      stats_window
     }
   }
 
@@ -220,6 +236,21 @@ impl App {
     self.active_window = switch_to_window;
   }
 
+  /// Switch the typing duration
+  ///
+  /// ThirtySec
+  /// Minute
+  /// ThreeMinutes
+  pub fn switch_typing_duration(&mut self) {
+    if self.config.typing_duration == TypingDuration::Minute {
+      self.config.typing_duration = TypingDuration::ThreeMinutes;
+    } else if self.config.typing_duration == TypingDuration::ThreeMinutes {
+      self.config.typing_duration = TypingDuration::ThirtySec
+    } else if self.config.typing_duration == TypingDuration::ThirtySec {
+      self.config.typing_duration = TypingDuration::Minute
+    }
+  }
+
   /// If the child window does not consume the event, check the keycodes
   fn handle_events(&mut self, key_event: KeyEvent) {
     if key_event.modifiers.contains(KeyModifiers::CONTROL) {
@@ -228,6 +259,7 @@ impl App {
           match c {
             'r' => self.reset(),
             't' => self.config.toggle_transparent_bg(),
+            'd' => self.switch_typing_duration(),
             's' => {
               if let Some(storage_handler) = self.storage_handler.as_mut() {
                 let layout_name_new = self.config.get_layout_mut().switch_active_layout();

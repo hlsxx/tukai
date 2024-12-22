@@ -1,6 +1,9 @@
 pub mod typing_screen;
 pub mod stats_screen;
 
+use std::rc::Rc;
+use std::cell::RefCell;
+
 use ratatui::{
   layout::Rect, Frame,
   style::{Color, Style, Stylize},
@@ -10,9 +13,7 @@ use ratatui::{
 };
 
 use crate::{
-  config::AppConfig,
-  helper::ToDark,
-  layout::{Layout as TukaiLayout, LayoutColorTypeEnum}
+  config::AppConfig, helper::ToDark, layout::{Layout as TukaiLayout, LayoutColorTypeEnum}
 };
 
 pub struct Instruction<'a> {
@@ -89,8 +90,7 @@ impl<'a> InstructionWidget<'a> {
 }
 
 pub trait Screen {
-  //fn default(storage_handle: Option<&mut StorageHandler>) -> Self;
-  fn default() -> Self;
+  fn new(config: Rc<RefCell<AppConfig>>) -> Self;
 
   /// Handle events
   /// Returns `true` if event is consumed

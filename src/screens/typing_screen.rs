@@ -1,4 +1,5 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, rc::Rc};
+use std::cell::RefCell;
 
 use ratatui::{
   crossterm::event::{KeyCode, KeyEvent},
@@ -10,9 +11,7 @@ use ratatui::{
 };
 
 use crate::{
-  config::{AppConfig, TypingScreenConfig}, event_handler::PlatformApi, helper::{get_title, Generator, ToDark}, layout::{Layout as TukaiLayout, LayoutColorTypeEnum}, storage::{
-    stats::Stat, storage_handler::StorageHandler
-  }, screens::{Instruction, InstructionWidget, Screen}
+  app::Config, config::AppConfig, event_handler::PlatformApi, helper::{get_title, Generator, ToDark}, layout::{Layout as TukaiLayout, LayoutColorTypeEnum}, screens::{Instruction, InstructionWidget, Screen}, storage::{stats::Stat, storage_handler::StorageHandler}
 };
 
 /// Handler for incorrect symbols
@@ -53,6 +52,8 @@ impl MistakeHandler {
 }
 
 pub struct TypingScreen {
+  config: Rc<RefCell<AppConfig>>,
+
   /// Random generated text
   pub generated_text: String,
 
@@ -79,16 +80,15 @@ pub struct TypingScreen {
   /// The current cursor index withing generated_text
   cursor_index: usize,
 
-  /// The TypingScreen custom config
-  config: TypingScreenConfig,
-
   /// Block motto
   motto: String
 }
 
 impl Screen for TypingScreen {
-  fn default() -> Self {
+  fn new(config: Rc<RefCell<AppConfig>>) -> Self {
     Self {
+      config,
+
       generated_text: Generator::generate_random_string(50),
 
       input: String::new(),
@@ -106,8 +106,6 @@ impl Screen for TypingScreen {
       time_secs: 0,
 
       cursor_index: 0,
-
-      config: TypingScreenConfig::default(),
 
       motto: Generator::generate_random_motto()
     }
@@ -130,16 +128,6 @@ impl Screen for TypingScreen {
     if self.cursor_index > 0 && !self.is_running() {
       return false;
     }
-
-    // if key_event.modifiers.contains(KeyModifiers::CONTROL) {
-    //   match key_event.code {
-    //     KeyCode::Char('t') => {
-    //       println!("xxx");
-    //       self.config.switch_typing_duration()
-    //     },
-    //     _ => {}
-    //   }
-    // }
 
     match key_event.code {
       KeyCode::Esc => {
@@ -237,7 +225,7 @@ impl Screen for TypingScreen {
   }
 }
 
-impl TypingScreen {
+impl TypingScreen<'_> {
 
   /// Returns whether the popup is visible
   pub fn is_popup_visible(&self) -> bool {
@@ -342,12 +330,6 @@ impl TypingScreen {
     } else {
       0.0
     }
-  }
-
-  #[allow(unused)]
-  pub fn config(mut self, config: TypingScreenConfig) -> Self {
-    self.config = config;
-    self
   }
 
   /// Calculate the remaining time
