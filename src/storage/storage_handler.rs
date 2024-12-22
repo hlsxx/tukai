@@ -267,7 +267,7 @@ impl StorageHandler {
 
 #[cfg(test)]
 mod tests {
-  use crate::storage::stats::TypingDuration;
+  use crate::config::TypingDuration;
   use uuid::Uuid;
   use super::*;
 

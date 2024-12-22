@@ -125,16 +125,6 @@ impl Default for TypingDuration {
 }
 
 impl TypingDuration {
-  // pub fn to_string(&self) -> String {
-  //   let time = match self {
-  //     TypingDuration::Minute => "60s",
-  //     TypingDuration::ThirtySec => "30s",
-  //     TypingDuration::ThreeMinutes => "180s"
-  //   };
-  //
-  //   time.to_string()
-  // }
-
   pub fn as_seconds(&self) -> usize {
     match self {
       TypingDuration::ThirtySec => 30,
