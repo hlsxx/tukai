@@ -1,5 +1,7 @@
-use std::rc::Rc;
-use std::cell::RefCell;
+use std::{
+  rc::Rc,
+  cell::RefCell
+};
 
 use crate::{
   config::AppConfig, helper::get_title, layout::LayoutColorTypeEnum, storage::{stats::Stat, storage_handler::{StatOverview, StorageHandler}}, screens::{Instruction, InstructionWidget, Screen}

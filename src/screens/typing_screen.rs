@@ -1,5 +1,8 @@
-use std::{collections::HashSet, rc::Rc};
-use std::cell::RefCell;
+use std::{
+  collections::HashSet,
+  rc::Rc,
+  cell::RefCell
+};
 
 use ratatui::{
   crossterm::event::{KeyCode, KeyEvent},

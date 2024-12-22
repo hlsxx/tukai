@@ -9,9 +9,11 @@ use crate::screens::{
   stats_screen::StatsScreen
 };
 
-use std::error;
-use std::rc::Rc;
-use std::cell::RefCell;
+use std::{
+  rc::Rc,
+  cell::RefCell,
+  error
+};
 
 use ratatui::{
   crossterm::event::{KeyCode, KeyEvent, KeyModifiers},
