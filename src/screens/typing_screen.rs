@@ -209,6 +209,7 @@ impl Screen for TypingScreen {
 
     instruction_widget.add_instruction(Instruction::new("Exit", "esc", LayoutColorTypeEnum::Secondary));
     instruction_widget.add_instruction(Instruction::new("Reset", "ctrl + r", LayoutColorTypeEnum::Secondary));
+    instruction_widget.add_instruction(Instruction::new("Duration", "ctrl + d", LayoutColorTypeEnum::Secondary));
     instruction_widget.add_instruction(Instruction::new("Layout", "ctrl + s", LayoutColorTypeEnum::Secondary));
     instruction_widget.add_instruction(Instruction::new("Transparent", "ctrl + t", LayoutColorTypeEnum::Secondary));
     instruction_widget.add_instruction(Instruction::new("Stats window", "ctrl + l", LayoutColorTypeEnum::Secondary));
