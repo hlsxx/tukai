@@ -93,9 +93,9 @@ impl App {
   }
 
   /// Returns the App config
-  fn get_config(&self) -> &AppConfig {
-    &self.config
-  }
+  // fn get_config(&self) -> &Rc<RefCell<AppConfig>> {
+  //   self.config
+  // }
 
   fn get_version(&self) -> String {
     self.version.clone().unwrap_or(String::from("x.x.x"))
@@ -105,10 +105,10 @@ impl App {
   ///
   /// Storage handler (not reuired)
   pub fn init(mut self) -> Self {
-    match StorageHandler::new(&self.config.get_file_path()).init() {
+    match StorageHandler::new(&self.config.borrow().get_file_path()).init() {
       Ok(storage_handler) => {
         if let Some(active_layout_name) = storage_handler.get_active_layout_name() {
-          self.config.get_layout_mut().active_layout_name(active_layout_name);
+          self.config.borrow_mut().get_layout_mut().active_layout_name(active_layout_name);
         }
 
         self.storage_handler = Some(storage_handler);
@@ -180,24 +180,22 @@ impl App {
         // Renders
         self.typing_window.render(
           frame,
-          self.get_config(),
           &self.get_version(),
           main_layout[0]);
 
-        self.typing_window.render_instructions(frame, &self.get_config(), main_layout[1]);
+        self.typing_window.render_instructions(frame, main_layout[1]);
 
         if self.typing_window.is_popup_visible() {
-          self.typing_window.render_popup(frame, &self.get_config());
+          self.typing_window.render_popup(frame);
         }
       },
       ActiveScreenEnum::Stats => {
         self.stats_window.render(
           frame,
-          &self.get_config(),
           &self.get_version(),
           main_layout[0]);
 
-        self.stats_window.render_instructions(frame, &self.get_config(), main_layout[1]);
+        self.stats_window.render_instructions(frame, main_layout[1]);
       }
     }
   }
@@ -242,12 +240,14 @@ impl App {
   /// Minute
   /// ThreeMinutes
   pub fn switch_typing_duration(&mut self) {
-    if self.config.typing_duration == TypingDuration::Minute {
-      self.config.typing_duration = TypingDuration::ThreeMinutes;
-    } else if self.config.typing_duration == TypingDuration::ThreeMinutes {
-      self.config.typing_duration = TypingDuration::ThirtySec
-    } else if self.config.typing_duration == TypingDuration::ThirtySec {
-      self.config.typing_duration = TypingDuration::Minute
+    let mut config = self.config.borrow_mut();
+
+    if config.typing_duration == TypingDuration::Minute {
+      config.typing_duration = TypingDuration::ThreeMinutes;
+    } else if config.typing_duration == TypingDuration::ThreeMinutes {
+      config.typing_duration = TypingDuration::ThirtySec
+    } else if config.typing_duration == TypingDuration::ThirtySec {
+      config.typing_duration = TypingDuration::Minute
     }
   }
 
@@ -258,11 +258,11 @@ impl App {
         KeyCode::Char(c) => {
           match c {
             'r' => self.reset(),
-            't' => self.config.toggle_transparent_bg(),
+            't' => self.config.borrow_mut().toggle_transparent_bg(),
             'd' => self.switch_typing_duration(),
             's' => {
               if let Some(storage_handler) = self.storage_handler.as_mut() {
-                let layout_name_new = self.config.get_layout_mut().switch_active_layout();
+                let layout_name_new = self.config.borrow_mut().get_layout_mut().switch_active_layout();
                 storage_handler.switch_layout(layout_name_new);
               }
             },

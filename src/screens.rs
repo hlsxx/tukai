@@ -106,8 +106,8 @@ pub trait Screen {
   }
 
   /// Render screen instructions
-  fn render_instructions(&self, frame: &mut Frame, app_config: &AppConfig, area: Rect);
+  fn render_instructions(&self, frame: &mut Frame, area: Rect);
 
   /// Render screen
-  fn render(&self, frame: &mut Frame, layout: &AppConfig, version: &String, area: Rect);
+  fn render(&self, frame: &mut Frame, version: &String, area: Rect);
 }

@@ -1,4 +1,5 @@
 use std::rc::Rc;
+use std::cell::RefCell;
 
 use crate::{
   config::AppConfig, helper::get_title, layout::LayoutColorTypeEnum, storage::{stats::Stat, storage_handler::{StatOverview, StorageHandler}}, screens::{Instruction, InstructionWidget, Screen}
@@ -11,12 +12,14 @@ use ratatui::{
 use crate::helper::ToDark;
 
 pub struct StatsScreen {
+  config: Rc<RefCell<AppConfig>>,
   is_active: bool
 }
 
 impl Screen for StatsScreen {
-  fn new(_config: Rc<AppConfig>) -> Self {
+  fn new(config: Rc<RefCell<AppConfig>>) -> Self {
     Self {
+      config,
       is_active: false
     }
   }
@@ -35,10 +38,11 @@ impl Screen for StatsScreen {
   fn render_instructions(
     &self,
     frame: &mut Frame,
-    app_config: &AppConfig,
     area: Rect
   ) {
+    let app_config = self.config.borrow();
     let app_layout = app_config.get_layout();
+
     let mut instruction_widget = InstructionWidget::new(&app_layout);
 
     instruction_widget.add_instruction(Instruction::new("Exit", "esc", LayoutColorTypeEnum::Secondary));
@@ -59,7 +63,6 @@ impl Screen for StatsScreen {
   fn render(
     &self,
     frame: &mut Frame,
-    app_config: &AppConfig,
     version: &String,
     area: Rect
   ) {
@@ -93,17 +96,16 @@ impl Screen for StatsScreen {
     
     let last_runs_table_widget_data = storage_handler.get_data_stats_reversed().unwrap();
     let last_runs_table_widget = self.get_last_runs_table_widget(
-      &app_config,
       &last_runs_table_widget_data,
       version);
 
     let chart_widget_data = storage_handler.get_data_for_chart();
-    let chart_widget = self.get_chart_widget(&app_config, &chart_widget_data);
+    let chart_widget = self.get_chart_widget(&chart_widget_data);
 
-    let best_score_widget = self.get_best_score_widget(&app_config, &storage_handler);
+    let best_score_widget = self.get_best_score_widget( &storage_handler);
 
     let chart_widget_data = storage_handler.get_data_for_overview();
-    let stats_overview_widget = self.get_stats_overview_widget(&app_config, &chart_widget_data);
+    let stats_overview_widget = self.get_stats_overview_widget(&chart_widget_data);
 
     frame.render_widget(last_runs_table_widget, left_widget[0]);
     frame.render_widget(chart_widget, left_widget[1]);
@@ -117,9 +119,9 @@ impl StatsScreen {
   /// Returns the right widget (Best score)
   fn get_best_score_widget(
     &self,
-    app_config: &AppConfig,
     storage_handler: &StorageHandler
   ) -> Table {
+    let app_config = self.config.borrow();
     let app_layout = &app_config.get_layout();
 
     let stats = storage_handler.get_data_stats_bets().unwrap();
@@ -174,10 +176,10 @@ impl StatsScreen {
   /// Gets the main table widget (Last runs)
   fn get_last_runs_table_widget<'a>(
     &self,
-    app_config: &AppConfig,
     stats: &Vec<Stat>,
     version: &String
   ) -> Table<'a> {
+    let app_config = self.config.borrow();
     let app_layout = &app_config.get_layout();
 
     let block_title = get_title(
@@ -251,10 +253,11 @@ impl StatsScreen {
   /// Gets the left bottom widget (Chart)
   fn get_chart_widget<'a>(
     &self,
-    app_config: &AppConfig,
     chart_widget_data: &'a (usize, Vec<(f64, f64)>)
   ) -> Chart<'a> {
+    let app_config = self.config.borrow();
     let app_layout = &app_config.get_layout();
+
     let (_best_wpm, chart_data) = chart_widget_data;
 
     // Validate best_wpm
@@ -295,9 +298,9 @@ impl StatsScreen {
 
   fn get_stats_overview_widget<'a>(
     &self,
-    app_config: &AppConfig,
     stat_overview: &'a StatOverview,
   ) -> Paragraph<'a> {
+    let app_config = self.config.borrow();
     let app_layout = &app_config.get_layout();
 
     let text = vec![

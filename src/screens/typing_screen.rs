@@ -11,7 +11,7 @@ use ratatui::{
 };
 
 use crate::{
-  app::Config, config::AppConfig, event_handler::PlatformApi, helper::{get_title, Generator, ToDark}, layout::{Layout as TukaiLayout, LayoutColorTypeEnum}, screens::{Instruction, InstructionWidget, Screen}, storage::{stats::Stat, storage_handler::StorageHandler}
+  config::AppConfig, event_handler::PlatformApi, helper::{get_title, Generator, ToDark}, layout::{Layout as TukaiLayout, LayoutColorTypeEnum}, screens::{Instruction, InstructionWidget, Screen}, storage::{stats::Stat, storage_handler::StorageHandler}
 };
 
 /// Handler for incorrect symbols
@@ -157,10 +157,10 @@ impl Screen for TypingScreen {
   fn render(
     &self,
     frame: &mut Frame,
-    app_config: &AppConfig,
     version: &String,
     area: Rect
   ) {
+    let app_config = self.config.borrow_mut();
     let app_layout = app_config.get_layout();
 
     let block_title = get_title(
@@ -200,9 +200,9 @@ impl Screen for TypingScreen {
   fn render_instructions(
     &self,
     frame: &mut Frame,
-    app_config: &AppConfig,
     area: Rect
   ) {
+    let app_config = self.config.borrow_mut();
     let app_layout = app_config.get_layout();
 
     let mut instruction_widget = InstructionWidget::new(&app_layout);
@@ -225,7 +225,7 @@ impl Screen for TypingScreen {
   }
 }
 
-impl TypingScreen<'_> {
+impl TypingScreen {
 
   /// Returns whether the popup is visible
   pub fn is_popup_visible(&self) -> bool {
@@ -256,7 +256,7 @@ impl TypingScreen<'_> {
 
     if self.stat.is_none() {
       let stat = Stat::new(
-        &self.config.typing_duration,
+        &self.config.borrow().typing_duration,
         self.input.len(),
         self.mistake_handler.get_mistakes_counter(),
       );
@@ -334,7 +334,9 @@ impl TypingScreen<'_> {
 
   /// Calculate the remaining time
   pub fn get_remaining_time(&self) -> usize {
-    self.config.typing_duration.as_seconds()
+    let app_config = self.config.borrow();
+
+    app_config.typing_duration.clone().as_seconds()
       .checked_sub(self.time_secs as usize)
       .unwrap_or(0)
   }
@@ -344,7 +346,7 @@ impl TypingScreen<'_> {
     self.is_running = false;
 
     self.generated_text = Generator::generate_random_string(
-      self.config.typing_duration.as_seconds()
+      self.config.borrow().typing_duration.as_seconds()
     );
 
     self.mistake_handler = MistakeHandler::new();
@@ -428,9 +430,9 @@ impl TypingScreen<'_> {
   pub fn render_popup(
     &self,
     frame: &mut Frame,
-    app_config: &AppConfig
   ) {
-    let app_layout = &app_config.get_layout();
+    let app_config = self.config.borrow();
+    let app_layout = app_config.get_layout();
     let area = frame.area();
 
     let block = Block::bordered()
