@@ -79,7 +79,7 @@ impl StorageHandler {
 
     let default_stats = StorageDataValue::Stats(Vec::new());
     let default_activities= StorageDataValue::Activites(Vec::new());
-    let default_layout = StorageDataValue::Layout(LayoutName::Neptune);
+    let default_layout = StorageDataValue::Layout(LayoutName::Iced);
 
     empty_data.insert(StorageDataType::Stats, default_stats);
     empty_data.insert(StorageDataType::Activities, default_activities);
@@ -98,7 +98,7 @@ impl StorageHandler {
     self.data = hashmap! {
       Stats => StorageDataValue::Stats(Vec::new()),
       Activities => StorageDataValue::Activites(Vec::new()),
-      Layout => StorageDataValue::Layout(LayoutName::Neptune)
+      Layout => StorageDataValue::Layout(LayoutName::Iced)
     };
 
     let data_bytes = bincode::serialize(&self.data).unwrap();

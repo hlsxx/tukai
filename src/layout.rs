@@ -41,7 +41,7 @@ pub enum LayoutColorTypeEnum {
 
 #[derive(PartialEq, Eq, Hash, Debug, Serialize, Deserialize, Clone)]
 pub enum LayoutName {
-  Neptune,
+  Iced,
   Rust,
   Anime,
   Deadpool,
@@ -53,7 +53,7 @@ impl Display for LayoutName {
     use LayoutName::*;
 
     let display_text = match self {
-      Neptune => "💎 Neptune",
+      Iced => "🥶 Iced",
       Rust => "🦀 Rust",
       Anime => "🌸 Anime",
       Deadpool => "🩸🔞 Deadpool",
@@ -104,7 +104,7 @@ impl Layout {
     use LayoutName::*;
 
     let layouts = hashmap! {
-      Neptune => {
+      Iced => {
         LayoutColors::new(
          (108, 181, 230),
          (232, 232, 232),
@@ -157,17 +157,17 @@ impl Layout {
     };
 
     let transitions = HashMap::from([
-      (Neptune, Anime),
+      (Iced, Anime),
       (Anime, Deadpool),
       (Deadpool, Wolverine),
       (Wolverine, Rust),
-      (Rust, Neptune)
+      (Rust, Iced)
     ]);
 
     Self {
       layouts,
       transitions,
-      active_layout_name: LayoutName::Neptune
+      active_layout_name: LayoutName::Iced
     }
   }
 
