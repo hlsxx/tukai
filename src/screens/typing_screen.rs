@@ -14,7 +14,11 @@ use ratatui::{
 };
 
 use crate::{
-  config::AppConfig, event_handler::PlatformApi, helper::{get_title, Generator, ToDark}, layout::{Layout as TukaiLayout, LayoutColorTypeEnum}, screens::{Instruction, InstructionWidget, Screen}, storage::{stats::Stat, storage_handler::StorageHandler}
+  config::AppConfig,
+  helper::{get_title, Generator, ToDark},
+  layout::{Layout as TukaiLayout, LayoutColorTypeEnum},
+  screens::{Instruction, InstructionWidget, Screen},
+  storage::{stats::Stat, storage_handler::StorageHandler}
 };
 
 /// Handler for incorrect symbols
@@ -360,16 +364,16 @@ impl TypingScreen {
   }
 
   /// Returns the CAPSLOCK message line
-  #[allow(unused)]
-  fn get_capslock_line(&self, layout: &TukaiLayout) -> Line {
-    let mut spans = Vec::new();
-
-    if PlatformApi::is_capslock_on() {
-      spans.push(Span::from("❗CAPSLOCK ON").style(Style::default().fg(layout.get_error_color()).bold()));
-    }
-
-    Line::from(spans)
-  }
+  // #[allow(unused)]
+  // fn get_capslock_line(&self, layout: &TukaiLayout) -> Line {
+  //   let mut spans = Vec::new();
+  //
+  //   if PlatformApi::is_capslock_on() {
+  //     spans.push(Span::from("❗CAPSLOCK ON").style(Style::default().fg(layout.get_error_color()).bold()));
+  //   }
+  //
+  //   Line::from(spans)
+  // }
 
   /// Prepare and get a paragraph
   pub fn get_paragraph(&self, layout: &TukaiLayout) -> Paragraph {
@@ -424,8 +428,6 @@ impl TypingScreen {
     lines.push(text_line);
 
     lines.push(empty_line);
-
-    //lines.push(self.get_capslock_line(&layout));
 
     let text = Text::from(lines);
 

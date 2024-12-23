@@ -60,50 +60,50 @@ impl EventHandler {
   }
 }
 
-pub struct PlatformApi;
-
-impl PlatformApi {
-  #[allow(inactive_code)]
-  #[cfg(target_os = "windows")]
-  fn is_capslock_on() -> bool {
-    use winapi::um::winuser::{GetKeyState, VK_CAPITAL};
-    unsafe { GetKeyState(VK_CAPITAL) & 0x0001 != 0 }
-  }
-
-  #[cfg(target_os = "linux")]
-  #[allow(unused)]
-  fn is_capslock_on_wayland() -> bool {
-    false
-  }
-
-  #[cfg(target_os = "linux")]
-  fn is_capslock_on_x11() -> bool {
-    use x11::xlib::{XCloseDisplay, XOpenDisplay, XkbGetIndicatorState};
-    use std::ptr;
-
-    let display = unsafe { XOpenDisplay(ptr::null()) };
-
-    if display.is_null() {
-      eprintln!("Unable to open X display");
-      return false;
-    }
-
-    let mut state: u32 = 0;
-    let result = unsafe { XkbGetIndicatorState(display, 0x0100, &mut state) };
-
-    unsafe { XCloseDisplay(display) };
-
-    result == 0 && state & 0x01 != 0
-  }
-
-  #[cfg(target_os = "linux")]
-  pub fn is_capslock_on() -> bool {
-    use std::env;
-
-    if env::var("DISPLAY").is_ok() {
-      return PlatformApi::is_capslock_on_x11();
-    }
-
-    false
-  }
-}
+// pub struct PlatformApi;
+//
+// impl PlatformApi {
+//   #[allow(inactive_code)]
+//   #[cfg(target_os = "windows")]
+//   fn is_capslock_on() -> bool {
+//     use winapi::um::winuser::{GetKeyState, VK_CAPITAL};
+//     unsafe { GetKeyState(VK_CAPITAL) & 0x0001 != 0 }
+//   }
+//
+//   #[cfg(target_os = "linux")]
+//   #[allow(unused)]
+//   fn is_capslock_on_wayland() -> bool {
+//     false
+//   }
+//
+//   #[cfg(target_os = "linux")]
+//   fn is_capslock_on_x11() -> bool {
+//     use x11::xlib::{XCloseDisplay, XOpenDisplay, XkbGetIndicatorState};
+//     use std::ptr;
+//
+//     let display = unsafe { XOpenDisplay(ptr::null()) };
+//
+//     if display.is_null() {
+//       eprintln!("Unable to open X display");
+//       return false;
+//     }
+//
+//     let mut state: u32 = 0;
+//     let result = unsafe { XkbGetIndicatorState(display, 0x0100, &mut state) };
+//
+//     unsafe { XCloseDisplay(display) };
+//
+//     result == 0 && state & 0x01 != 0
+//   }
+//
+//   #[cfg(target_os = "linux")]
+//   pub fn is_capslock_on() -> bool {
+//     use std::env;
+//
+//     if env::var("DISPLAY").is_ok() {
+//       return PlatformApi::is_capslock_on_x11();
+//     }
+//
+//     false
+//   }
+// }

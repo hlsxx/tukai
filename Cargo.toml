@@ -19,8 +19,6 @@ ratatui = "0.29.0"
 serde = { version = "1.0.214", features = ["derive"] }
 tokio = { version = "1.41.0", features = ["full"] }
 toml = "0.8.19"
-winapi = "0.3.9"
-x11 = "2.21.0"
 
 [dev-dependencies]
 uuid = { version = "1.11.0", features = ["v4"] }
