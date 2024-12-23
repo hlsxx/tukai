@@ -360,6 +360,7 @@ impl TypingScreen {
   }
 
   /// Returns the CAPSLOCK message line
+  #[allow(unused)]
   fn get_capslock_line(&self, layout: &TukaiLayout) -> Line {
     let mut spans = Vec::new();
 
@@ -421,7 +422,7 @@ impl TypingScreen {
 
     lines.push(empty_line);
 
-    lines.push(self.get_capslock_line(&layout));
+    //lines.push(self.get_capslock_line(&layout));
 
     let text = Text::from(lines);
 

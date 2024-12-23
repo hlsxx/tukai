@@ -11,8 +11,7 @@ use crate::screens::{
 
 use std::{
   rc::Rc,
-  cell::RefCell,
-  error
+  cell::RefCell
 };
 
 use ratatui::{
@@ -138,7 +137,7 @@ impl App {
     &mut self,
     event_handler: &mut EventHandler,
     terminal: &mut DefaultTerminal
-  ) -> Result<(), Box<dyn error::Error>> {
+  ) -> Result<(), Box<dyn std::error::Error>> {
     while !self.is_exit {
       match event_handler.next().await? {
         TukaiEvent::Key(key_event) => self.handle_events(key_event),
