@@ -109,6 +109,7 @@ pub struct AppConfigBuilder {
   typing_duration: Option<TypingDuration>,
 }
 
+#[allow(unused)]
 impl AppConfigBuilder {
   pub fn new() -> Self {
     Self {

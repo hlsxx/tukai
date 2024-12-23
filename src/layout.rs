@@ -53,7 +53,7 @@ impl Display for LayoutName {
     use LayoutName::*;
 
     let display_text = match self {
-      Neptune => "Neptune",
+      Neptune => "💎 Neptune",
       Rust => "🦀 Rust",
       Anime => "🌸 Anime",
       Deadpool => "🩸🔞 Deadpool",

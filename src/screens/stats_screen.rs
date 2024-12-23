@@ -273,14 +273,18 @@ impl StatsScreen {
         .data(&chart_data)
     ];
 
+    let y_labels = (0..=125).step_by(25)
+      .map(|y| Span::from(y.to_string()).style(Style::default().fg(app_layout.get_text_color())))
+      .collect::<Vec<Span>>();
+
     let x_axis = Axis::default()
       .style(Style::default().white())
       .bounds([0.0, chart_data.len() as f64]);
 
     let y_axis = Axis::default()
-      .style(Style::default().fg(app_layout.get_text_color()))
+      .style(Style::default().fg(app_layout.get_primary_color()))
       .bounds([0.0, 125 as f64])
-      .labels((0..=125).step_by(25).map(|y| y.to_string()).collect::<Vec<String>>());
+      .labels(y_labels);
 
     let chart_block = Block::new()
       .title_top(" WPM progress ")
