@@ -76,6 +76,11 @@ impl AppConfig {
     self.layout.borrow_mut()
   }
 
+  /// Returns mutable TypingDuration
+  // pub fn get_typing_duration(&mut self) -> RefMut<TypingDuration> {
+  //   self.typing_duration.borrow_mut()
+  // }
+
   /// Returns the storage file
   pub fn get_file_path(&self) -> &PathBuf {
     &self.file_path

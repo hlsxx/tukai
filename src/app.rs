@@ -262,10 +262,15 @@ impl App {
           match c {
             'r' => self.reset(),
             't' => self.config.borrow_mut().toggle_transparent_bg(),
-            'd' => self.switch_typing_duration(),
+            'd' => {
+              self.switch_typing_duration();
+            },
             's' => {
               if let Some(storage_handler) = self.storage_handler.as_mut() {
-                let layout_name_new = self.config.borrow_mut().get_layout_mut().switch_active_layout();
+                let layout_name_new = self.config.borrow_mut()
+                  .get_layout_mut()
+                  .switch_active_layout();
+
                 storage_handler.switch_layout(layout_name_new);
               }
             },

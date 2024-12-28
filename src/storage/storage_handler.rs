@@ -7,21 +7,6 @@ use crate::config::TypingDuration;
 
 use super::stats::Stat;
 
-// #[derive(Deserialize, Serialize, Hash, PartialEq, Eq, Debug)]
-// pub enum StorageDataType {
-//   Stat,
-//   TypingDuration,
-//   Layout
-// }
-//
-// #[derive(Deserialize, Serialize, Debug)]
-// pub enum StorageDataValue {
-//   Stat(Vec<Stat>),
-//   TypingDuration,
-//   Layout(LayoutName)
-// }
-//
-
 /// TODO
 type StorageData = (Vec<Stat>, TypingDuration, LayoutName);
 static DEFAULT_STORAGE_DATA: StorageData = (Vec::<Stat>::new(), TypingDuration::Minute, LayoutName::Iced);
@@ -189,6 +174,17 @@ impl StorageHandler {
   }
 
   pub fn switch_layout(
+    &mut self,
+    layout_name_changed: LayoutName
+  ) {
+    if let Some(storage_data) = self.get_data_mut() {
+      storage_data.2 = layout_name_changed;
+    }
+  }
+
+  /// Switchs typing duration
+  /// 30, min, 3min
+  pub fn switch_typing_duration(
     &mut self,
     layout_name_changed: LayoutName
   ) {
