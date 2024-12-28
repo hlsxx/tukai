@@ -27,7 +27,7 @@ use super::stats::Stat;
 
 /// TODO
 type StorageData = (Vec<Stat>, TypingDuration, LayoutName);
-const DEFAULT_STORAGE_DATA = (Vec::<Stat>::new(), TypingDuration::Minute, LayoutName::Iced);
+static DEFAULT_STORAGE_DATA: StorageData = (Vec::<Stat>::new(), TypingDuration::Minute, LayoutName::Iced);
 
 /// `Storage file` handler
 pub struct StorageHandler {
@@ -73,7 +73,7 @@ impl StorageHandler {
 
   /// Inits empty data and write into the `storage file`
   fn init_empty_data(&mut self) -> Result<(), io::Error> {
-    let data = self.data.get_or_insert_with(|| DEFAULT_STORAGE_DATA);
+    let data = self.data.get_or_insert_with(|| DEFAULT_STORAGE_DATA.clone());
 
     let data_bytes = bincode::serialize(&data).unwrap();
     FileHandler::write_bytes_into_file(&self.file_path, &data_bytes)?;
@@ -110,30 +110,22 @@ impl StorageHandler {
     }
   }
 
-  pub fn get_data_mut(&self) -> &mut StorageData {
-    if let Some(storage_data) = self.data.as_mut() {
-      storage_data
-    } else {
-      &mut DEFAULT_STORAGE_DATA
-    }
+  pub fn get_data_mut(&mut self) -> Option<&mut StorageData> {
+    self.data.as_mut()
   }
 
   /// Returns whole stats overview
   pub fn get_data_for_overview(&self) -> StatOverview {
-    let (sum_wpm, sum_accuracy, stats_count) = if let Some(stats) = self.get_data_stats() {
-      let (sum_wpm, sum_accuracy) = stats.iter().fold((0, 0.0), |(wpm, acc), stat| {
-        (wpm + stat.get_average_wpm(), acc + stat.get_accuracy())
-      });
+    let stats = &self.get_data().0;
 
-      (sum_wpm, sum_accuracy, stats.len())
-    } else {
-      (0, 0.0, 0)
-    };
+    let (sum_wpm, sum_accuracy) = stats.iter().fold((0, 0.0), |(wpm, acc), stat| {
+      (wpm + stat.get_average_wpm(), acc + stat.get_accuracy())
+    });
 
-    let accuracy = (sum_accuracy / stats_count as f64).round();
+    let accuracy = (sum_accuracy / stats.len() as f64).round();
 
     StatOverview {
-      total_average_wpm: sum_wpm.checked_div(stats_count).unwrap_or(0),
+      total_average_wpm: sum_wpm.checked_div(stats.len()).unwrap_or(0),
       total_average_accuracy: if accuracy.is_nan() { 0.0 } else { accuracy }
     }
   }
