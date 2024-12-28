@@ -110,6 +110,14 @@ impl StorageHandler {
     }
   }
 
+  pub fn get_data_mut(&self) -> &mut StorageData {
+    if let Some(storage_data) = self.data.as_mut() {
+      storage_data
+    } else {
+      &mut DEFAULT_STORAGE_DATA
+    }
+  }
+
   /// Returns whole stats overview
   pub fn get_data_for_overview(&self) -> StatOverview {
     let (sum_wpm, sum_accuracy, stats_count) = if let Some(stats) = self.get_data_stats() {
@@ -173,31 +181,8 @@ impl StorageHandler {
   }
 
   /// Gets mut stats from the storage
-  fn get_data_stats_mut(&mut self) -> Option<&mut Vec<Stat>> {
-    if let Some(StorageDataValue::Stats(stats)) = self.data.get_mut(&StorageDataType::Stats) {
-      Some(stats)
-    } else {
-      None
-    }
-  }
-
-  /// Gets stats from the storage
-  fn get_data_stats(&self) -> Option<&Vec<Stat>> {
-    if let Some(StorageDataValue::Stats(stats)) = self.data.get(&StorageDataType::Stats) {
-      Some(stats)
-    } else {
-      None
-    }
-  }
-
-  /// Gets the activities from the storage
-  #[allow(unused)]
-  fn get_data_activities_mut(&mut self) -> Option<&Activities> {
-    if let Some(StorageDataValue::Activites(activities)) = self.data.get_mut(&StorageDataType::Activities) {
-      Some(activities)
-    } else {
-      None
-    }
+  fn get_data_stats_mut(&mut self) -> &mut Vec<Stat> {
+    &mut self.get_data_mut().0
   }
 
   /// Flush all data
@@ -212,24 +197,15 @@ impl StorageHandler {
     &mut self,
     stat: &Stat
   ) -> bool {
-    if let Some(stats) = self.get_data_stats_mut() {
-      stats.push(stat.clone());
-      return self.flush().is_ok();
-    }
-
-    false
+    self.get_data_mut().0.push(stat.clone());
+    self.flush().is_ok()
   }
 
   pub fn switch_layout(
     &mut self,
     layout_name_changed: LayoutName
-  ) -> bool {
-    if let Some(StorageDataValue::Layout(layout_name)) = self.data.get_mut(&StorageDataType::Layout) {
-      *layout_name = layout_name_changed;
-      return true;
-    }
-
-    false
+  ) {
+    self.get_data_mut().2 = layout_name_changed;
   }
 
 }
