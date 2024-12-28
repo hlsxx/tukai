@@ -1,8 +1,5 @@
-use std::collections::HashMap;
 use std::io;
 use std::path::{Path, PathBuf};
-use maplit::hashmap;
-use serde::{Deserialize, Serialize};
 
 use crate::file_handler::FileHandler;
 use crate::layout::LayoutName;
@@ -172,11 +169,6 @@ impl StorageHandler {
     &self.get_data().2
   }
 
-  /// Gets mut stats from the storage
-  fn get_data_stats_mut(&mut self) -> &mut Vec<Stat> {
-    &mut self.get_data_mut().0
-  }
-
   /// Flush all data
   pub fn flush(&self) -> Result<(), std::io::Error> {
     let data_bytes = bincode::serialize(&self.data)
@@ -189,7 +181,10 @@ impl StorageHandler {
     &mut self,
     stat: &Stat
   ) -> bool {
-    self.get_data_mut().0.push(stat.clone());
+    if let Some(storage_data) = self.get_data_mut() {
+      storage_data.0.push(stat.clone());
+    }
+
     self.flush().is_ok()
   }
 
@@ -197,7 +192,9 @@ impl StorageHandler {
     &mut self,
     layout_name_changed: LayoutName
   ) {
-    self.get_data_mut().2 = layout_name_changed;
+    if let Some(storage_data) = self.get_data_mut() {
+      storage_data.2 = layout_name_changed;
+    }
   }
 
 }

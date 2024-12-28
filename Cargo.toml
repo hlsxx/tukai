@@ -13,7 +13,6 @@ color-eyre = "0.6.3"
 crossterm = { version = "0.28.1", features = ["event-stream"] }
 dirs = "5.0.1"
 futures = "0.3.31"
-maplit = "1.0.2"
 rand = "0.8.5"
 ratatui = "0.29.0"
 serde = { version = "1.0.214", features = ["derive"] }
