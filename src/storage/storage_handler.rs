@@ -6,31 +6,37 @@ use serde::{Deserialize, Serialize};
 
 use crate::file_handler::FileHandler;
 use crate::layout::LayoutName;
+use crate::config::TypingDuration;
 
 use super::stats::Stat;
 
-pub type Activities = Vec<String>;
+// #[derive(Deserialize, Serialize, Hash, PartialEq, Eq, Debug)]
+// pub enum StorageDataType {
+//   Stat,
+//   TypingDuration,
+//   Layout
+// }
+//
+// #[derive(Deserialize, Serialize, Debug)]
+// pub enum StorageDataValue {
+//   Stat(Vec<Stat>),
+//   TypingDuration,
+//   Layout(LayoutName)
+// }
+//
 
-#[derive(Deserialize, Serialize, Hash, PartialEq, Eq, Debug)]
-pub enum StorageDataType {
-  Stats,
-  Activities,
-  Layout
-}
-#[derive(Deserialize, Serialize, Debug)]
-pub enum StorageDataValue {
-  Stats(Vec<Stat>),
-  Activites(Activities),
-  Layout(LayoutName)
-}
+/// TODO
+type StorageData = (Vec<Stat>, TypingDuration, LayoutName);
+const DEFAULT_STORAGE_DATA = (Vec::<Stat>::new(), TypingDuration::Minute, LayoutName::Iced);
 
-type StorageData = HashMap<StorageDataType, StorageDataValue>;
-
+/// `Storage file` handler
 pub struct StorageHandler {
+  // Path to the `storage` file
+  // Default used `OS local dir` (check dirs lib)
   file_path: PathBuf,
 
-  // Data stored in the binary file
-  data: StorageData,
+  // Data stored in the `storage` binary file
+  data: Option<StorageData>,
 }
 
 /// Total stats overview
@@ -52,7 +58,7 @@ impl StorageHandler {
 
     Self {
       file_path: full_path,
-      data: HashMap::new()
+      data: None
     }
   }
 
@@ -65,43 +71,11 @@ impl StorageHandler {
     Ok(())
   }
 
-  #[allow(unused)]
-  /// Default data for the storage
-  ///
-  /// Create an empty Vec for stats
-  /// Create an empty Vec for activities
-  ///
-  /// Store into a HashMap
-  ///
-  /// Writes into the binary file
-  pub fn default(self) -> Result<Self, std::io::Error> {
-    let mut empty_data: StorageData = HashMap::new();
-
-    let default_stats = StorageDataValue::Stats(Vec::new());
-    let default_activities= StorageDataValue::Activites(Vec::new());
-    let default_layout = StorageDataValue::Layout(LayoutName::Iced);
-
-    empty_data.insert(StorageDataType::Stats, default_stats);
-    empty_data.insert(StorageDataType::Activities, default_activities);
-    empty_data.insert(StorageDataType::Layout, default_layout);
-
-    let data_bytes = bincode::serialize(&empty_data).unwrap();
-    FileHandler::write_bytes_into_file(&self.file_path, &data_bytes)?;
-
-    Ok(self)
-  }
-
-  /// Inits empty data and write into the storage file
+  /// Inits empty data and write into the `storage file`
   fn init_empty_data(&mut self) -> Result<(), io::Error> {
-    use StorageDataType::*;
+    let data = self.data.get_or_insert_with(|| DEFAULT_STORAGE_DATA);
 
-    self.data = hashmap! {
-      Stats => StorageDataValue::Stats(Vec::new()),
-      Activities => StorageDataValue::Activites(Vec::new()),
-      Layout => StorageDataValue::Layout(LayoutName::Iced)
-    };
-
-    let data_bytes = bincode::serialize(&self.data).unwrap();
+    let data_bytes = bincode::serialize(&data).unwrap();
     FileHandler::write_bytes_into_file(&self.file_path, &data_bytes)?;
 
     Ok(())
@@ -129,7 +103,11 @@ impl StorageHandler {
 
   #[allow(unused)]
   pub fn get_data(&self) -> &StorageData {
-    &self.data
+    if let Some(storage_data) = &self.data {
+      storage_data
+    } else {
+      &DEFAULT_STORAGE_DATA
+    }
   }
 
   /// Returns whole stats overview
@@ -152,55 +130,46 @@ impl StorageHandler {
     }
   }
 
+  /// Returns data for the chart widget
+  ///
+  /// Creates dataset for the chart
+  /// Calculate best WPM
   pub fn get_data_for_chart(&self) -> (usize, Vec<(f64, f64)>) {
-    if let Some(StorageDataValue::Stats(stats)) = self.data.get(&StorageDataType::Stats) {
-      let mut best_wpm = 0_usize;
+    let stats = &self.get_data().0;
 
-      let dataset = stats.iter().enumerate()
-        .rev()
-        .map(|(index, stat)| {
-          let stat_wpm = stat.get_average_wpm();
+    let mut best_wpm = 0_usize;
+    let dataset = stats.iter().enumerate()
+      .rev()
+      .map(|(index, stat)| {
+        let stat_wpm = stat.get_average_wpm();
 
-          best_wpm = best_wpm.max(stat_wpm);
+        best_wpm = best_wpm.max(stat_wpm);
 
-          (index as f64, stat_wpm as f64)
-        }).collect::<Vec<(f64, f64)>>();
+        (index as f64, stat_wpm as f64)
+      }).collect::<Vec<(f64, f64)>>();
 
-      (best_wpm, dataset)
-    } else {
-      (100, Vec::new())
-    }
+    (best_wpm.max(100), dataset)
   }
 
-  pub fn get_data_stats_reversed(&self) -> Option<Vec<Stat>> {
-    if let Some(StorageDataValue::Stats(stats)) = self.data.get(&StorageDataType::Stats) {
-      let stats_reversed = stats.iter()
-        .rev()
-        .map(|item| item.to_owned()).collect::<Vec<Stat>>();
-
-      Some(stats_reversed)
-    } else {
-      None
-    }
+  /// Returns stats reversed
+  ///
+  /// Used like `order by date`
+  pub fn get_data_stats_reversed(&self) -> Vec<Stat> {
+    let stats = &self.get_data().0;
+    stats.iter().rev().cloned().collect::<Vec<Stat>>()
   }
 
-  pub fn get_data_stats_bets(&self) -> Option<Vec<Stat>> {
-    if let Some(StorageDataValue::Stats(stats)) = self.data.get(&StorageDataType::Stats) {
-      let mut x = stats.clone();
-      x.sort_by(|a, b| b.get_average_wpm().cmp(&a.get_average_wpm()));
-
-      Some(x)
-    } else {
-      None
-    }
+  /// Returns stats compared by the average wpm
+  ///
+  /// Used for the `best score`
+  pub fn get_data_stats_best(&self) -> Vec<Stat> {
+    let data = self.get_data().0.clone();
+    data.clone().sort_by(|a, b| b.get_average_wpm().cmp(&a.get_average_wpm()));
+    data
   }
 
-  pub fn get_active_layout_name(&self) -> Option<LayoutName> {
-    if let Some(StorageDataValue::Layout(layout)) = self.data.get(&StorageDataType::Layout) {
-      Some(layout.clone())
-    } else {
-      None
-    }
+  pub fn get_active_layout_name(&self) -> &LayoutName {
+    &self.get_data().2
   }
 
   /// Gets mut stats from the storage
