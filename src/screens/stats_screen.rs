@@ -96,7 +96,7 @@ impl Screen for StatsScreen {
       ])
       .split(chunks[1]);
     
-    let last_runs_table_widget_data = storage_handler.get_data_stats_reversed().unwrap();
+    let last_runs_table_widget_data = storage_handler.get_data_stats_reversed();
     let last_runs_table_widget = self.get_last_runs_table_widget(
       &last_runs_table_widget_data,
       version);
@@ -126,7 +126,7 @@ impl StatsScreen {
     let app_config = self.config.borrow();
     let app_layout = &app_config.get_layout();
 
-    let stats = storage_handler.get_data_stats_bets().unwrap();
+    let stats = storage_handler.get_data_stats_best();
 
     let block = Block::new()
       .title(" Best score ")

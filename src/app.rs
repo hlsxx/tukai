@@ -111,9 +111,8 @@ impl App {
 
     match StorageHandler::new(&config_mut.get_file_path()).init() {
       Ok(storage_handler) => {
-        if let Some(active_layout_name) = storage_handler.get_active_layout_name() {
-          config_mut.get_layout_mut().active_layout_name(active_layout_name);
-        }
+        let active_layout_name = storage_handler.get_active_layout_name().clone();
+        config_mut.get_layout_mut().active_layout_name(active_layout_name);
 
         self.storage_handler = Some(storage_handler);
       },
