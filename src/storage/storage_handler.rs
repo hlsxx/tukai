@@ -31,6 +31,9 @@ pub struct StatOverview {
 
 impl StorageHandler {
 
+  /// Creates a new `storage file`
+  ///
+  /// Use a local dir path or /tmp
   pub fn new<P: AsRef<Path>>(file_path: P) -> Self {
     let local_dir_path = dirs::data_local_dir()
       .unwrap_or(PathBuf::from("/tmp"));
@@ -145,8 +148,8 @@ impl StorageHandler {
   ///
   /// Used for the `best score`
   pub fn get_data_stats_best(&self) -> Vec<Stat> {
-    let data = self.get_data().0.clone();
-    data.clone().sort_by(|a, b| b.get_average_wpm().cmp(&a.get_average_wpm()));
+    let mut data = self.get_data().0.clone();
+    data.sort_by(|a, b| b.get_average_wpm().cmp(&a.get_average_wpm()));
     data
   }
 
@@ -184,6 +187,7 @@ impl StorageHandler {
 
   /// Switchs typing duration
   /// 30, min, 3min
+  #[allow(unused)]
   pub fn switch_typing_duration(
     &mut self,
     layout_name_changed: LayoutName

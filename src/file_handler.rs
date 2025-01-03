@@ -1,6 +1,6 @@
 use std::{fs::{create_dir_all, File, OpenOptions}, io::{Read, Write}, path::Path};
 
-pub struct FileHandler {}
+pub struct FileHandler;
 
 impl FileHandler {
 
@@ -30,7 +30,7 @@ impl FileHandler {
     Ok(())
   }
 
-  /// Reads bytes into the buffer from the file
+  /// Reads bytes into a buffer from the file
   pub fn read_bytes_from_file<P: AsRef<Path>>(path: P) -> Result<Vec<u8>, std::io::Error> {
     let mut bytes_buf = Vec::new();
 
