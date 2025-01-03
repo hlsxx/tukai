@@ -46,7 +46,12 @@ pub struct App {
   typing_window: TypingScreen,
 
   // Stats screen (ctrl-l)
-  stats_window: StatsScreen
+  stats_window: StatsScreen,
+
+  languages: Vec<String>,
+
+  // Currently selected language
+  language_index: usize
 }
 
 impl App {
@@ -55,8 +60,8 @@ impl App {
   pub fn new(config: AppConfig) -> Self {
     let config = Rc::new(RefCell::new(config));
 
-    let typing_window = TypingScreen::new(Rc::clone(&config));
-    let stats_window = StatsScreen::new(Rc::clone(&config));
+    let typing_window = TypingScreen::new(Rc::clone(&config), Some(0));
+    let stats_window = StatsScreen::new(Rc::clone(&config), None);
 
     Self {
       config,
@@ -71,7 +76,14 @@ impl App {
 
       typing_window,
 
-      stats_window
+      stats_window,
+
+      languages: vec![
+        String::from("en"),
+        String::from("pl")
+      ],
+
+      language_index: 0
     }
   }
 
@@ -185,7 +197,7 @@ impl App {
 
   fn reset(&mut self) {
     self.time_secs = 0;
-    self.typing_window.reset();
+    self.typing_window.reset(self.language_index);
   }
 
   /// Exits running application
@@ -206,6 +218,16 @@ impl App {
     }
 
     self.active_window = switch_to_window;
+  }
+
+  fn language_next(&mut self) {
+    self.language_index += 1;
+
+    if self.language_index >= self.languages.len() {
+      self.language_index = 0;
+    }
+
+    self.reset();
   }
 
   /// Switch the typing duration
@@ -247,6 +269,7 @@ impl App {
             },
             'l' => self.switch_active_window(ActiveScreenEnum::Stats),
             'h' => self.switch_active_window(ActiveScreenEnum::Typing),
+            'p' => self.language_next(),
             'c' => self.exit(),
             _ => {}
           }
