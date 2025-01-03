@@ -65,7 +65,6 @@ impl Screen for StatsScreen {
   fn render(
     &self,
     frame: &mut Frame,
-    version: &String,
     area: Rect
   ) {
     let storage_handler = StorageHandler::new("tukai.bin")
@@ -98,8 +97,7 @@ impl Screen for StatsScreen {
     
     let last_runs_table_widget_data = storage_handler.get_data_stats_reversed();
     let last_runs_table_widget = self.get_last_runs_table_widget(
-      &last_runs_table_widget_data,
-      version);
+      &last_runs_table_widget_data);
 
     let chart_widget_data = storage_handler.get_data_for_chart();
     let chart_widget = self.get_chart_widget(&chart_widget_data);
@@ -179,13 +177,11 @@ impl StatsScreen {
   fn get_last_runs_table_widget<'a>(
     &self,
     stats: &Vec<Stat>,
-    version: &String
   ) -> Table<'a> {
     let app_config = self.config.borrow();
     let app_layout = &app_config.get_layout();
 
     let block_title = get_title(
-      version,
       app_layout.get_active_layout_name(),
       "Stats"
     );

@@ -164,14 +164,12 @@ impl Screen for TypingScreen {
   fn render(
     &self,
     frame: &mut Frame,
-    version: &String,
     area: Rect
   ) {
     let app_config = self.config.borrow();
     let app_layout = app_config.get_layout();
 
     let block_title = get_title(
-      version,
       app_layout.get_active_layout_name(),
       "Typing"
     );

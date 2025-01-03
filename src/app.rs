@@ -1,4 +1,3 @@
-use serde::Deserialize;
 use crate::config::{AppConfig, TypingDuration};
 use crate::event_handler::{EventHandler, TukaiEvent};
 use crate::storage::storage_handler::StorageHandler;
@@ -27,24 +26,9 @@ enum ActiveScreenEnum {
   Stats
 }
 
-#[derive(Deserialize)]
-#[allow(unused)]
-pub struct Package {
-  pub version: String
-}
-
-#[derive(Deserialize)]
-#[allow(unused)]
-pub struct Config {
-  pub package: Package
-}
-
 pub struct App {
   // App config
   pub config: Rc<RefCell<AppConfig>>,
-
-  // Package verion from toml
-  version: Option<String>,
 
   // Storage handler
   storage_handler: Option<StorageHandler>,
@@ -77,8 +61,6 @@ impl App {
     Self {
       config,
 
-      version: None,
-
       storage_handler: None,
 
       is_exit: false,
@@ -98,10 +80,6 @@ impl App {
   //   self.config
   // }
 
-  fn get_version(&self) -> String {
-    self.version.clone().unwrap_or(String::from("x.x.x"))
-  }
-
   /// Inits the App
   ///
   /// Storage handler (not reuired)
@@ -118,11 +96,6 @@ impl App {
       },
       Err(_) => {}
     }
-
-    // Read version form Cargo.toml
-    let app_toml = include_str!("./../Cargo.toml");
-    let app_config = toml::from_str::<Config>(app_toml).unwrap();
-    self.version = Some(app_config.package.version);
 
     self
   }
@@ -183,7 +156,6 @@ impl App {
         // Renders
         self.typing_window.render(
           frame,
-          &self.get_version(),
           main_layout[0]);
 
         self.typing_window.render_instructions(frame, main_layout[1]);
@@ -195,7 +167,6 @@ impl App {
       ActiveScreenEnum::Stats => {
         self.stats_window.render(
           frame,
-          &self.get_version(),
           main_layout[0]);
 
         self.stats_window.render_instructions(frame, main_layout[1]);
