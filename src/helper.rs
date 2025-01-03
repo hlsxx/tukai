@@ -18,10 +18,12 @@ impl Generator {
   ///
   /// This method generates a string containing random
   /// words from the words/en.txt file
-  pub fn generate_random_string(amount: usize) -> String {
-    let words_string = include_str!("../words/en.txt");
+  pub fn generate_random_string(amount: usize, language_index: usize) -> String {
+    let words = vec![
+        include_str!("../words/en.txt")
+    ];
 
-    let words = words_string.lines()
+    let words = words[language_index].lines()
       .map(|line| line)
       .collect::<Vec<&str>>();
 

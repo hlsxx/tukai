@@ -90,7 +90,7 @@ impl<'a> InstructionWidget<'a> {
 }
 
 pub trait Screen {
-  fn new(config: Rc<RefCell<AppConfig>>) -> Self;
+  fn new(config: Rc<RefCell<AppConfig>>, language_index: Option<usize>) -> Self;
 
   /// Handle events
   /// Returns `true` if event is consumed

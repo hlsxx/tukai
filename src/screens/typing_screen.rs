@@ -92,11 +92,11 @@ pub struct TypingScreen {
 }
 
 impl Screen for TypingScreen {
-  fn new(config: Rc<RefCell<AppConfig>>) -> Self {
+  fn new(config: Rc<RefCell<AppConfig>>, language_index: Option<usize>) -> Self {
     Self {
       config,
 
-      generated_text: Generator::generate_random_string(50),
+      generated_text: Generator::generate_random_string(50, language_index.unwrap_or_default()),
 
       input: String::new(),
 
@@ -218,6 +218,7 @@ impl Screen for TypingScreen {
     instruction_widget.add_instruction(Instruction::new("Layout", "ctrl + s", LayoutColorTypeEnum::Secondary));
     instruction_widget.add_instruction(Instruction::new("Transparent", "ctrl + t", LayoutColorTypeEnum::Secondary));
     instruction_widget.add_instruction(Instruction::new("Stats window", "ctrl + l", LayoutColorTypeEnum::Secondary));
+    instruction_widget.add_instruction(Instruction::new("Language", "ctrl + p", LayoutColorTypeEnum::Secondary));
 
     let block = Block::new()
       .padding(Padding::new(0, 0, area.height / 2, 0));
@@ -348,11 +349,11 @@ impl TypingScreen {
   }
 
   /// Resets all necessary properties
-  pub fn reset(&mut self) {
+  pub fn reset(&mut self, language_index: usize) {
     self.is_running = false;
 
     self.generated_text = Generator::generate_random_string(
-      self.config.borrow().typing_duration.as_seconds()
+      self.config.borrow().typing_duration.as_seconds(), language_index
     );
 
     self.mistake_handler = MistakeHandler::new();
