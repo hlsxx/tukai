@@ -8,8 +8,8 @@ use crate::layout::LayoutName;
 
 pub struct Generator;
 
-pub fn get_title(version: &String, layout_name: &LayoutName, window_name: &str) -> Title<'static> {
-  Title::from(format!(" tukai v{} 》{} 》{} ", version, layout_name, window_name))
+pub fn get_title(layout_name: &LayoutName, window_name: &str) -> Title<'static> {
+  Title::from(format!(" tukai v{} 》{} 》{} ", env!("CARGO_PKG_VERSION"), layout_name, window_name))
 }
 
 impl Generator {
