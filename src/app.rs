@@ -208,20 +208,18 @@ impl App {
     self.active_window = switch_to_window;
   }
 
-  /// Switch the typing duration
+  /// Switches the typing duration
   ///
-  /// ThirtySec
-  /// Minute
-  /// ThreeMinutes
+  /// 1. Minute
+  /// 2. Three minutes
+  /// 3. Thirt seconds
   pub fn switch_typing_duration(&mut self) {
     let mut config = self.config.borrow_mut();
 
-    if config.typing_duration == TypingDuration::Minute {
-      config.typing_duration = TypingDuration::ThreeMinutes;
-    } else if config.typing_duration == TypingDuration::ThreeMinutes {
-      config.typing_duration = TypingDuration::ThirtySec
-    } else if config.typing_duration == TypingDuration::ThirtySec {
-      config.typing_duration = TypingDuration::Minute
+    config.typing_duration = match config.typing_duration {
+      TypingDuration::Minute => TypingDuration::ThreeMinutes,
+      TypingDuration::ThreeMinutes => TypingDuration::ThirtySec,
+      TypingDuration::ThirtySec => TypingDuration::Minute,
     }
   }
 
@@ -235,6 +233,7 @@ impl App {
             't' => self.config.borrow_mut().toggle_transparent_bg(),
             'd' => {
               self.switch_typing_duration();
+              self.reset();
             },
             's' => {
               if let Some(storage_handler) = self.storage_handler.as_mut() {
