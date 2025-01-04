@@ -73,7 +73,7 @@ pub struct TypingScreen {
   /// User statistics after the current run is completed
   pub stat: Option<Stat>,
 
-  /// The TypingScreen is currently active window
+  /// The TypingScreen is currently active screen
   is_active: bool,
 
   /// Typing running
@@ -217,7 +217,7 @@ impl Screen for TypingScreen {
     instruction_widget.add_instruction(Instruction::new("Duration", "ctrl + d", LayoutColorTypeEnum::Secondary));
     instruction_widget.add_instruction(Instruction::new("Layout", "ctrl + s", LayoutColorTypeEnum::Secondary));
     instruction_widget.add_instruction(Instruction::new("Transparent", "ctrl + t", LayoutColorTypeEnum::Secondary));
-    instruction_widget.add_instruction(Instruction::new("Stats window", "ctrl + l", LayoutColorTypeEnum::Secondary));
+    instruction_widget.add_instruction(Instruction::new("Stats screen", "ctrl + l", LayoutColorTypeEnum::Secondary));
 
     let block = Block::new()
       .padding(Padding::new(0, 0, area.height / 2, 0));
@@ -253,7 +253,7 @@ impl TypingScreen {
 
   /// Stops the running typing process
   ///
-  /// Makes the popup window visible
+  /// Makes the popup screen visible
   ///
   /// Inserts the created stat into storage
   pub fn stop(&mut self, storage_handler: Option<&mut StorageHandler>) {
@@ -432,7 +432,7 @@ impl TypingScreen {
     Paragraph::new(text).wrap(Wrap { trim: true } )
   }
 
-  /// Renders a popup window
+  /// Renders a popup screen
   ///
   /// Used after the run is completed
   pub fn render_popup(
