@@ -86,7 +86,7 @@ impl AppConfig {
     &self.file_path
   }
 
-  /// Toggles background (transparent|layout color)
+  /// Toggles a background (transparent|layout color)
   pub fn toggle_transparent_bg(&mut self) {
     self.has_transparent_bg = !self.has_transparent_bg;
   }

@@ -1,5 +1,4 @@
-use std::io;
-use std::path::{Path, PathBuf};
+use std::{io, path::{Path, PathBuf}};
 
 use crate::file_handler::FileHandler;
 use crate::layout::LayoutName;
@@ -7,23 +6,42 @@ use crate::config::TypingDuration;
 
 use super::stats::Stat;
 
-/// TODO
-type StorageData = (Vec<Stat>, TypingDuration, LayoutName);
-static DEFAULT_STORAGE_DATA: StorageData = (Vec::<Stat>::new(), TypingDuration::Minute, LayoutName::Iced);
+/// Storage data type
+///
+/// Represents types saved on a device's secondary memory.
+type StorageData = (
+  Vec<Stat>,
+  TypingDuration,
+  LayoutName,
+  bool
+);
 
-/// `Storage file` handler
+/// Default data for storage
+///
+/// Represents the initial or fallback data used in storage.
+static DEFAULT_STORAGE_DATA: StorageData = (
+  Vec::<Stat>::new(),
+  TypingDuration::Minute,
+  LayoutName::Iced,
+  false
+);
+
+/// Represents a storage file with a specified file path
+///
+/// Handles both read and write operations.
 pub struct StorageHandler {
+
   // Path to the `storage` file
-  // Default used `OS local dir` (check dirs lib)
+  // Defaults to the OS's local directory (refer to the `dirs` library)
   file_path: PathBuf,
 
   // Data stored in the `storage` binary file
   data: Option<StorageData>,
 }
 
-/// Total stats overview
+/// Total statistics overview
 ///
-/// Includes average WPM | average accuracy
+/// Includes the average WPM (words per minute) and average accuracy.
 pub struct StatOverview {
   pub total_average_wpm: usize,
   pub total_average_accuracy: f64
@@ -31,9 +49,9 @@ pub struct StatOverview {
 
 impl StorageHandler {
 
-  /// Creates a new `storage file`
+  /// Creates a new `storage` file
   ///
-  /// Use a local dir path or /tmp
+  /// Uses a local directory path or `/tmp` as the default location.
   pub fn new<P: AsRef<Path>>(file_path: P) -> Self {
     let local_dir_path = dirs::data_local_dir()
       .unwrap_or(PathBuf::from("/tmp"));
@@ -86,7 +104,9 @@ impl StorageHandler {
     Ok(self)
   }
 
-  #[allow(unused)]
+  /// Returns data from the storage
+  ///
+  /// If data is None, returns the storage's default values.
   pub fn get_data(&self) -> &StorageData {
     if let Some(storage_data) = &self.data {
       storage_data
@@ -95,11 +115,14 @@ impl StorageHandler {
     }
   }
 
+  /// Returns data from the storage as mutable
   pub fn get_data_mut(&mut self) -> Option<&mut StorageData> {
     self.data.as_mut()
   }
 
-  /// Returns whole stats overview
+  /// Returns the complete statistics overview
+  ///
+  /// (average WPM, average accuracy)
   pub fn get_data_for_overview(&self) -> StatOverview {
     let stats = &self.get_data().0;
 
@@ -117,8 +140,7 @@ impl StorageHandler {
 
   /// Returns data for the chart widget
   ///
-  /// Creates dataset for the chart
-  /// Calculate best WPM
+  /// Creates a dataset for the chart and calculates the best WPM.
   pub fn get_data_for_chart(&self) -> (usize, Vec<(f64, f64)>) {
     let stats = &self.get_data().0;
 
@@ -136,28 +158,31 @@ impl StorageHandler {
     (best_wpm.max(100), dataset)
   }
 
-  /// Returns stats reversed
+  /// Returns stats in reversed order
   ///
-  /// Used like `order by date`
+  /// Newest first
   pub fn get_data_stats_reversed(&self) -> Vec<Stat> {
     let stats = &self.get_data().0;
     stats.iter().rev().cloned().collect::<Vec<Stat>>()
   }
 
-  /// Returns stats compared by the average wpm
+  /// Returns stats sorted by average WPM
   ///
-  /// Used for the `best score`
+  /// Used to determine the `best score`.
   pub fn get_data_stats_best(&self) -> Vec<Stat> {
     let mut data = self.get_data().0.clone();
     data.sort_by(|a, b| b.get_average_wpm().cmp(&a.get_average_wpm()));
     data
   }
 
+  /// Returns an active layout name
   pub fn get_active_layout_name(&self) -> &LayoutName {
     &self.get_data().2
   }
 
-  /// Flush all data
+  /// Serialize `StorageData` into a bytes.
+  ///
+  /// Flushes all serialized data to the storage file.
   pub fn flush(&self) -> Result<(), std::io::Error> {
     let data_bytes = bincode::serialize(&self.data)
       .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
@@ -165,6 +190,9 @@ impl StorageHandler {
     FileHandler::write_bytes_into_file(&self.file_path, &data_bytes)
   }
 
+  /// Insert a new cloned Stat record to the storage file.
+  ///
+  /// Then try to flush this record
   pub fn insert_into_stats(
     &mut self,
     stat: &Stat
@@ -176,6 +204,7 @@ impl StorageHandler {
     self.flush().is_ok()
   }
 
+  /// Switches active layout name
   pub fn switch_layout(
     &mut self,
     layout_name_changed: LayoutName
@@ -185,8 +214,9 @@ impl StorageHandler {
     }
   }
 
-  /// Switchs typing duration
-  /// 30, min, 3min
+  /// Switches typing duration
+  ///
+  /// Options: 30s, 1min, 3min
   #[allow(unused)]
   pub fn switch_typing_duration(
     &mut self,
