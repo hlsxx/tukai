@@ -86,9 +86,12 @@ impl AppConfig {
     &self.file_path
   }
 
-  /// Toggles a background (transparent|layout color)
-  pub fn toggle_transparent_bg(&mut self) {
+  /// Toggles a background (transparent | layout color)
+  ///
+  /// Returns a current state
+  pub fn toggle_transparent_bg(&mut self) -> bool {
     self.has_transparent_bg = !self.has_transparent_bg;
+    self.has_transparent_bg
   }
 
   /// Returns the background color

@@ -1,10 +1,31 @@
-use std::{io, path::{Path, PathBuf}};
+use std::{fmt::{Debug, Display}, io, path::{Path, PathBuf}};
 
 use crate::file_handler::FileHandler;
 use crate::layout::LayoutName;
 use crate::config::TypingDuration;
 
 use super::stats::Stat;
+
+#[derive(Debug)]
+pub struct StorageHandlerError {
+  message: String
+}
+
+impl Display for StorageHandlerError {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "StorageHandlerError: {}", self.message)
+  }
+}
+
+impl std::error::Error for StorageHandlerError {}
+
+impl StorageHandlerError {
+  fn new(message: String) -> Self {
+    Self {
+      message
+    }
+  }
+}
 
 /// Storage data type
 ///
@@ -204,8 +225,8 @@ impl StorageHandler {
     self.flush().is_ok()
   }
 
-  /// Switches active layout name
-  pub fn switch_layout(
+  /// Sets new active layout name
+  pub fn set_layout(
     &mut self,
     layout_name_changed: LayoutName
   ) {
@@ -227,6 +248,12 @@ impl StorageHandler {
     }
   }
 
+  /// Toggles background transparency
+  pub fn set_transparent_bg(&mut self, state: bool) {
+    if let Some(storage_data) = self.get_data_mut() {
+      storage_data.3 = state;
+    }
+  }
 }
 
 #[cfg(test)]

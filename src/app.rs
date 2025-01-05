@@ -1,6 +1,6 @@
 use crate::config::{AppConfig, TypingDuration};
 use crate::event_handler::{EventHandler, TukaiEvent};
-use crate::storage::storage_handler::StorageHandler;
+use crate::storage::storage_handler::{StorageHandler, StorageHandlerError};
 
 use crate::screens::{
   Screen,
@@ -235,27 +235,30 @@ impl App {
   /// Finally, processes remainig keys.
   fn handle_events(&mut self, key_event: KeyEvent) {
     if key_event.modifiers.contains(KeyModifiers::CONTROL) {
+      let storage_handler = self.storage_handler.as_mut().unwrap();
+
       match key_event.code {
         KeyCode::Char(c) => {
           match c {
             'r' => self.reset(),
-            't' => self.config.borrow_mut().toggle_transparent_bg(),
+            'l' => self.switch_active_screen(ActiveScreenEnum::Stats),
+            'h' => self.switch_active_screen(ActiveScreenEnum::Typing),
+            'c' => self.exit(),
             'd' => {
               self.switch_typing_duration();
               self.reset();
             },
-            's' => {
-              if let Some(storage_handler) = self.storage_handler.as_mut() {
-                let layout_name_new = self.config.borrow_mut()
-                  .get_layout_mut()
-                  .switch_active_layout();
-
-                storage_handler.switch_layout(layout_name_new);
-              }
+            't' => {
+              let new_state = self.config.borrow_mut().toggle_transparent_bg();
+              storage_handler.set_transparent_bg(new_state);
             },
-            'l' => self.switch_active_screen(ActiveScreenEnum::Stats),
-            'h' => self.switch_active_screen(ActiveScreenEnum::Typing),
-            'c' => self.exit(),
+            's' => {
+              let new_layout = self.config.borrow_mut()
+                .get_layout_mut()
+                .switch_active_layout();
+
+              storage_handler.set_layout(new_layout);
+            }
             _ => {}
           }
         },

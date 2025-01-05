@@ -59,12 +59,13 @@ impl MistakeHandler {
 }
 
 pub struct TypingScreen {
+  /// Application config
   config: Rc<RefCell<AppConfig>>,
 
-  /// Random generated text
+  /// Random generated text from a words list
   pub generated_text: String,
 
-  /// User whole typed input
+  /// User typed input
   pub input: String,
 
   /// Handle incorrect characters
