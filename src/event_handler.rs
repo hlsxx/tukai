@@ -1,10 +1,11 @@
 use std::{error, io, time::Duration};
 
 use ratatui::crossterm::event::{Event, KeyEvent, EventStream};
-use tokio::sync::mpsc;
 
 #[cfg(target_os = "windows")]
-use tokio::time::Instant;
+use ratatui::crossterm::event::KeyEventKind;
+
+use tokio::sync::mpsc;
 
 use futures::{FutureExt, StreamExt};
 
@@ -30,13 +31,6 @@ impl EventHandler {
       let mut reader = EventStream::new();
       let mut interval = tokio::time::interval(tick_rate);
 
-      // Debounce input events
-      #[cfg(target_os = "windows")]
-      let mut last_key_event: Option<(KeyEvent, Instant)> = None;
-
-      #[cfg(target_os = "windows")]
-      let debounce_duration = Duration::from_millis(50);
-
       loop {
         let tick_delay = interval.tick();
         let crossterm_event = reader.next().fuse();
@@ -45,20 +39,14 @@ impl EventHandler {
           Some(Ok(event)) = crossterm_event => {
             match event {
               Event::Key(key_event) => {
+
+                // On Windows terminal takes press and release
+                // To avoid symbols duplications checks a event kind
                 #[cfg(target_os = "windows")]
                 {
-                  let now = Instant::now();
-
-                  let is_duplicate = last_key_event
-                    .as_ref()
-                    .map(|(prev_event, prev_time)| {
-                      *prev_event == key_event && now.duration_since(*prev_time) < debounce_duration
-                    })
-                    .unwrap_or(false);
-                  
-                  if is_duplicate { continue }
-
-                  last_key_event = Some((key_event, now));
+                  if key_event.kind != KeyEventKind::Press {
+                    continue
+                  }
                 }
 
                 tx_clone.send(TukaiEvent::Key(key_event)).unwrap();
