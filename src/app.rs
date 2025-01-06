@@ -1,6 +1,6 @@
 use crate::config::{AppConfig, TypingDuration};
 use crate::event_handler::{EventHandler, TukaiEvent};
-use crate::storage::storage_handler::{StorageHandler, StorageHandlerError};
+use crate::storage::storage_handler::StorageHandler;
 
 use crate::screens::{
   Screen,

@@ -92,8 +92,9 @@ impl<'a> InstructionWidget<'a> {
 pub trait Screen {
   fn new(config: Rc<RefCell<AppConfig>>) -> Self;
 
-  /// Handle events
-  /// Returns `true` if event is consumed
+  /// Handles key events
+  ///
+  /// If any key consumed by the screen returns false
   fn handle_events(&mut self, key: KeyEvent) -> bool;
 
   /// Screen is currently active

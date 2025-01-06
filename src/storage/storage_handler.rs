@@ -19,6 +19,7 @@ impl Display for StorageHandlerError {
 
 impl std::error::Error for StorageHandlerError {}
 
+#[allow(unused)]
 impl StorageHandlerError {
   fn new(message: String) -> Self {
     Self {
