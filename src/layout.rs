@@ -181,7 +181,10 @@ impl Layout {
     self.active_layout_name = active_layout_name;
   }
 
-  pub fn switch_active_layout(&mut self) -> LayoutName {
+  /// Switches to a next layout, then returns that layout
+  ///
+  /// Check `self.transitions`
+  pub fn switch_to_next_layout(&mut self) -> LayoutName {
     if let Some(next_layout_name) = self.transitions.get(&self.active_layout_name) {
       self.active_layout_name = next_layout_name.clone();
     };
@@ -189,7 +192,6 @@ impl Layout {
     self.active_layout_name.clone()
   }
 
-  /// Returns the layout colors
   fn get_layout_colors(&self) -> &LayoutColors {
     self.layouts.get(&self.active_layout_name).unwrap()
   }

@@ -4,6 +4,7 @@ use ratatui::style::Style;
 
 use serde::{Deserialize, Serialize};
 use crate::layout::Layout as TukaiLayout;
+use crate::storage::storage_handler::StorageData;
 
 #[derive(Serialize, Deserialize, Hash, PartialEq, Eq, Debug, Clone)]
 /// Represents the available durations for the test
@@ -127,6 +128,16 @@ impl AppConfigBuilder {
       typing_duration: None
     }
   }
+
+  /// Creates Config from a storage data
+  // pub fn from(storage_data: StorageData) -> Self {
+  //   Self {
+  //     file_path: None,
+  //     layout: NO,
+  //     typing_duration: storage_data.1,
+  //     has_transparent_bg: storage_data.2,
+  //   }
+  // }
 
   /// Sets the storage file path
   pub fn file_path<P: AsRef<Path>>(mut self, file_path: P) -> Self {

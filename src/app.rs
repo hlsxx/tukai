@@ -52,7 +52,21 @@ pub struct App {
 impl App {
 
   /// Creates new Tukai App
-  pub fn new(config: AppConfig) -> Self {
+  pub fn new(mut config: AppConfig) -> Self {
+    let storage_handler = match StorageHandler::new(&config.get_file_path()).init() {
+      Ok(storage_handler) => {
+        config.typing_duration = storage_handler.get_typing_duration();
+
+        config.get_layout_mut().active_layout_name(
+          storage_handler.get_layout_name().clone());
+
+        config.has_transparent_bg = storage_handler.get_has_transparent_bg();
+
+        Some(storage_handler)
+      },
+      Err(_) => None
+    };
+
     let config = Rc::new(RefCell::new(config));
 
     let typing_screen = TypingScreen::new(Rc::clone(&config));
@@ -61,7 +75,7 @@ impl App {
     Self {
       config,
 
-      storage_handler: None,
+      storage_handler,
 
       is_exit: false,
 
@@ -73,31 +87,6 @@ impl App {
 
       stats_screen
     }
-  }
-
-  /// Returns the App config
-  // fn get_config(&self) -> &Rc<RefCell<AppConfig>> {
-  //   self.config
-  // }
-
-  /// Inits the App
-  ///
-  /// Storage handler (not reuired)
-  pub fn init(mut self) -> Self {
-    let config = self.config.clone();
-    let mut config_mut = config.borrow_mut();
-
-    match StorageHandler::new(&config_mut.get_file_path()).init() {
-      Ok(storage_handler) => {
-        let active_layout_name = storage_handler.get_active_layout_name().clone();
-        config_mut.get_layout_mut().active_layout_name(active_layout_name);
-
-        self.storage_handler = Some(storage_handler);
-      },
-      Err(_) => {}
-    }
-
-    self
   }
 
   /// Runs the Tukai application
@@ -218,14 +207,16 @@ impl App {
   /// 1. Minute
   /// 2. Three minutes
   /// 3. Thirty seconds
-  pub fn switch_typing_duration(&mut self) {
+  pub fn switch_typing_duration(&mut self) -> TypingDuration {
     let mut config = self.config.borrow_mut();
 
     config.typing_duration = match config.typing_duration {
       TypingDuration::Minute => TypingDuration::ThreeMinutes,
       TypingDuration::ThreeMinutes => TypingDuration::ThirtySec,
       TypingDuration::ThirtySec => TypingDuration::Minute,
-    }
+    };
+
+    config.typing_duration.clone()
   }
 
   /// Handles crossterm events.
@@ -245,7 +236,8 @@ impl App {
             'h' => self.switch_active_screen(ActiveScreenEnum::Typing),
             'c' => self.exit(),
             'd' => {
-              self.switch_typing_duration();
+              let _new_typing_duration = self.switch_typing_duration();
+              // storage_handler.set_typing_duration(new_typing_duration);
               self.reset();
             },
             't' => {
@@ -255,7 +247,7 @@ impl App {
             's' => {
               let new_layout = self.config.borrow_mut()
                 .get_layout_mut()
-                .switch_active_layout();
+                .switch_to_next_layout();
 
               storage_handler.set_layout(new_layout);
             }

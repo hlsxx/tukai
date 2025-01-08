@@ -31,7 +31,7 @@ impl StorageHandlerError {
 /// Storage data type
 ///
 /// Represents types saved on a device's secondary memory.
-type StorageData = (
+pub type StorageData = (
   Vec<Stat>,
   TypingDuration,
   LayoutName,
@@ -197,9 +197,19 @@ impl StorageHandler {
     data
   }
 
+  /// Returns a TypingDuration
+  pub fn get_typing_duration(&self) -> TypingDuration {
+    self.get_data().1.clone()
+  }
+
   /// Returns an active layout name
-  pub fn get_active_layout_name(&self) -> &LayoutName {
-    &self.get_data().2
+  pub fn get_layout_name(&self) -> LayoutName {
+    self.get_data().2.clone()
+  }
+
+  /// Returns if has a transparend background
+  pub fn get_has_transparent_bg(&self) -> bool {
+    self.get_data().3
   }
 
   /// Serialize `StorageData` into a bytes.
@@ -226,21 +236,18 @@ impl StorageHandler {
     self.flush().is_ok()
   }
 
-  /// Sets new active layout name
-  pub fn set_layout(
+  /// Sets new typing duration
+  pub fn set_typing_duration(
     &mut self,
-    layout_name_changed: LayoutName
+    typin_duration: TypingDuration
   ) {
     if let Some(storage_data) = self.get_data_mut() {
-      storage_data.2 = layout_name_changed;
+      storage_data.1 = typin_duration;
     }
   }
 
-  /// Switches typing duration
-  ///
-  /// Options: 30s, 1min, 3min
-  #[allow(unused)]
-  pub fn switch_typing_duration(
+  /// Sets new active layout name
+  pub fn set_layout(
     &mut self,
     layout_name_changed: LayoutName
   ) {

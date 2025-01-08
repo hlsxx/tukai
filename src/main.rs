@@ -23,7 +23,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
   terminal.clear()?;
 
   let app_result = App::new(app_config)
-    .init()
     .run(&mut event_handler, &mut terminal)
     .await;
 
