@@ -4,7 +4,7 @@ use ratatui::{
   style::Color
 };
 
-use crate::layout::LayoutName;
+use crate::{config::TypingDuration, layout::LayoutName};
 
 pub struct Generator;
 
@@ -18,7 +18,7 @@ impl Generator {
   ///
   /// This method generates a string containing random
   /// words from the words/en.txt file
-  pub fn generate_random_string(amount: usize) -> String {
+  pub fn generate_random_string(typing_duration: &TypingDuration) -> String {
     let words_string = include_str!("../words/en.txt");
 
     let words = words_string.lines()
@@ -27,7 +27,7 @@ impl Generator {
 
     let mut rng = rand::thread_rng();
 
-    let text = words.choose_multiple(&mut rng, amount * 2)
+    let text = words.choose_multiple(&mut rng, typing_duration.as_seconds() * 2)
       .fold(String::new(), |mut acc, c| {
         acc.push_str(format!("{} ", c).as_str());
         acc

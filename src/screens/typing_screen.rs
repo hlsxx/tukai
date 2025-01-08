@@ -14,7 +14,7 @@ use ratatui::{
 };
 
 use crate::{
-  config::{AppConfig, TypingDuration},
+  config::AppConfig,
   helper::{get_title, Generator, ToDark},
   layout::{Layout as TukaiLayout, LayoutColorTypeEnum},
   screens::{Instruction, InstructionWidget, Screen},
@@ -94,10 +94,12 @@ pub struct TypingScreen {
 
 impl Screen for TypingScreen {
   fn new(config: Rc<RefCell<AppConfig>>) -> Self {
+    let generated_text = Generator::generate_random_string(&config.borrow().typing_duration);
+
     Self {
       config,
 
-      generated_text: Generator::generate_random_string(50),
+      generated_text,
 
       input: String::new(),
 
@@ -350,7 +352,7 @@ impl TypingScreen {
     self.is_running = false;
 
     self.generated_text = Generator::generate_random_string(
-      self.config.borrow().typing_duration.as_seconds()
+      &self.config.borrow().typing_duration
     );
 
     self.mistake_handler = MistakeHandler::new();
