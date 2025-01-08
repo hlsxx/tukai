@@ -1,4 +1,4 @@
-use crate::config::{AppConfig, TypingDuration};
+use crate::config::AppConfig;
 use crate::event_handler::{EventHandler, TukaiEvent};
 use crate::storage::storage_handler::StorageHandler;
 
@@ -31,7 +31,7 @@ pub struct App {
   pub config: Rc<RefCell<AppConfig>>,
 
   // Storage handler
-  storage_handler: Option<StorageHandler>,
+  storage_handler: StorageHandler,
 
   // App was interrupted
   is_exit: bool,
@@ -52,27 +52,22 @@ pub struct App {
 impl App {
 
   /// Creates new Tukai App
-  pub fn new(mut config: AppConfig) -> Self {
-    let storage_handler = match StorageHandler::new(&config.get_file_path()).init() {
-      Ok(storage_handler) => {
-        config.typing_duration = storage_handler.get_typing_duration();
+  pub fn try_new(mut config: AppConfig) -> Result<Self, Box<dyn std::error::Error>> {
+    let storage_handler = StorageHandler::new(&config.get_file_path()).init()?;
 
-        config.get_layout_mut().active_layout_name(
-          storage_handler.get_layout_name().clone());
+    config.typing_duration = storage_handler.get_typing_duration();
 
-        config.has_transparent_bg = storage_handler.get_has_transparent_bg();
+    config.get_layout_mut().active_layout_name(
+      storage_handler.get_layout_name().clone());
 
-        Some(storage_handler)
-      },
-      Err(_) => None
-    };
+    config.has_transparent_bg = storage_handler.get_has_transparent_bg();
 
     let config = Rc::new(RefCell::new(config));
 
     let typing_screen = TypingScreen::new(Rc::clone(&config));
     let stats_screen = StatsScreen::new(Rc::clone(&config));
 
-    Self {
+    Ok(Self {
       config,
 
       storage_handler,
@@ -86,7 +81,7 @@ impl App {
       typing_screen,
 
       stats_screen
-    }
+    })
   }
 
   /// Runs the Tukai application
@@ -139,7 +134,7 @@ impl App {
         self.typing_screen.time_secs = self.time_secs;
 
         if self.typing_screen.get_remaining_time() == 0 {
-          self.typing_screen.stop(self.storage_handler.as_mut());
+          self.typing_screen.stop(&mut self.storage_handler);
         }
 
         // Renders
@@ -181,11 +176,8 @@ impl App {
   ///
   /// Attempts to flush storage data before sets the `is_exit`.
   fn exit(&mut self) {
-    if let Some(storage_handler) = &self.storage_handler {
-      storage_handler.flush().expect("Error occured while saving into the file");
-    }
-
     self.is_exit = true;
+    self.storage_handler.flush().expect("Error occured while saving into the file");
   }
 
   /// Switches active `screen`.
@@ -201,24 +193,6 @@ impl App {
     self.active_screen = switch_to_screen;
   }
 
-  /// Switches the typing duration.
-  ///
-  /// Options:
-  /// 1. Minute
-  /// 2. Three minutes
-  /// 3. Thirty seconds
-  pub fn switch_typing_duration(&mut self) -> TypingDuration {
-    let mut config = self.config.borrow_mut();
-
-    config.typing_duration = match config.typing_duration {
-      TypingDuration::Minute => TypingDuration::ThreeMinutes,
-      TypingDuration::ThreeMinutes => TypingDuration::ThirtySec,
-      TypingDuration::ThirtySec => TypingDuration::Minute,
-    };
-
-    config.typing_duration.clone()
-  }
-
   /// Handles crossterm events.
   ///
   /// First, checks for events with the pressed control button.
@@ -226,8 +200,6 @@ impl App {
   /// Finally, processes remainig keys.
   fn handle_events(&mut self, key_event: KeyEvent) {
     if key_event.modifiers.contains(KeyModifiers::CONTROL) {
-      let storage_handler = self.storage_handler.as_mut().unwrap();
-
       match key_event.code {
         KeyCode::Char(c) => {
           match c {
@@ -236,20 +208,22 @@ impl App {
             'h' => self.switch_active_screen(ActiveScreenEnum::Typing),
             'c' => self.exit(),
             'd' => {
-              let _new_typing_duration = self.switch_typing_duration();
-              // storage_handler.set_typing_duration(new_typing_duration);
+              self.storage_handler.set_typing_duration(
+                self.config.borrow_mut().switch_typing_duration()
+              );
+
               self.reset();
             },
             't' => {
               let new_state = self.config.borrow_mut().toggle_transparent_bg();
-              storage_handler.set_transparent_bg(new_state);
+              self.storage_handler.set_transparent_bg(new_state);
             },
             's' => {
               let new_layout = self.config.borrow_mut()
                 .get_layout_mut()
                 .switch_to_next_layout();
 
-              storage_handler.set_layout(new_layout);
+              self.storage_handler.set_layout(new_layout);
             }
             _ => {}
           }

@@ -14,7 +14,7 @@ use ratatui::{
 };
 
 use crate::{
-  config::AppConfig,
+  config::{AppConfig, TypingDuration},
   helper::{get_title, Generator, ToDark},
   layout::{Layout as TukaiLayout, LayoutColorTypeEnum},
   screens::{Instruction, InstructionWidget, Screen},
@@ -257,7 +257,7 @@ impl TypingScreen {
   /// Makes the popup screen visible
   ///
   /// Inserts the created stat into storage
-  pub fn stop(&mut self, storage_handler: Option<&mut StorageHandler>) {
+  pub fn stop(&mut self, storage_handler: &mut StorageHandler) {
     self.is_running = false;
     self.is_popup_visible = true;
 
@@ -268,10 +268,7 @@ impl TypingScreen {
         self.mistake_handler.get_mistakes_counter(),
       );
 
-      // TODO: Some action if not set into the binary
-      if let Some(storage_handler) = storage_handler {
-        storage_handler.insert_into_stats(&stat);
-      }
+      storage_handler.insert_into_stats(&stat);
 
       self.stat = Some(stat);
     }

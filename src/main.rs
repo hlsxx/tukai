@@ -22,7 +22,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
   terminal.clear()?;
 
-  let app_result = App::new(app_config)
+  let app_result = App::try_new(app_config)?
     .run(&mut event_handler, &mut terminal)
     .await;
 

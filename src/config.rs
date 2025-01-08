@@ -4,7 +4,6 @@ use ratatui::style::Style;
 
 use serde::{Deserialize, Serialize};
 use crate::layout::Layout as TukaiLayout;
-use crate::storage::storage_handler::StorageData;
 
 #[derive(Serialize, Deserialize, Hash, PartialEq, Eq, Debug, Clone)]
 /// Represents the available durations for the test
@@ -94,6 +93,23 @@ impl AppConfig {
     self.has_transparent_bg = !self.has_transparent_bg;
     self.has_transparent_bg
   }
+
+  /// Switches the typing duration.
+  ///
+  /// Options:
+  /// 1. Minute
+  /// 2. Three minutes
+  /// 3. Thirty seconds
+  pub fn switch_typing_duration(&mut self) -> TypingDuration {
+    self.typing_duration = match self.typing_duration {
+      TypingDuration::Minute => TypingDuration::ThreeMinutes,
+      TypingDuration::ThreeMinutes => TypingDuration::ThirtySec,
+      TypingDuration::ThirtySec => TypingDuration::Minute,
+    };
+
+    self.typing_duration.clone()
+  }
+
 
   /// Returns the background color
   ///
