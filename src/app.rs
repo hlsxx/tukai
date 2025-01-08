@@ -44,7 +44,7 @@ pub struct App {
 impl App {
   /// Creates new Tukai App
   pub fn try_new(mut config: AppConfig) -> Result<Self, Box<dyn std::error::Error>> {
-    let storage_handler = StorageHandler::new(&config.get_file_path()).init()?;
+    let storage_handler = StorageHandler::new(config.get_file_path()).init()?;
 
     config.typing_duration = storage_handler.get_typing_duration();
 
@@ -143,12 +143,11 @@ impl App {
   }
 
   fn handle_screen_events(&mut self, key: KeyEvent) -> bool {
-    let event_occured = match self.active_screen {
+    //implicit return
+    match self.active_screen {
       ActiveScreenEnum::Typing => self.typing_screen.handle_events(key),
       _ => false,
-    };
-
-    event_occured
+    }
   }
 
   fn reset(&mut self) {

@@ -392,7 +392,7 @@ impl TypingScreen {
 
     let remaining_time_line = Line::from(vec![Span::from(format!(
       "⏳{}",
-      self.get_remaining_time().to_string()
+      self.get_remaining_time(),
     ))
     .style(Style::default().fg(color).bold())]);
 

@@ -38,7 +38,7 @@ impl Generator {
 
   /// Generates a random motto for the block bottom title
   pub fn generate_random_motto() -> String {
-    let mottos = vec![
+    let mottos = [
       " Practice today, master tomorrow ",
       " Fingers on keys, progress with ease ",
       " Consistency breeds accuracy ",
@@ -54,7 +54,6 @@ impl Generator {
   }
 }
 
-#[allow(unused)]
 #[allow(unused)]
 pub trait ToDark {
   /// Converts the `(u8, u8, u8)` tuple to a `Color::Rgb`
