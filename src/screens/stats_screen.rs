@@ -143,7 +143,7 @@ impl StatsScreen {
       .map(|stat| {
         Row::new(vec![
           Cell::from(stat.get_average_wpm().to_string()).style(default_cell_style),
-          Cell::from(format!("{}%", stat.get_accuracy().to_string())).style(default_cell_style),
+          Cell::from(format!("{}%", stat.get_accuracy())).style(default_cell_style),
         ])
       })
       .collect::<Vec<Row>>();
@@ -168,7 +168,7 @@ impl StatsScreen {
   }
 
   /// Gets the main table widget (Last runs)
-  fn get_last_runs_table_widget<'a>(&self, stats: &Vec<Stat>) -> Table<'a> {
+  fn get_last_runs_table_widget<'a>(&self, stats: &[Stat]) -> Table<'a> {
     let app_config = self.config.borrow();
     let app_layout = &app_config.get_layout();
 
@@ -190,7 +190,7 @@ impl StatsScreen {
           Cell::from(stat.get_duration().to_string())
             .style(Style::default().fg(app_layout.get_text_color().to_dark())),
           Cell::from(stat.get_average_wpm().to_string()).style(default_cell_style),
-          Cell::from(format!("{}%", stat.get_accuracy().to_string())).style(default_cell_style),
+          Cell::from(format!("{}%", stat.get_accuracy())).style(default_cell_style),
           Cell::from(stat.get_raw_wpm().to_string())
             .style(Style::default().fg(app_layout.get_text_color().to_dark())),
         ])
@@ -238,7 +238,7 @@ impl StatsScreen {
       .marker(symbols::Marker::Dot)
       .graph_type(GraphType::Scatter)
       .style(Style::default().fg(app_layout.get_text_color()))
-      .data(&chart_data)];
+      .data(chart_data)];
 
     let y_labels = (0..=125)
       .step_by(25)
@@ -251,7 +251,7 @@ impl StatsScreen {
 
     let y_axis = Axis::default()
       .style(Style::default().fg(app_layout.get_primary_color()))
-      .bounds([0.0, 125 as f64])
+      .bounds([0.0, 125_f64])
       .labels(y_labels);
 
     let chart_block = Block::new()
@@ -286,7 +286,7 @@ impl StatsScreen {
           .style(Style::default().fg(app_layout.get_text_color())),
         Span::from(format!(
           "{}%",
-          stat_overview.total_average_accuracy.to_string()
+          stat_overview.total_average_accuracy,
         ))
         .style(Style::default().fg(app_layout.get_primary_color()).bold()),
       ]),
