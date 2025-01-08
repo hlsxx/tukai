@@ -23,7 +23,8 @@ tokio = { version = "1.41.0", features = ["full"] }
 uuid = { version = "1.11.0", features = ["v4"] }
 
 [profile.release]
-lto = "thin"
+codegen-units = 1
+lto = true
 
 [profile.dev]
 opt-level = 1
