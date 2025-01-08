@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
 use super::stat_helper::StatHelper;
 use crate::config::TypingDuration;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Stat {
@@ -10,7 +10,7 @@ pub struct Stat {
 
   raw_wpm: usize,
 
-  accuracy: f64
+  accuracy: f64,
 }
 
 impl Stat {
@@ -23,15 +23,19 @@ impl Stat {
   pub fn new(
     typing_duration: &TypingDuration,
     chars_counter: usize,
-    mistakes_counter: usize
+    mistakes_counter: usize,
   ) -> Self {
     let typing_duration_in_seconds = typing_duration.as_seconds();
 
     Self {
       typing_duration: typing_duration.clone(),
-      average_wpm: StatHelper::get_calculated_wpm(chars_counter, mistakes_counter, typing_duration_in_seconds),
+      average_wpm: StatHelper::get_calculated_wpm(
+        chars_counter,
+        mistakes_counter,
+        typing_duration_in_seconds,
+      ),
       raw_wpm: StatHelper::get_calculated_raw_wpm(chars_counter, typing_duration_in_seconds),
-      accuracy: StatHelper::get_calculated_accuracy(chars_counter, mistakes_counter)
+      accuracy: StatHelper::get_calculated_accuracy(chars_counter, mistakes_counter),
     }
   }
 
@@ -54,5 +58,4 @@ impl Stat {
   pub fn get_accuracy(&self) -> f64 {
     self.accuracy
   }
-
 }

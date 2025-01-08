@@ -1,9 +1,9 @@
-use std::path::{Path, PathBuf};
-use std::cell::{Ref, RefCell, RefMut};
 use ratatui::style::Style;
+use std::cell::{Ref, RefCell, RefMut};
+use std::path::{Path, PathBuf};
 
-use serde::{Deserialize, Serialize};
 use crate::layout::Layout as TukaiLayout;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Hash, PartialEq, Eq, Debug, Clone)]
 /// Represents the available durations for the test
@@ -17,7 +17,7 @@ use crate::layout::Layout as TukaiLayout;
 pub enum TypingDuration {
   ThirtySec,
   Minute,
-  ThreeMinutes
+  ThreeMinutes,
 }
 
 impl Default for TypingDuration {
@@ -31,7 +31,7 @@ impl TypingDuration {
     match self {
       TypingDuration::ThirtySec => 30,
       TypingDuration::Minute => 60,
-      TypingDuration::ThreeMinutes => 180
+      TypingDuration::ThreeMinutes => 180,
     }
   }
 }
@@ -53,7 +53,7 @@ pub struct AppConfig {
   pub has_transparent_bg: bool,
 
   // Typing duration
-  pub typing_duration: TypingDuration
+  pub typing_duration: TypingDuration,
 }
 
 impl AppConfig {
@@ -62,7 +62,7 @@ impl AppConfig {
       file_path: PathBuf::from("tukai.bin"),
       layout: RefCell::new(TukaiLayout::default()),
       has_transparent_bg: false,
-      typing_duration: TypingDuration::default()
+      typing_duration: TypingDuration::default(),
     }
   }
 
@@ -110,13 +110,16 @@ impl AppConfig {
     self.typing_duration.clone()
   }
 
-
   /// Returns the background color
   ///
   /// If has_transparent_bg not equals true
   pub fn get_bg_color(&self) -> Style {
     let style = Style::default();
-    if self.has_transparent_bg { style } else { style.bg(self.get_layout().get_background_color()) }
+    if self.has_transparent_bg {
+      style
+    } else {
+      style.bg(self.get_layout().get_background_color())
+    }
   }
 }
 
@@ -141,7 +144,7 @@ impl AppConfigBuilder {
       file_path: None,
       layout: None,
       has_transparent_bg: true,
-      typing_duration: None
+      typing_duration: None,
     }
   }
 
@@ -174,7 +177,9 @@ impl AppConfigBuilder {
       file_path: self.file_path.unwrap_or(config_default.file_path),
       layout: self.layout.unwrap_or(config_default.layout),
       has_transparent_bg: self.has_transparent_bg,
-      typing_duration: self.typing_duration.unwrap_or(config_default.typing_duration)
+      typing_duration: self
+        .typing_duration
+        .unwrap_or(config_default.typing_duration),
     }
   }
 }

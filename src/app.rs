@@ -2,28 +2,20 @@ use crate::config::AppConfig;
 use crate::event_handler::{EventHandler, TukaiEvent};
 use crate::storage::storage_handler::StorageHandler;
 
-use crate::screens::{
-  Screen,
-  typing_screen::TypingScreen,
-  stats_screen::StatsScreen
-};
+use crate::screens::{stats_screen::StatsScreen, typing_screen::TypingScreen, Screen};
 
-use std::{
-  rc::Rc,
-  cell::RefCell
-};
+use std::{cell::RefCell, rc::Rc};
 
 use ratatui::{
   crossterm::event::{KeyCode, KeyEvent, KeyModifiers},
   layout::{Constraint, Layout},
-  DefaultTerminal,
-  Frame
+  DefaultTerminal, Frame,
 };
 
 #[derive(PartialEq, Hash, Eq)]
 enum ActiveScreenEnum {
   Typing,
-  Stats
+  Stats,
 }
 
 pub struct App {
@@ -46,19 +38,19 @@ pub struct App {
   typing_screen: TypingScreen,
 
   // Stats screen (ctrl-l)
-  stats_screen: StatsScreen
+  stats_screen: StatsScreen,
 }
 
 impl App {
-
   /// Creates new Tukai App
   pub fn try_new(mut config: AppConfig) -> Result<Self, Box<dyn std::error::Error>> {
     let storage_handler = StorageHandler::new(&config.get_file_path()).init()?;
 
     config.typing_duration = storage_handler.get_typing_duration();
 
-    config.get_layout_mut().active_layout_name(
-      storage_handler.get_layout_name().clone());
+    config
+      .get_layout_mut()
+      .active_layout_name(storage_handler.get_layout_name().clone());
 
     config.has_transparent_bg = storage_handler.get_has_transparent_bg();
 
@@ -80,19 +72,19 @@ impl App {
 
       typing_screen,
 
-      stats_screen
+      stats_screen,
     })
   }
 
   /// Runs the Tukai application
-  /// 
+  ///
   /// Renders TUI
   ///
   /// Handle events
   pub async fn run(
     &mut self,
     event_handler: &mut EventHandler,
-    terminal: &mut DefaultTerminal
+    terminal: &mut DefaultTerminal,
   ) -> Result<(), Box<dyn std::error::Error>> {
     while !self.is_exit {
       match event_handler.next().await? {
@@ -110,15 +102,9 @@ impl App {
     Ok(())
   }
 
-  fn draw(
-    &mut self,
-    frame: &mut Frame
-  ) {
+  fn draw(&mut self, frame: &mut Frame) {
     let main_layout = Layout::default()
-      .constraints(vec![
-        Constraint::Min(0),
-        Constraint::Length(3)
-      ])
+      .constraints(vec![Constraint::Min(0), Constraint::Length(3)])
       .split(frame.area());
 
     match self.active_screen {
@@ -138,20 +124,18 @@ impl App {
         }
 
         // Renders
-        self.typing_screen.render(
-          frame,
-          main_layout[0]);
+        self.typing_screen.render(frame, main_layout[0]);
 
-        self.typing_screen.render_instructions(frame, main_layout[1]);
+        self
+          .typing_screen
+          .render_instructions(frame, main_layout[1]);
 
         if self.typing_screen.is_popup_visible() {
           self.typing_screen.render_popup(frame);
         }
-      },
+      }
       ActiveScreenEnum::Stats => {
-        self.stats_screen.render(
-          frame,
-          main_layout[0]);
+        self.stats_screen.render(frame, main_layout[0]);
 
         self.stats_screen.render_instructions(frame, main_layout[1]);
       }
@@ -161,7 +145,7 @@ impl App {
   fn handle_screen_events(&mut self, key: KeyEvent) -> bool {
     let event_occured = match self.active_screen {
       ActiveScreenEnum::Typing => self.typing_screen.handle_events(key),
-      _ => false
+      _ => false,
     };
 
     event_occured
@@ -177,7 +161,10 @@ impl App {
   /// Attempts to flush storage data before sets the `is_exit`.
   fn exit(&mut self) {
     self.is_exit = true;
-    self.storage_handler.flush().expect("Error occured while saving into the file");
+    self
+      .storage_handler
+      .flush()
+      .expect("Error occured while saving into the file");
   }
 
   /// Switches active `screen`.
@@ -187,7 +174,7 @@ impl App {
   fn switch_active_screen(&mut self, switch_to_screen: ActiveScreenEnum) {
     match switch_to_screen {
       ActiveScreenEnum::Stats => self.typing_screen.hide(),
-      ActiveScreenEnum::Typing => self.stats_screen.hide()
+      ActiveScreenEnum::Typing => self.stats_screen.hide(),
     }
 
     self.active_screen = switch_to_screen;
@@ -201,32 +188,32 @@ impl App {
   fn handle_events(&mut self, key_event: KeyEvent) {
     if key_event.modifiers.contains(KeyModifiers::CONTROL) {
       match key_event.code {
-        KeyCode::Char(c) => {
-          match c {
-            'r' => self.reset(),
-            'l' => self.switch_active_screen(ActiveScreenEnum::Stats),
-            'h' => self.switch_active_screen(ActiveScreenEnum::Typing),
-            'c' => self.exit(),
-            'd' => {
-              self.storage_handler.set_typing_duration(
-                self.config.borrow_mut().switch_typing_duration()
-              );
+        KeyCode::Char(c) => match c {
+          'r' => self.reset(),
+          'l' => self.switch_active_screen(ActiveScreenEnum::Stats),
+          'h' => self.switch_active_screen(ActiveScreenEnum::Typing),
+          'c' => self.exit(),
+          'd' => {
+            self
+              .storage_handler
+              .set_typing_duration(self.config.borrow_mut().switch_typing_duration());
 
-              self.reset();
-            },
-            't' => {
-              let new_state = self.config.borrow_mut().toggle_transparent_bg();
-              self.storage_handler.set_transparent_bg(new_state);
-            },
-            's' => {
-              let new_layout = self.config.borrow_mut()
-                .get_layout_mut()
-                .switch_to_next_layout();
-
-              self.storage_handler.set_layout(new_layout);
-            }
-            _ => {}
+            self.reset();
           }
+          't' => {
+            let new_state = self.config.borrow_mut().toggle_transparent_bg();
+            self.storage_handler.set_transparent_bg(new_state);
+          }
+          's' => {
+            let new_layout = self
+              .config
+              .borrow_mut()
+              .get_layout_mut()
+              .switch_to_next_layout();
+
+            self.storage_handler.set_layout(new_layout);
+          }
+          _ => {}
         },
         _ => {}
       }
@@ -234,7 +221,9 @@ impl App {
       return;
     }
 
-    if self.handle_screen_events(key_event) { return; }
+    if self.handle_screen_events(key_event) {
+      return;
+    }
 
     if key_event.code == KeyCode::Esc {
       self.exit();
@@ -244,6 +233,4 @@ impl App {
       self.active_screen = ActiveScreenEnum::Stats;
     }
   }
-
 }
-

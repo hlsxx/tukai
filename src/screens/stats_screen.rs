@@ -1,32 +1,47 @@
-use std::{
-  rc::Rc,
-  cell::RefCell
-};
+use std::{cell::RefCell, rc::Rc};
 
 use crate::{
-  config::AppConfig, helper::get_title, layout::LayoutColorTypeEnum, storage::{stats::Stat, storage_handler::{StatOverview, StorageHandler}}, screens::{Instruction, InstructionWidget, Screen}
+  config::AppConfig,
+  helper::get_title,
+  layout::LayoutColorTypeEnum,
+  screens::{Instruction, InstructionWidget, Screen},
+  storage::{
+    stats::Stat,
+    storage_handler::{StatOverview, StorageHandler},
+  },
 };
 
 use ratatui::{
-  crossterm::event::KeyEvent, layout::{Alignment, Constraint, Direction, Layout, Rect}, style::{Style, Stylize}, symbols, text::{Line, Span}, widgets::{Axis, Block, BorderType, Borders, Cell, Chart, Dataset, GraphType, Padding, Paragraph, Row, Table}, Frame
+  crossterm::event::KeyEvent,
+  layout::{Alignment, Constraint, Direction, Layout, Rect},
+  style::{Style, Stylize},
+  symbols,
+  text::{Line, Span},
+  widgets::{
+    Axis, Block, BorderType, Borders, Cell, Chart, Dataset, GraphType, Padding, Paragraph, Row,
+    Table,
+  },
+  Frame,
 };
 
 use crate::helper::ToDark;
 
 pub struct StatsScreen {
   config: Rc<RefCell<AppConfig>>,
-  is_active: bool
+  is_active: bool,
 }
 
 impl Screen for StatsScreen {
   fn new(config: Rc<RefCell<AppConfig>>) -> Self {
     Self {
       config,
-      is_active: false
+      is_active: false,
     }
   }
 
-  fn toggle_active(&mut self) { self.is_active = !self.is_active; }
+  fn toggle_active(&mut self) {
+    self.is_active = !self.is_active;
+  }
 
   fn is_active(&self) -> bool {
     self.is_active
@@ -37,24 +52,32 @@ impl Screen for StatsScreen {
     false
   }
 
-  fn render_instructions(
-    &self,
-    frame: &mut Frame,
-    area: Rect
-  ) {
+  fn render_instructions(&self, frame: &mut Frame, area: Rect) {
     let app_config = self.config.borrow();
     let app_layout = app_config.get_layout();
 
     let mut instruction_widget = InstructionWidget::new(&app_layout);
 
-    instruction_widget.add_instruction(Instruction::new("Exit", "esc", LayoutColorTypeEnum::Secondary));
-    instruction_widget.add_instruction(Instruction::new("Transparent", "ctrl + t", LayoutColorTypeEnum::Secondary));
-    instruction_widget.add_instruction(Instruction::new("Typing", "ctrl + h", LayoutColorTypeEnum::Secondary));
+    instruction_widget.add_instruction(Instruction::new(
+      "Exit",
+      "esc",
+      LayoutColorTypeEnum::Secondary,
+    ));
+    instruction_widget.add_instruction(Instruction::new(
+      "Transparent",
+      "ctrl + t",
+      LayoutColorTypeEnum::Secondary,
+    ));
+    instruction_widget.add_instruction(Instruction::new(
+      "Typing",
+      "ctrl + h",
+      LayoutColorTypeEnum::Secondary,
+    ));
 
-    let block = Block::new()
-      .padding(Padding::new(0, 0, area.height / 2, 0));
+    let block = Block::new().padding(Padding::new(0, 0, area.height / 2, 0));
 
-    let instructions = instruction_widget.get_paragraph()
+    let instructions = instruction_widget
+      .get_paragraph()
       .block(block)
       .alignment(Alignment::Center)
       .style(app_config.get_bg_color());
@@ -62,47 +85,31 @@ impl Screen for StatsScreen {
     frame.render_widget(instructions, area);
   }
 
-  fn render(
-    &self,
-    frame: &mut Frame,
-    area: Rect
-  ) {
-    let storage_handler = StorageHandler::new("tukai.bin")
-      .init()
-      .unwrap();
+  fn render(&self, frame: &mut Frame, area: Rect) {
+    let storage_handler = StorageHandler::new("tukai.bin").init().unwrap();
 
     let chunks = Layout::default()
       .direction(Direction::Horizontal)
-      .constraints(vec![
-        Constraint::Percentage(70),
-        Constraint::Percentage(30)
-      ])
+      .constraints(vec![Constraint::Percentage(70), Constraint::Percentage(30)])
       .split(area);
 
     let left_widget = Layout::default()
       .direction(Direction::Vertical)
-      .constraints(vec![
-        Constraint::Percentage(50),
-        Constraint::Percentage(50)
-      ])
+      .constraints(vec![Constraint::Percentage(50), Constraint::Percentage(50)])
       .split(chunks[0]);
 
     let right_widget = Layout::default()
       .direction(Direction::Vertical)
-      .constraints(vec![
-        Constraint::Length(5),
-        Constraint::Percentage(100)
-      ])
+      .constraints(vec![Constraint::Length(5), Constraint::Percentage(100)])
       .split(chunks[1]);
-    
+
     let last_runs_table_widget_data = storage_handler.get_data_stats_reversed();
-    let last_runs_table_widget = self.get_last_runs_table_widget(
-      &last_runs_table_widget_data);
+    let last_runs_table_widget = self.get_last_runs_table_widget(&last_runs_table_widget_data);
 
     let chart_widget_data = storage_handler.get_data_for_chart();
     let chart_widget = self.get_chart_widget(&chart_widget_data);
 
-    let best_score_widget = self.get_best_score_widget( &storage_handler);
+    let best_score_widget = self.get_best_score_widget(&storage_handler);
 
     let chart_widget_data = storage_handler.get_data_for_overview();
     let stats_overview_widget = self.get_stats_overview_widget(&chart_widget_data);
@@ -115,12 +122,8 @@ impl Screen for StatsScreen {
 }
 
 impl StatsScreen {
-
   /// Returns the right widget (Best score)
-  fn get_best_score_widget(
-    &self,
-    storage_handler: &StorageHandler
-  ) -> Table {
+  fn get_best_score_widget(&self, storage_handler: &StorageHandler) -> Table {
     let app_config = self.config.borrow();
     let app_layout = &app_config.get_layout();
 
@@ -133,28 +136,21 @@ impl StatsScreen {
       .border_style(Style::default().fg(app_layout.get_primary_color()))
       .border_type(BorderType::Rounded);
 
-    let default_cell_style = Style::default()
-      .fg(app_layout.get_text_color());
+    let default_cell_style = Style::default().fg(app_layout.get_text_color());
 
-    let rows = stats.iter()
+    let rows = stats
+      .iter()
       .map(|stat| {
         Row::new(vec![
-          Cell::from(stat.get_average_wpm().to_string())
-            .style(default_cell_style),
-
-          Cell::from(format!("{}%", stat.get_accuracy().to_string()))
-            .style(default_cell_style),
+          Cell::from(stat.get_average_wpm().to_string()).style(default_cell_style),
+          Cell::from(format!("{}%", stat.get_accuracy().to_string())).style(default_cell_style),
         ])
-      }).collect::<Vec<Row>>();
+      })
+      .collect::<Vec<Row>>();
 
-    let widths = [
-      Constraint::Percentage(50),
-      Constraint::Percentage(50),
-    ];
+    let widths = [Constraint::Percentage(50), Constraint::Percentage(50)];
 
-    let default_header_cell_style = Style::default()
-      .fg(app_layout.get_primary_color())
-      .bold();
+    let default_header_cell_style = Style::default().fg(app_layout.get_primary_color()).bold();
 
     let table = Table::new(rows, widths)
       .block(block)
@@ -162,29 +158,21 @@ impl StatsScreen {
       .style(app_config.get_bg_color())
       .header(
         Row::new(vec![
-          Cell::from("🔥 Average WPM")
-            .style(default_header_cell_style),
-
-          Cell::from("🎯 Accuracy")
-            .style(default_header_cell_style),
-        ]).bottom_margin(1)
+          Cell::from("🔥 Average WPM").style(default_header_cell_style),
+          Cell::from("🎯 Accuracy").style(default_header_cell_style),
+        ])
+        .bottom_margin(1),
       );
 
     table
   }
 
   /// Gets the main table widget (Last runs)
-  fn get_last_runs_table_widget<'a>(
-    &self,
-    stats: &Vec<Stat>,
-  ) -> Table<'a> {
+  fn get_last_runs_table_widget<'a>(&self, stats: &Vec<Stat>) -> Table<'a> {
     let app_config = self.config.borrow();
     let app_layout = &app_config.get_layout();
 
-    let block_title = get_title(
-      app_layout.get_active_layout_name(),
-      "Stats"
-    );
+    let block_title = get_title(app_layout.get_active_layout_name(), "Stats");
 
     let block = Block::new()
       .title(block_title)
@@ -193,36 +181,30 @@ impl StatsScreen {
       .border_style(Style::default().fg(app_layout.get_primary_color()))
       .border_type(BorderType::Rounded);
 
-    let default_cell_style = Style::default()
-      .fg(app_layout.get_text_color());
+    let default_cell_style = Style::default().fg(app_layout.get_text_color());
 
-    let rows = stats.iter()
+    let rows = stats
+      .iter()
       .map(|stat| {
         Row::new(vec![
           Cell::from(stat.get_duration().to_string())
             .style(Style::default().fg(app_layout.get_text_color().to_dark())),
-
-          Cell::from(stat.get_average_wpm().to_string())
-            .style(default_cell_style),
-
-          Cell::from(format!("{}%", stat.get_accuracy().to_string()))
-            .style(default_cell_style),
-
+          Cell::from(stat.get_average_wpm().to_string()).style(default_cell_style),
+          Cell::from(format!("{}%", stat.get_accuracy().to_string())).style(default_cell_style),
           Cell::from(stat.get_raw_wpm().to_string())
-            .style(Style::default().fg(app_layout.get_text_color().to_dark()))
+            .style(Style::default().fg(app_layout.get_text_color().to_dark())),
         ])
-      }).collect::<Vec<Row>>();
+      })
+      .collect::<Vec<Row>>();
 
     let widths = [
       Constraint::Percentage(25),
       Constraint::Percentage(25),
       Constraint::Percentage(25),
-      Constraint::Percentage(25)
+      Constraint::Percentage(25),
     ];
 
-    let default_header_cell_style = Style::default()
-      .fg(app_layout.get_primary_color())
-      .bold();
+    let default_header_cell_style = Style::default().fg(app_layout.get_primary_color()).bold();
 
     let table = Table::new(rows, widths)
       .block(block)
@@ -231,28 +213,19 @@ impl StatsScreen {
       .highlight_symbol("X")
       .header(
         Row::new(vec![
-          Cell::from("⏳ Duration")
-            .style(default_header_cell_style),
-
-          Cell::from("🔥 Average WPM")
-            .style(default_header_cell_style),
-
-          Cell::from("🎯 Accuracy")
-            .style(default_header_cell_style),
-
-          Cell::from("🥩 Raw WPM")
-            .style(default_header_cell_style),
-        ]).bottom_margin(1)
+          Cell::from("⏳ Duration").style(default_header_cell_style),
+          Cell::from("🔥 Average WPM").style(default_header_cell_style),
+          Cell::from("🎯 Accuracy").style(default_header_cell_style),
+          Cell::from("🥩 Raw WPM").style(default_header_cell_style),
+        ])
+        .bottom_margin(1),
       );
 
     table
   }
 
   /// Gets the left bottom widget (Chart)
-  fn get_chart_widget<'a>(
-    &self,
-    chart_widget_data: &'a (usize, Vec<(f64, f64)>)
-  ) -> Chart<'a> {
+  fn get_chart_widget<'a>(&self, chart_widget_data: &'a (usize, Vec<(f64, f64)>)) -> Chart<'a> {
     let app_config = self.config.borrow();
     let app_layout = &app_config.get_layout();
 
@@ -261,15 +234,14 @@ impl StatsScreen {
     // Validate best_wpm
     // let upper_x_bound = if *best_wpm < 25 { 50 } else { best_wpm + 10 };
 
-    let datasets = vec![
-      Dataset::default()
-        .marker(symbols::Marker::Dot)
-        .graph_type(GraphType::Scatter)
-        .style(Style::default().fg(app_layout.get_text_color()))
-        .data(&chart_data)
-    ];
+    let datasets = vec![Dataset::default()
+      .marker(symbols::Marker::Dot)
+      .graph_type(GraphType::Scatter)
+      .style(Style::default().fg(app_layout.get_text_color()))
+      .data(&chart_data)];
 
-    let y_labels = (0..=125).step_by(25)
+    let y_labels = (0..=125)
+      .step_by(25)
       .map(|y| Span::from(y.to_string()).style(Style::default().fg(app_layout.get_text_color())))
       .collect::<Vec<Span>>();
 
@@ -298,26 +270,25 @@ impl StatsScreen {
     chart
   }
 
-  fn get_stats_overview_widget<'a>(
-    &self,
-    stat_overview: &'a StatOverview,
-  ) -> Paragraph<'a> {
+  fn get_stats_overview_widget<'a>(&self, stat_overview: &'a StatOverview) -> Paragraph<'a> {
     let app_config = self.config.borrow();
     let app_layout = &app_config.get_layout();
 
     let text = vec![
       Line::default(),
-
       Line::from(vec![
         Span::from(" Total average WPM: ").style(Style::default().fg(app_layout.get_text_color())),
         Span::from(stat_overview.total_average_wpm.to_string())
-          .style(Style::default().fg(app_layout.get_primary_color()).bold())
+          .style(Style::default().fg(app_layout.get_primary_color()).bold()),
       ]),
-
       Line::from(vec![
-        Span::from(" Total average accuracy: ").style(Style::default().fg(app_layout.get_text_color())),
-        Span::from(format!("{}%", stat_overview.total_average_accuracy.to_string()))
-          .style(Style::default().fg(app_layout.get_primary_color()).bold())
+        Span::from(" Total average accuracy: ")
+          .style(Style::default().fg(app_layout.get_text_color())),
+        Span::from(format!(
+          "{}%",
+          stat_overview.total_average_accuracy.to_string()
+        ))
+        .style(Style::default().fg(app_layout.get_primary_color()).bold()),
       ]),
     ];
 

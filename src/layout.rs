@@ -36,7 +36,7 @@ pub enum LayoutColorTypeEnum {
   Text,
   TextReverse,
   Background,
-  Error
+  Error,
 }
 
 #[derive(PartialEq, Eq, Hash, Debug, Serialize, Deserialize, Clone)]
@@ -45,7 +45,7 @@ pub enum LayoutName {
   Rust,
   Anime,
   Deadpool,
-  Wolverine
+  Wolverine,
 }
 
 impl Display for LayoutName {
@@ -57,7 +57,7 @@ impl Display for LayoutName {
       Rust => "🦀 Rust",
       Anime => "🌸 Anime",
       Deadpool => "🩸🔞 Deadpool",
-      Wolverine => "💪🍺 Wolverine"
+      Wolverine => "💪🍺 Wolverine",
     };
 
     write!(f, "{}", display_text)
@@ -70,7 +70,7 @@ pub struct LayoutColors {
   text_current: RgbColor,
   text_current_bg: RgbColor,
   background: RgbColor,
-  error: RgbColor
+  error: RgbColor,
 }
 
 impl LayoutColors {
@@ -88,7 +88,7 @@ impl LayoutColors {
       text_current,
       text_current_bg,
       background,
-      error
+      error,
     }
   }
 }
@@ -96,7 +96,7 @@ impl LayoutColors {
 pub struct Layout {
   layouts: HashMap<LayoutName, LayoutColors>,
   transitions: HashMap<LayoutName, LayoutName>,
-  active_layout_name: LayoutName
+  active_layout_name: LayoutName,
 }
 
 impl Layout {
@@ -161,13 +161,13 @@ impl Layout {
       (Anime, Deadpool),
       (Deadpool, Wolverine),
       (Wolverine, Rust),
-      (Rust, Iced)
+      (Rust, Iced),
     ]);
 
     Self {
       layouts,
       transitions,
-      active_layout_name: LayoutName::Iced
+      active_layout_name: LayoutName::Iced,
     }
   }
 

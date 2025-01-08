@@ -1,19 +1,20 @@
 use rand::{seq::SliceRandom, Rng};
-use ratatui::{
-  widgets::block::Title,
-  style::Color
-};
+use ratatui::{style::Color, widgets::block::Title};
 
 use crate::{config::TypingDuration, layout::LayoutName};
 
 pub struct Generator;
 
 pub fn get_title(layout_name: &LayoutName, screen_name: &str) -> Title<'static> {
-  Title::from(format!(" tukai v{} 》{} 》{} ", env!("CARGO_PKG_VERSION"), layout_name, screen_name))
+  Title::from(format!(
+    " tukai v{} 》{} 》{} ",
+    env!("CARGO_PKG_VERSION"),
+    layout_name,
+    screen_name
+  ))
 }
 
 impl Generator {
-
   /// Generates a random string of words
   ///
   /// This method generates a string containing random
@@ -21,13 +22,12 @@ impl Generator {
   pub fn generate_random_string(typing_duration: &TypingDuration) -> String {
     let words_string = include_str!("../words/en.txt");
 
-    let words = words_string.lines()
-      .map(|line| line)
-      .collect::<Vec<&str>>();
+    let words = words_string.lines().map(|line| line).collect::<Vec<&str>>();
 
     let mut rng = rand::thread_rng();
 
-    let text = words.choose_multiple(&mut rng, typing_duration.as_seconds() * 2)
+    let text = words
+      .choose_multiple(&mut rng, typing_duration.as_seconds() * 2)
       .fold(String::new(), |mut acc, c| {
         acc.push_str(format!("{} ", c).as_str());
         acc
@@ -43,16 +43,15 @@ impl Generator {
       " Fingers on keys, progress with ease ",
       " Consistency breeds accuracy ",
       " Type smarter, not harder ",
-      " Precision today, perfection tomorrow "
+      " Precision today, perfection tomorrow ",
     ];
 
     let mut rng = rand::thread_rng();
 
     let random_index = rng.gen_range(0..mottos.len());
-  
+
     String::from(mottos[random_index])
   }
-
 }
 
 #[allow(unused)]
@@ -82,8 +81,8 @@ impl ToDark for Color {
         let darkened_b = (b as f32 * (1.0 - 0.2)) as u8;
 
         Color::Rgb(darkened_r, darkened_g, darkened_b)
-      },
-      _ => self
+      }
+      _ => self,
     }
   }
 }

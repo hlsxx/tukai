@@ -2,23 +2,22 @@ mod app;
 mod config;
 mod file_handler;
 
-mod screens;
 mod event_handler;
-mod layout;
-mod storage;
 mod helper;
+mod layout;
+mod screens;
+mod storage;
 
-use event_handler::EventHandler;
-use config::AppConfigBuilder;
 use app::App;
+use config::AppConfigBuilder;
+use event_handler::EventHandler;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
   let mut terminal = ratatui::init();
   let mut event_handler = EventHandler::new();
 
-  let app_config = AppConfigBuilder::new()
-    .build();
+  let app_config = AppConfigBuilder::new().build();
 
   terminal.clear()?;
 
