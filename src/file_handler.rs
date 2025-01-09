@@ -1,9 +1,12 @@
-use std::{fs::{create_dir_all, File, OpenOptions}, io::{Read, Write}, path::Path};
+use std::{
+  fs::{create_dir_all, File, OpenOptions},
+  io::{Read, Write},
+  path::Path,
+};
 
 pub struct FileHandler;
 
 impl FileHandler {
-
   /// Opens a file for reading, writing creating if it not exist
   fn open_file<P: AsRef<Path>>(path: P) -> Result<File, std::io::Error> {
     let path_buf = path.as_ref().to_path_buf();
@@ -22,7 +25,7 @@ impl FileHandler {
   /// Writes bytes into the file
   pub fn write_bytes_into_file<P: AsRef<Path>>(
     path: P,
-    bytes: &[u8]
+    bytes: &[u8],
   ) -> Result<(), std::io::Error> {
     let mut file = FileHandler::open_file(path)?;
     file.write_all(bytes)?;
@@ -40,5 +43,4 @@ impl FileHandler {
 
     Ok(bytes_buf)
   }
-
 }

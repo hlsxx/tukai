@@ -1,6 +1,6 @@
 use std::{error, io, time::Duration};
 
-use ratatui::crossterm::event::{Event, KeyEvent, EventStream};
+use ratatui::crossterm::event::{Event, EventStream, KeyEvent};
 
 #[cfg(target_os = "windows")]
 use ratatui::crossterm::event::KeyEventKind;
@@ -17,7 +17,7 @@ pub enum TukaiEvent {
 
 pub struct EventHandler {
   _tx: mpsc::UnboundedSender<TukaiEvent>,
-  rx: mpsc::UnboundedReceiver<TukaiEvent>
+  rx: mpsc::UnboundedReceiver<TukaiEvent>,
 }
 
 impl EventHandler {
@@ -61,14 +61,13 @@ impl EventHandler {
       }
     });
 
-    Self {
-      _tx,
-      rx
-    }
+    Self { _tx, rx }
   }
 
   pub async fn next(&mut self) -> Result<TukaiEvent, Box<dyn error::Error>> {
-    self.rx.recv().await.ok_or(Box::new(
-      io::Error::new(io::ErrorKind::Other, "Some IO error occured")))
+    self.rx.recv().await.ok_or(Box::new(io::Error::new(
+      io::ErrorKind::Other,
+      "Some IO error occured",
+    )))
   }
 }

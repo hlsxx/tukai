@@ -1,8 +1,4 @@
-use std::{
-  collections::HashSet,
-  rc::Rc,
-  cell::RefCell
-};
+use std::{cell::RefCell, collections::HashSet, rc::Rc};
 
 use ratatui::{
   crossterm::event::{KeyCode, KeyEvent},
@@ -10,7 +6,7 @@ use ratatui::{
   style::{Modifier, Style, Stylize},
   text::{Line, Span, Text},
   widgets::{Block, BorderType, Borders, Clear, Padding, Paragraph, Wrap},
-  Frame
+  Frame,
 };
 
 use crate::{
@@ -18,22 +14,21 @@ use crate::{
   helper::{get_title, Generator, ToDark},
   layout::{Layout as TukaiLayout, LayoutColorTypeEnum},
   screens::{Instruction, InstructionWidget, Screen},
-  storage::{stats::Stat, storage_handler::StorageHandler}
+  storage::{stats::Stat, storage_handler::StorageHandler},
 };
 
 /// Handler for incorrect symbols
 ///
 /// Inserts incorrect characters into a HashSet
 pub struct MistakeHandler {
-  mistakes_indexes: HashSet<usize>
+  mistakes_indexes: HashSet<usize>,
 }
 
 impl MistakeHandler {
-
   /// Creates MistakeHandler with empty HashSet
   fn new() -> Self {
     Self {
-      mistakes_indexes: HashSet::new()
+      mistakes_indexes: HashSet::new(),
     }
   }
 
@@ -89,7 +84,7 @@ pub struct TypingScreen {
   cursor_index: usize,
 
   /// Block motto
-  motto: String
+  motto: String,
 }
 
 impl Screen for TypingScreen {
@@ -117,7 +112,7 @@ impl Screen for TypingScreen {
 
       cursor_index: 0,
 
-      motto: Generator::generate_random_motto()
+      motto: Generator::generate_random_motto(),
     }
   }
 
@@ -147,7 +142,7 @@ impl Screen for TypingScreen {
         } else {
           false
         }
-      },
+      }
       KeyCode::Char(c) => {
         if self.cursor_index == 0 {
           self.run();
@@ -155,27 +150,20 @@ impl Screen for TypingScreen {
 
         self.move_cursor_forward_with(c);
         true
-      },
+      }
       KeyCode::Backspace => {
         self.move_cursor_backward();
         true
-      },
-      _ => false
+      }
+      _ => false,
     }
   }
 
-  fn render(
-    &self,
-    frame: &mut Frame,
-    area: Rect
-  ) {
+  fn render(&self, frame: &mut Frame, area: Rect) {
     let app_config = self.config.borrow();
     let app_layout = app_config.get_layout();
 
-    let block_title = get_title(
-      app_layout.get_active_layout_name(),
-      "Typing"
-    );
+    let block_title = get_title(app_layout.get_active_layout_name(), "Typing");
 
     let block = Block::new()
       .title(block_title)
@@ -187,17 +175,13 @@ impl Screen for TypingScreen {
       .borders(Borders::ALL)
       .border_type(BorderType::Rounded)
       .border_style(Style::default().fg(app_layout.get_primary_color()))
-      .padding(Padding::new(
-        40,
-        40,
-        (area.height / 2) - 5,
-        0
-      ));
+      .padding(Padding::new(40, 40, (area.height / 2) - 5, 0));
 
     // let block_rect = &block.inner(area);
     // let cursor_start_pos = block_rect.x;
 
-    let p = self.get_paragraph(&app_layout)
+    let p = self
+      .get_paragraph(&app_layout)
       .block(block)
       .alignment(Alignment::Left);
 
@@ -205,27 +189,47 @@ impl Screen for TypingScreen {
     frame.render_widget(p, area);
   }
 
-  fn render_instructions(
-    &self,
-    frame: &mut Frame,
-    area: Rect
-  ) {
+  fn render_instructions(&self, frame: &mut Frame, area: Rect) {
     let app_config = self.config.borrow_mut();
     let app_layout = app_config.get_layout();
 
     let mut instruction_widget = InstructionWidget::new(&app_layout);
 
-    instruction_widget.add_instruction(Instruction::new("Exit", "esc", LayoutColorTypeEnum::Secondary));
-    instruction_widget.add_instruction(Instruction::new("Reset", "ctrl + r", LayoutColorTypeEnum::Secondary));
-    instruction_widget.add_instruction(Instruction::new("Duration", "ctrl + d", LayoutColorTypeEnum::Secondary));
-    instruction_widget.add_instruction(Instruction::new("Layout", "ctrl + s", LayoutColorTypeEnum::Secondary));
-    instruction_widget.add_instruction(Instruction::new("Transparent", "ctrl + t", LayoutColorTypeEnum::Secondary));
-    instruction_widget.add_instruction(Instruction::new("Stats screen", "ctrl + l", LayoutColorTypeEnum::Secondary));
+    instruction_widget.add_instruction(Instruction::new(
+      "Exit",
+      "esc",
+      LayoutColorTypeEnum::Secondary,
+    ));
+    instruction_widget.add_instruction(Instruction::new(
+      "Reset",
+      "ctrl + r",
+      LayoutColorTypeEnum::Secondary,
+    ));
+    instruction_widget.add_instruction(Instruction::new(
+      "Duration",
+      "ctrl + d",
+      LayoutColorTypeEnum::Secondary,
+    ));
+    instruction_widget.add_instruction(Instruction::new(
+      "Layout",
+      "ctrl + s",
+      LayoutColorTypeEnum::Secondary,
+    ));
+    instruction_widget.add_instruction(Instruction::new(
+      "Transparent",
+      "ctrl + t",
+      LayoutColorTypeEnum::Secondary,
+    ));
+    instruction_widget.add_instruction(Instruction::new(
+      "Stats screen",
+      "ctrl + l",
+      LayoutColorTypeEnum::Secondary,
+    ));
 
-    let block = Block::new()
-      .padding(Padding::new(0, 0, area.height / 2, 0));
+    let block = Block::new().padding(Padding::new(0, 0, area.height / 2, 0));
 
-    let instructions = instruction_widget.get_paragraph()
+    let instructions = instruction_widget
+      .get_paragraph()
       .block(block)
       .alignment(Alignment::Center)
       .style(app_config.get_bg_color());
@@ -235,7 +239,6 @@ impl Screen for TypingScreen {
 }
 
 impl TypingScreen {
-
   /// Returns whether the popup is visible
   pub fn is_popup_visible(&self) -> bool {
     self.is_popup_visible
@@ -243,7 +246,7 @@ impl TypingScreen {
 
   /// Returns whether typing has begun
   pub fn is_running(&self) -> bool {
-     self.is_running
+    self.is_running
   }
 
   /// Starts the running typing process
@@ -282,7 +285,9 @@ impl TypingScreen {
   fn validate_input_char(&mut self, inserted_char: char) {
     if let Some(generated_char) = self.generated_text.chars().nth(self.cursor_index) {
       if generated_char != inserted_char {
-        self.mistake_handler.add_to_mistakes_indexes(self.cursor_index);
+        self
+          .mistake_handler
+          .add_to_mistakes_indexes(self.cursor_index);
       }
     }
   }
@@ -307,7 +312,9 @@ impl TypingScreen {
     self.cursor_index -= 1;
 
     if self.mistake_handler.is_char_mistaken(self.cursor_index) {
-      self.mistake_handler.remove_from_mistakes_indexes(self.cursor_index);
+      self
+        .mistake_handler
+        .remove_from_mistakes_indexes(self.cursor_index);
     }
   }
 
@@ -342,7 +349,9 @@ impl TypingScreen {
   pub fn get_remaining_time(&self) -> usize {
     let app_config = &self.config.borrow();
 
-    app_config.typing_duration.as_seconds()
+    app_config
+      .typing_duration
+      .as_seconds()
       .checked_sub(self.time_secs as usize)
       .unwrap_or(0)
   }
@@ -351,9 +360,7 @@ impl TypingScreen {
   pub fn reset(&mut self) {
     self.is_running = false;
 
-    self.generated_text = Generator::generate_random_string(
-      &self.config.borrow().typing_duration
-    );
+    self.generated_text = Generator::generate_random_string(&self.config.borrow().typing_duration);
 
     self.mistake_handler = MistakeHandler::new();
     self.cursor_index = 0;
@@ -377,42 +384,59 @@ impl TypingScreen {
   pub fn get_paragraph(&self, layout: &TukaiLayout) -> Paragraph {
     let mut lines = Vec::new();
 
-    let color = if self.is_active() { layout.get_primary_color() } else { layout.get_primary_color().to_dark() };
+    let color = if self.is_active() {
+      layout.get_primary_color()
+    } else {
+      layout.get_primary_color().to_dark()
+    };
 
-    let remaining_time_line = Line::from(vec![
-      Span::from(
-        format!("⏳{}", self.get_remaining_time().to_string()))
-        .style(Style::default().fg(color).bold())
-    ]);
+    let remaining_time_line = Line::from(vec![Span::from(format!(
+      "⏳{}",
+      self.get_remaining_time(),
+    ))
+    .style(Style::default().fg(color).bold())]);
 
-    let text_line = self.generated_text.chars()
+    let text_line = self
+      .generated_text
+      .chars()
       .enumerate()
       .map(|(i, c)| {
         if i == self.cursor_index {
-          Span::from(c.to_string())
-            .style(Style::default()
+          Span::from(c.to_string()).style(
+            Style::default()
               .fg(layout.get_text_current_color())
-              .bg(layout.get_text_current_bg_color())
-            )
+              .bg(layout.get_text_current_bg_color()),
+          )
         } else if i < self.cursor_index {
-          let color = if self.is_active() { layout.get_primary_color() } else { layout.get_primary_color().to_dark() };
+          let color = if self.is_active() {
+            layout.get_primary_color()
+          } else {
+            layout.get_primary_color().to_dark()
+          };
 
           if self.input.chars().nth(i) == Some(c) {
-            Span::from(c.to_string())
-              .style(Style::default().fg(color))
+            Span::from(c.to_string()).style(Style::default().fg(color))
           } else {
-            let color = if self.is_active() { layout.get_error_color() } else { layout.get_error_color().to_dark() };
+            let color = if self.is_active() {
+              layout.get_error_color()
+            } else {
+              layout.get_error_color().to_dark()
+            };
 
-            Span::from(c.to_string())
-              .style(Style::default()
+            Span::from(c.to_string()).style(
+              Style::default()
                 .fg(color)
-                .add_modifier(Modifier::CROSSED_OUT))
+                .add_modifier(Modifier::CROSSED_OUT),
+            )
           }
         } else {
-          let color = if self.is_active() { layout.get_text_color() } else { layout.get_text_color().to_dark() };
+          let color = if self.is_active() {
+            layout.get_text_color()
+          } else {
+            layout.get_text_color().to_dark()
+          };
 
-          Span::from(c.to_string())
-            .style(Style::default().fg(color))
+          Span::from(c.to_string()).style(Style::default().fg(color))
         }
       })
       .collect::<Line>();
@@ -429,16 +453,13 @@ impl TypingScreen {
 
     let text = Text::from(lines);
 
-    Paragraph::new(text).wrap(Wrap { trim: true } )
+    Paragraph::new(text).wrap(Wrap { trim: true })
   }
 
   /// Renders a popup screen
   ///
   /// Used after the run is completed
-  pub fn render_popup(
-    &self,
-    frame: &mut Frame,
-  ) {
+  pub fn render_popup(&self, frame: &mut Frame) {
     let app_config = self.config.borrow();
     let app_layout = app_config.get_layout();
     let area = frame.area();
@@ -451,27 +472,23 @@ impl TypingScreen {
     let text = Text::from(vec![
       Line::from(vec![
         Span::from("🔥 Average WPM: "),
-        Span::from(format!("{}", self.get_calculated_wpm())).bold()
-      ]).style(Style::default().fg(app_layout.get_primary_color())),
-
+        Span::from(format!("{}", self.get_calculated_wpm())).bold(),
+      ])
+      .style(Style::default().fg(app_layout.get_primary_color())),
       Line::from(vec![
         Span::from("🎯 Accuracy: "),
-        Span::from(format!("{}%", self.get_calculated_accuracy())).bold()
-      ]).style(Style::default().fg(app_layout.get_primary_color())),
-
+        Span::from(format!("{}%", self.get_calculated_accuracy())).bold(),
+      ])
+      .style(Style::default().fg(app_layout.get_primary_color())),
       Line::from(vec![
         Span::from("🥩 Raw WPM: "),
-        Span::from(format!("{}", self.get_calculated_raw_wpm())).bold()
-      ]).style(Style::default().fg(app_layout.get_primary_color().to_dark())),
-
+        Span::from(format!("{}", self.get_calculated_raw_wpm())).bold(),
+      ])
+      .style(Style::default().fg(app_layout.get_primary_color().to_dark())),
       Line::from(""),
       Line::from(vec![
-        Span::from("Try again").style(
-          Style::default().fg(app_layout.get_primary_color())
-        ),
-
-        Span::from(" ctrl + r").style(
-          Style::default().fg(app_layout.get_primary_color()).bold()),
+        Span::from("Try again").style(Style::default().fg(app_layout.get_primary_color())),
+        Span::from(" ctrl + r").style(Style::default().fg(app_layout.get_primary_color()).bold()),
       ]),
     ]);
 
@@ -488,5 +505,4 @@ impl TypingScreen {
     frame.render_widget(Clear, area);
     frame.render_widget(p, area);
   }
-
 }
