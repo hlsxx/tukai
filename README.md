@@ -19,6 +19,7 @@ A terminal-based touch typing application built in Rust using the [Ratatui](http
 - **Rust-Based**: Built with Rust for performance and reliability
 - **Switchable Templates**: Choose between different templates to customize the typing practice experience
 - **Stats preview**: A built-in stats preview of already done tests
+- **Multi-Language Support**: Supports multiple languages for typing practice
 
 ## Getting Started
 
@@ -67,6 +68,7 @@ cargo build --release
 |   ctrl-t |   | Switch transparent background  |
 |   ctrl-h  | ←  | Switch to the typing screen   |
 |   ctrl-l  | → | Switch to the stats screen   |
+|   ctrl-p |   | Switch the language |
 
 <!-- LICENSE -->
 ## License

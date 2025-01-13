@@ -1,3 +1,4 @@
+use std::fs;
 use rand::{seq::SliceRandom, Rng};
 use ratatui::{style::Color, widgets::block::Title};
 
@@ -19,10 +20,9 @@ impl Generator {
   ///
   /// This method generates a string containing random
   /// words from the words/en.txt file
-  pub fn generate_random_string(typing_duration: &TypingDuration) -> String {
-    let words_string = include_str!("../words/en.txt");
-
-    let words = words_string.lines().map(|line| line).collect::<Vec<&str>>();
+  pub fn generate_random_string(typing_duration: &TypingDuration, language_index: usize) -> String {
+    let words = Words::load_word_files();
+    let words = words[language_index].lines().collect::<Vec<&str>>();
 
     let mut rng = rand::thread_rng();
 
@@ -83,5 +83,37 @@ impl ToDark for Color {
       }
       _ => self,
     }
+  }
+}
+
+pub struct Words;
+
+impl Words {
+  pub fn load_word_files() -> Vec<String> {
+    let mut words = Vec::new();
+
+    if let Ok(entries) = fs::read_dir("words") {
+      for entry in entries.flatten() {
+        if let Ok(file) = fs::read_to_string(entry.path()) {
+          words.push(file);
+        }
+      }
+    }
+    words
+  }
+
+  pub fn extract_languages() -> Vec<String> {
+    let mut languages = Vec::new();
+
+    if let Ok(entries) = fs::read_dir("words") {
+      for entry in entries.flatten() {
+        if let Some(filename) = entry.path().file_stem() {
+          if let Some(word) = filename.to_str() {
+            languages.push(word.to_string());
+          }
+        }
+      }
+    }
+    languages
   }
 }

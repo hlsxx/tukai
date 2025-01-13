@@ -88,8 +88,10 @@ pub struct TypingScreen {
 }
 
 impl Screen for TypingScreen {
-  fn new(config: Rc<RefCell<AppConfig>>) -> Self {
-    let generated_text = Generator::generate_random_string(&config.borrow().typing_duration);
+  fn new(config: Rc<RefCell<AppConfig>>, language_index: Option<usize>) -> Self {
+    let generated_text = Generator::generate_random_string(
+      &config.borrow().typing_duration, language_index.unwrap_or_default()
+    );
 
     Self {
       config,
@@ -225,6 +227,11 @@ impl Screen for TypingScreen {
       "ctrl + l",
       LayoutColorTypeEnum::Secondary,
     ));
+    instruction_widget.add_instruction(Instruction::new(
+      "Language",
+      "ctrl + p",
+      LayoutColorTypeEnum::Secondary,
+    ));
 
     let block = Block::new().padding(Padding::new(0, 0, area.height / 2, 0));
 
@@ -357,10 +364,12 @@ impl TypingScreen {
   }
 
   /// Resets all necessary properties
-  pub fn reset(&mut self) {
+  pub fn reset(&mut self, language_index: usize) {
     self.is_running = false;
 
-    self.generated_text = Generator::generate_random_string(&self.config.borrow().typing_duration);
+    self.generated_text = Generator::generate_random_string(
+      &self.config.borrow().typing_duration, language_index
+    );
 
     self.mistake_handler = MistakeHandler::new();
     self.cursor_index = 0;
