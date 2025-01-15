@@ -1,10 +1,10 @@
 use crate::config::AppConfig;
 use crate::event_handler::{EventHandler, TukaiEvent};
 use crate::storage::storage_handler::StorageHandler;
-use crate::helper::Words;
 
 use crate::screens::{stats_screen::StatsScreen, typing_screen::TypingScreen, Screen};
 
+use std::path::PathBuf;
 use std::{cell::RefCell, rc::Rc};
 
 use ratatui::{
@@ -41,7 +41,8 @@ pub struct App {
   // Stats screen (ctrl-l)
   stats_screen: StatsScreen,
 
-  languages: Vec<String>,
+  // List of languages
+  language_files: Vec<PathBuf>,
 
   // Currently selected language
   language_index: usize,
@@ -79,10 +80,6 @@ impl App {
       typing_screen,
 
       stats_screen,
-
-      languages: Words::extract_languages(),
-
-      language_index: 0
     })
   }
 
@@ -162,7 +159,7 @@ impl App {
 
   fn reset(&mut self) {
     self.time_secs = 0;
-    self.typing_screen.reset(self.language_index);
+    self.typing_screen.reset();
   }
 
   /// Exits the running application
@@ -187,17 +184,6 @@ impl App {
     }
 
     self.active_screen = switch_to_screen;
-  }
-
-  /// Switches to the next language.
-  fn language_next(&mut self) {
-    self.language_index += 1;
-
-    if self.language_index >= self.languages.len() {
-      self.language_index = 0;
-    }
-
-    self.reset();
   }
 
   /// Handles crossterm events.
@@ -233,7 +219,15 @@ impl App {
 
             self.storage_handler.set_layout(new_layout);
           }
-          'p' => self.language_next(),
+          'p' => {
+            let new_language = self
+              .config
+              .borrow_mut()
+              .get_language_mut()
+              .switch_language();
+
+            // self.storage_handler.set_layout(new_layout);
+          },
           _ => {}
         },
         _ => {}

@@ -1,4 +1,4 @@
-use std::fs;
+use std::{fs, path::PathBuf};
 use rand::{seq::SliceRandom, Rng};
 use ratatui::{style::Color, widgets::block::Title};
 
@@ -19,7 +19,7 @@ impl Generator {
   /// Generates a random string of words
   ///
   /// This method generates a string containing random
-  /// words from the words/en.txt file
+  /// words from the words/{language}.txt file
   pub fn generate_random_string(typing_duration: &TypingDuration, language_index: usize) -> String {
     let words = Words::load_word_files();
     let words = words[language_index].lines().collect::<Vec<&str>>();
@@ -86,20 +86,49 @@ impl ToDark for Color {
   }
 }
 
-pub struct Words;
+pub struct Language {
+  language_files: Vec<PathBuf>,
+  current_index: usize
+}
 
-impl Words {
-  pub fn load_word_files() -> Vec<String> {
-    let mut words = Vec::new();
+impl Language {
 
-    if let Ok(entries) = fs::read_dir("words") {
-      for entry in entries.flatten() {
-        if let Ok(file) = fs::read_to_string(entry.path()) {
-          words.push(file);
-        }
-      }
+  // Creates default empty list of the language files
+  pub fn default() -> Self {
+    Self {
+      language_files: Vec::new(),
+      current_index: 0
     }
-    words
+  }
+
+  /// Load language files from the `words` folder
+  pub fn init(mut self) -> Self {
+    if let Ok(language_files) = self.load_language_files() {
+      self.language_files = language_files;
+    }
+
+    self
+  }
+
+  pub fn switch_language(&mut self) {
+    self.current_index += 1;
+
+    if self.current_index > self.language_files.len() {
+      self.current_index = 0;
+    }
+  }
+
+  /// Returns the paths of all available language files int the `words` folder
+  fn load_language_files(&self) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
+    let entries = fs::read_dir("words")?;
+
+    let languages = entries
+      .filter_map(|entry| entry.ok())
+      .filter(|entry| entry.path().is_file())
+      .map(|entry| entry.path())
+      .collect::<Vec<PathBuf>>();
+
+    Ok(languages)
   }
 
   pub fn extract_languages() -> Vec<String> {
@@ -114,6 +143,7 @@ impl Words {
         }
       }
     }
+
     languages
   }
 }

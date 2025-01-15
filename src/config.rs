@@ -2,6 +2,7 @@ use ratatui::style::Style;
 use std::cell::{Ref, RefCell, RefMut};
 use std::path::{Path, PathBuf};
 
+use crate::helper::{Language, Words};
 use crate::layout::Layout as TukaiLayout;
 use serde::{Deserialize, Serialize};
 
@@ -49,6 +50,9 @@ pub struct AppConfig {
   // Choosen layout
   layout: RefCell<TukaiLayout>,
 
+  // Current language
+  language: RefCell<Language>,
+
   // App background is transparent
   pub has_transparent_bg: bool,
 
@@ -61,6 +65,7 @@ impl AppConfig {
     Self {
       file_path: PathBuf::from("tukai.bin"),
       layout: RefCell::new(TukaiLayout::default()),
+      language: RefCell::new(Language::default().init()),
       has_transparent_bg: false,
       typing_duration: TypingDuration::default(),
     }
@@ -74,6 +79,11 @@ impl AppConfig {
   /// Returns mutable TukaiLayout
   pub fn get_layout_mut(&mut self) -> RefMut<TukaiLayout> {
     self.layout.borrow_mut()
+  }
+
+  /// Returns mutable TukaiLayout
+  pub fn get_language_mut(&mut self) -> RefMut<Language> {
+    self.language.borrow_mut()
   }
 
   /// Returns mutable TypingDuration
