@@ -23,9 +23,9 @@ enum ActiveScreenEnum {
 
 type TukaiTerminal = Terminal<CrosstermBackend<std::io::Stdout>>;
 
-pub struct App<'a> {
+pub struct Tukai<'a> {
   // App config
-  pub config: Rc<RefCell<AppConfig>>,
+  pub config: Rc<RefCell<TukaiConfig>>,
 
   // Cathing crossterm keyboard events
   event_handler: &'a mut EventHandler,
@@ -49,7 +49,7 @@ pub struct App<'a> {
   stats_screen: StatsScreen,
 }
 
-impl<'a> App<'a> {
+impl<'a> Tukai<'a> {
 
   /// Try create new Tukai application.
   /// Try to initialize `StorageHandler` then load a
@@ -225,11 +225,11 @@ impl<'a> App<'a> {
             self.storage_handler.set_layout(new_layout);
           }
           'p' => {
-            let new_language = self
-              .config
-              .borrow_mut()
-              .get_language_mut()
-              .switch_language();
+            // let new_language = self
+            //   .config
+            //   .borrow_mut()
+            //   .get_language_mut()
+            //   .switch_language();
 
             // self.storage_handler.set_layout(new_layout);
           },

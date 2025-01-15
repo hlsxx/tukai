@@ -8,7 +8,7 @@ mod layout;
 mod screens;
 mod storage;
 
-use app::App;
+use app::Tukai;
 use config::AppConfigBuilder;
 use event_handler::EventHandler;
 
@@ -21,10 +21,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
   terminal.clear()?;
 
-  let app_result = App::try_new(&mut event_handler, app_config)?
+  let app_result = Tukai::try_new(&mut event_handler, app_config)?
     .run(&mut terminal)
     .await;
 
   ratatui::restore();
+
   app_result
 }

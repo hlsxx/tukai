@@ -2,7 +2,7 @@ use ratatui::style::Style;
 use std::cell::{Ref, RefCell, RefMut};
 use std::path::{Path, PathBuf};
 
-use crate::helper::{Language, Words};
+use crate::helper::Language;
 use crate::layout::Layout as TukaiLayout;
 use serde::{Deserialize, Serialize};
 
@@ -43,7 +43,7 @@ pub trait ConfigBuilder<T> {
   fn build(self) -> T;
 }
 
-pub struct AppConfig {
+pub struct TukaiConfig {
   // Path to the storage file
   file_path: PathBuf,
 
@@ -60,7 +60,7 @@ pub struct AppConfig {
   pub typing_duration: TypingDuration,
 }
 
-impl AppConfig {
+impl TukaiConfig {
   pub fn default() -> Self {
     Self {
       file_path: PathBuf::from("tukai.bin"),
@@ -85,11 +85,6 @@ impl AppConfig {
   pub fn get_language_mut(&mut self) -> RefMut<Language> {
     self.language.borrow_mut()
   }
-
-  /// Returns mutable TypingDuration
-  // pub fn get_typing_duration(&mut self) -> RefMut<TypingDuration> {
-  //   self.typing_duration.borrow_mut()
-  // }
 
   /// Returns the storage file
   pub fn get_file_path(&self) -> &PathBuf {
@@ -133,12 +128,15 @@ impl AppConfig {
   }
 }
 
-pub struct AppConfigBuilder {
+pub struct TukaiConfigBuilder {
   // Path to the storage file
   file_path: Option<PathBuf>,
 
-  // Choosen layout
+  // Selected layout
   layout: Option<RefCell<TukaiLayout>>,
+
+  // Selected language
+  language: Option<RefCell<Language>>,
 
   // App background is transparent
   has_transparent_bg: bool,
@@ -148,25 +146,16 @@ pub struct AppConfigBuilder {
 }
 
 #[allow(unused)]
-impl AppConfigBuilder {
+impl TukaiConfigBuilder {
   pub fn new() -> Self {
     Self {
       file_path: None,
       layout: None,
+      language: None,
       has_transparent_bg: true,
       typing_duration: None,
     }
   }
-
-  /// Creates Config from a storage data
-  // pub fn from(storage_data: StorageData) -> Self {
-  //   Self {
-  //     file_path: None,
-  //     layout: NO,
-  //     typing_duration: storage_data.1,
-  //     has_transparent_bg: storage_data.2,
-  //   }
-  // }
 
   /// Sets the storage file path
   pub fn file_path<P: AsRef<Path>>(mut self, file_path: P) -> Self {
@@ -180,12 +169,14 @@ impl AppConfigBuilder {
     self
   }
 
-  pub fn build(self) -> AppConfig {
-    let config_default = AppConfig::default();
+  /// Builds and returns `TukaiConfig`
+  pub fn build(self) -> TukaiConfig {
+    let config_default = TukaiConfig::default();
 
-    AppConfig {
+    TukaiConfig {
       file_path: self.file_path.unwrap_or(config_default.file_path),
       layout: self.layout.unwrap_or(config_default.layout),
+      language: self.language.unwrap_or(config_default.language),
       has_transparent_bg: self.has_transparent_bg,
       typing_duration: self
         .typing_duration
