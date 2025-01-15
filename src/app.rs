@@ -7,6 +7,8 @@ use crate::screens::{stats_screen::StatsScreen, typing_screen::TypingScreen, Scr
 use std::path::PathBuf;
 use std::{cell::RefCell, rc::Rc};
 
+use ratatui::prelude::CrosstermBackend;
+use ratatui::Terminal;
 use ratatui::{
   crossterm::event::{KeyCode, KeyEvent, KeyModifiers},
   layout::{Constraint, Layout},
@@ -19,9 +21,14 @@ enum ActiveScreenEnum {
   Stats,
 }
 
-pub struct App {
+type TukaiTerminal = Terminal<CrosstermBackend<std::io::Stdout>>;
+
+pub struct App<'a> {
   // App config
   pub config: Rc<RefCell<AppConfig>>,
+
+  // Cathing crossterm keyboard events
+  event_handler: &'a mut EventHandler,
 
   // Storage handler
   storage_handler: StorageHandler,
@@ -40,17 +47,17 @@ pub struct App {
 
   // Stats screen (ctrl-l)
   stats_screen: StatsScreen,
-
-  // List of languages
-  language_files: Vec<PathBuf>,
-
-  // Currently selected language
-  language_index: usize,
 }
 
-impl App {
-  /// Creates new Tukai App
-  pub fn try_new(mut config: AppConfig) -> Result<Self, Box<dyn std::error::Error>> {
+impl<'a> App<'a> {
+
+  /// Try create new Tukai application.
+  /// Try to initialize `StorageHandler` then load a
+  /// existing configurations.
+  pub fn try_new(
+    event_handler: &'a mut EventHandler,
+    mut config: AppConfig
+  ) -> Result<Self, Box<dyn std::error::Error>> {
     let storage_handler = StorageHandler::new(config.get_file_path()).init()?;
 
     config.typing_duration = storage_handler.get_typing_duration();
@@ -69,6 +76,8 @@ impl App {
     Ok(Self {
       config,
 
+      event_handler,
+
       storage_handler,
 
       is_exit: false,
@@ -83,18 +92,13 @@ impl App {
     })
   }
 
-  /// Runs the Tukai application
+  /// Runs and renders tui components.
   ///
-  /// Renders TUI
-  ///
-  /// Handle events
-  pub async fn run(
-    &mut self,
-    event_handler: &mut EventHandler,
-    terminal: &mut DefaultTerminal,
-  ) -> Result<(), Box<dyn std::error::Error>> {
+  /// Handles events from `EventHandler`
+  /// Handles tick (seconds, it's time counter) from `EventHandler`
+  pub async fn run(&mut self, terminal: &mut TukaiTerminal) -> Result<(), Box<dyn std::error::Error>> {
     while !self.is_exit {
-      match event_handler.next().await? {
+      match self.event_handler.next().await? {
         TukaiEvent::Key(key_event) => self.handle_events(key_event),
         TukaiEvent::Tick => {
           if self.typing_screen.is_running() {
@@ -109,6 +113,7 @@ impl App {
     Ok(())
   }
 
+  /// Render tui components for a current screen
   fn draw(&mut self, frame: &mut Frame) {
     let main_layout = Layout::default()
       .constraints(vec![Constraint::Min(0), Constraint::Length(3)])

@@ -364,11 +364,11 @@ impl TypingScreen {
   }
 
   /// Resets all necessary properties
-  pub fn reset(&mut self, language_index: usize) {
+  pub fn reset(&mut self) {
     self.is_running = false;
 
     self.generated_text = Generator::generate_random_string(
-      &self.config.borrow().typing_duration, language_index
+      &self.config.borrow().typing_duration
     );
 
     self.mistake_handler = MistakeHandler::new();

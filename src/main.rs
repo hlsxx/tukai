@@ -21,8 +21,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
   terminal.clear()?;
 
-  let app_result = App::try_new(app_config)?
-    .run(&mut event_handler, &mut terminal)
+  let app_result = App::try_new(&mut event_handler, app_config)?
+    .run(&mut terminal)
     .await;
 
   ratatui::restore();
