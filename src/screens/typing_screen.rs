@@ -380,18 +380,6 @@ impl TypingScreen {
     self.is_popup_visible = false;
   }
 
-  /// Returns the CAPSLOCK message line
-  // #[allow(unused)]
-  // fn get_capslock_line(&self, layout: &TukaiLayout) -> Line {
-  //   let mut spans = Vec::new();
-  //
-  //   if PlatformApi::is_capslock_on() {
-  //     spans.push(Span::from("❗CAPSLOCK ON").style(Style::default().fg(layout.get_error_color()).bold()));
-  //   }
-  //
-  //   Line::from(spans)
-  // }
-
   /// Prepare and get a paragraph
   pub fn get_paragraph(&self, layout: &TukaiLayout) -> Paragraph {
     let mut lines = Vec::new();

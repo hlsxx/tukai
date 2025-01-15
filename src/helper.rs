@@ -1,4 +1,4 @@
-use std::{fs, path::PathBuf};
+use std::{fs::{self, File}, io::{BufRead, BufReader}, path::PathBuf};
 use rand::{seq::SliceRandom, Rng};
 use ratatui::{style::Color, widgets::block::Title};
 
@@ -90,8 +90,14 @@ impl ToDark for Color {
 }
 
 pub struct Language {
+  // Language files paths from the `words` folder
   language_files: Vec<PathBuf>,
-  current_index: usize
+
+  // Current used language index
+  current_index: usize,
+
+  // Current selected language words
+  words: Vec<String>
 }
 
 impl Language {
@@ -100,7 +106,8 @@ impl Language {
   pub fn default() -> Self {
     Self {
       language_files: Vec::new(),
-      current_index: 0
+      current_index: 0,
+      words: Vec::new()
     }
   }
 
@@ -108,6 +115,14 @@ impl Language {
   pub fn init(mut self) -> Self {
     if let Ok(language_files) = self.load_language_files() {
       self.language_files = language_files;
+    }
+
+    // If language dictionary files were founded
+    // Sets the words
+    if self.language_files.len() > 0 {
+      if let Ok(words) = self.load_language_words() {
+        self.words = words;
+      }
     }
 
     self
@@ -138,19 +153,20 @@ impl Language {
     Ok(languages)
   }
 
-  pub fn extract_languages() -> Vec<String> {
-    let mut languages = Vec::new();
+  fn load_language_words(&self) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    let language_file_path = self.language_files.get(self.current_index)
+      .ok_or("Not found a language dictionary file")?;
 
-    if let Ok(entries) = fs::read_dir("words") {
-      for entry in entries.flatten() {
-        if let Some(filename) = entry.path().file_stem() {
-          if let Some(word) = filename.to_str() {
-            languages.push(word.to_string());
-          }
-        }
-      }
-    }
+    let file = File::open(&language_file_path)?;
+    let buffer = BufReader::new(file);
 
-    languages
+    let words = buffer
+      .lines()
+      .filter_map(|line| line.ok())
+      .flat_map(|line| line.split_whitespace().map(String::from).collect::<Vec<String>>()) // Split into words
+      .collect::<Vec<String>>();
+    
+    Ok(words)
   }
+
 }
