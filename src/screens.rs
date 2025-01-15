@@ -98,7 +98,7 @@ impl<'a> InstructionWidget<'a> {
 }
 
 pub trait Screen {
-  fn new(config: Rc<RefCell<AppConfig>>) -> Self;
+  fn new(config: Rc<RefCell<AppConfig>>, language_index: Option<usize>) -> Self;
 
   /// Handles key events
   ///

@@ -32,7 +32,7 @@ pub struct StatsScreen {
 }
 
 impl Screen for StatsScreen {
-  fn new(config: Rc<RefCell<AppConfig>>) -> Self {
+  fn new(config: Rc<RefCell<AppConfig>>, _: Option<usize>) -> Self {
     Self {
       config,
       is_active: false,
