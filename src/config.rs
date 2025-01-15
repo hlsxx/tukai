@@ -71,9 +71,14 @@ impl TukaiConfig {
     }
   }
 
-  /// Returns TukaiLayout
+  /// Returns `TukaiLayout`
   pub fn get_layout(&self) -> Ref<TukaiLayout> {
     self.layout.borrow()
+  }
+
+  /// Returns `Language`
+  pub fn get_language(&self) -> Ref<Language> {
+    self.language.borrow()
   }
 
   /// Returns mutable TukaiLayout

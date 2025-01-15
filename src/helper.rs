@@ -20,7 +20,10 @@ impl Generator {
   ///
   /// This method generates a string containing random
   /// words from the words/{language}.txt file
-  pub fn generate_random_string(typing_duration: &TypingDuration, language_index: usize) -> String {
+  pub fn generate_random_string(
+    typing_duration: &TypingDuration,
+    language_index: &usize
+  ) -> String {
     let words = Words::load_word_files();
     let words = words[language_index].lines().collect::<Vec<&str>>();
 
@@ -108,6 +111,10 @@ impl Language {
     }
 
     self
+  }
+
+  pub fn get_current_index(&self) -> &usize {
+    &self.current_index
   }
 
   pub fn switch_language(&mut self) {

@@ -10,7 +10,7 @@ use ratatui::{
 };
 
 use crate::{
-  config::AppConfig,
+  config::TukaiConfig,
   helper::{get_title, Generator, ToDark},
   layout::{Layout as TukaiLayout, LayoutColorTypeEnum},
   screens::{Instruction, InstructionWidget, Screen},
@@ -55,7 +55,7 @@ impl MistakeHandler {
 
 pub struct TypingScreen {
   /// Application config
-  config: Rc<RefCell<AppConfig>>,
+  config: Rc<RefCell<TukaiConfig>>,
 
   /// Random generated text from a words list
   pub generated_text: String,
@@ -88,7 +88,7 @@ pub struct TypingScreen {
 }
 
 impl Screen for TypingScreen {
-  fn new(config: Rc<RefCell<AppConfig>>, language_index: Option<usize>) -> Self {
+  fn new(config: Rc<RefCell<TukaiConfig>>, language_index: Option<usize>) -> Self {
     let generated_text = Generator::generate_random_string(
       &config.borrow().typing_duration, language_index.unwrap_or_default()
     );
@@ -367,8 +367,11 @@ impl TypingScreen {
   pub fn reset(&mut self) {
     self.is_running = false;
 
+    let app_config = self.config.borrow();
+
     self.generated_text = Generator::generate_random_string(
-      &self.config.borrow().typing_duration
+      &app_config.typing_duration,
+      app_config.get_language().get_current_index()
     );
 
     self.mistake_handler = MistakeHandler::new();

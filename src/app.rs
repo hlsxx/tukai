@@ -1,4 +1,4 @@
-use crate::config::AppConfig;
+use crate::config::TukaiConfig;
 use crate::event_handler::{EventHandler, TukaiEvent};
 use crate::storage::storage_handler::StorageHandler;
 
@@ -56,15 +56,14 @@ impl<'a> Tukai<'a> {
   /// existing configurations.
   pub fn try_new(
     event_handler: &'a mut EventHandler,
-    mut config: AppConfig
+    mut config: TukaiConfig
   ) -> Result<Self, Box<dyn std::error::Error>> {
     let storage_handler = StorageHandler::new(config.get_file_path()).init()?;
 
     config.typing_duration = storage_handler.get_typing_duration();
 
-    config
-      .get_layout_mut()
-      .active_layout_name(storage_handler.get_layout_name().clone());
+    let mut layout = config.get_layout_mut();
+    layout.active_layout_name(storage_handler.get_layout_name().clone());
 
     config.has_transparent_bg = storage_handler.get_has_transparent_bg();
 
