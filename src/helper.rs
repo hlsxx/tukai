@@ -128,6 +128,10 @@ impl Language {
     self
   }
 
+  pub fn current_index(&mut self, index: usize) {
+    self.current_index = index;
+  }
+
   #[allow(unused)]
   pub fn get_current_index(&self) -> &usize {
     &self.current_index

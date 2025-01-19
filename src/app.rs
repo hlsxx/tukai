@@ -63,10 +63,16 @@ impl<'a> Tukai<'a> {
 
     config.typing_duration = storage_handler.get_typing_duration();
     config.has_transparent_bg = storage_handler.get_has_transparent_bg();
-    // config. = storage_handler.get_has_transparent_bg();
 
-    // let mut layout = config.get_layout_mut();
-    // layout.active_layout_name(storage_handler.get_layout_name().clone());
+    {
+      let mut layout = config.get_layout_mut();
+      layout.active_layout_name(storage_handler.get_layout_name().clone());
+    }
+
+    {
+      let mut language = config.get_language_mut();
+      language.current_index(storage_handler.get_language_index());
+    }
 
     let config = Rc::new(RefCell::new(config));
 
