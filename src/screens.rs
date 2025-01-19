@@ -14,7 +14,7 @@ use ratatui::{
 };
 
 use crate::{
-  config::AppConfig,
+  config::TukaiConfig,
   helper::ToDark,
   layout::{Layout as TukaiLayout, LayoutColorTypeEnum},
 };
@@ -55,12 +55,7 @@ impl<'a> InstructionWidget<'a> {
 
   fn get_instruction_color(&self, color_type: &LayoutColorTypeEnum) -> Color {
     match color_type {
-      _ => self.layout.get_primary_color(), // LayoutColorTypeEnum::Primary => self.layout.get_primary_color(),
-                                            // LayoutColorTypeEnum::Secondary => self.layout.get_primary_color(),
-                                            // LayoutColorTypeEnum::Text => self.layout.get_text_color(),
-                                            // LayoutColorTypeEnum::TextReverse => self.layout.get_text_current_bg_color(),
-                                            // LayoutColorTypeEnum::Error => self.layout.get_error_color(),
-                                            // LayoutColorTypeEnum::Background => self.layout.get_background_color()
+      _ => self.layout.get_primary_color()
     }
   }
 
@@ -98,7 +93,7 @@ impl<'a> InstructionWidget<'a> {
 }
 
 pub trait Screen {
-  fn new(config: Rc<RefCell<AppConfig>>, language_index: Option<usize>) -> Self;
+  fn new(config: Rc<RefCell<TukaiConfig>>) -> Self;
 
   /// Handles key events
   ///

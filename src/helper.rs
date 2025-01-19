@@ -2,7 +2,7 @@ use std::{fs::{self, File}, io::{BufRead, BufReader}, path::PathBuf};
 use rand::{seq::SliceRandom, Rng};
 use ratatui::{style::Color, widgets::block::Title};
 
-use crate::{config::TypingDuration, layout::LayoutName};
+use crate::{config::{TukaiConfig, TypingDuration}, layout::LayoutName};
 
 pub struct Generator;
 
@@ -20,17 +20,17 @@ impl Generator {
   ///
   /// This method generates a string containing random
   /// words from the words/{language}.txt file
-  pub fn generate_random_string(
-    typing_duration: &TypingDuration,
-    language_index: &usize
-  ) -> String {
-    let words = Words::load_word_files();
-    let words = words[language_index].lines().collect::<Vec<&str>>();
+  pub fn generate_random_string(config: &TukaiConfig) -> String {
+
+    // Tries to load a language dictionary or creates empty vec
+    let words = config.get_language()
+      .load_language_words()
+      .unwrap_or(Vec::new());
 
     let mut rng = rand::thread_rng();
 
     let text = words
-      .choose_multiple(&mut rng, typing_duration.as_seconds() * 2)
+      .choose_multiple(&mut rng, config.typing_duration.as_seconds() * 2)
       .fold(String::new(), |mut acc, c| {
         acc.push_str(format!("{} ", c).as_str());
         acc
@@ -140,7 +140,9 @@ impl Language {
     }
   }
 
-  /// Returns the paths of all available language files int the `words` folder
+  /// Returns the paths of all available language files in the `words` folder.
+  ///
+  /// So i.e. available languages
   fn load_language_files(&self) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
     let entries = fs::read_dir("words")?;
 
@@ -153,6 +155,9 @@ impl Language {
     Ok(languages)
   }
 
+  /// Returns current selected languages words from the language file
+  ///
+  /// So i.e. language words
   fn load_language_words(&self) -> Result<Vec<String>, Box<dyn std::error::Error>> {
     let language_file_path = self.language_files.get(self.current_index)
       .ok_or("Not found a language dictionary file")?;

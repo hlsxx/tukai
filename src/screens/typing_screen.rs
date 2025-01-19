@@ -88,9 +88,9 @@ pub struct TypingScreen {
 }
 
 impl Screen for TypingScreen {
-  fn new(config: Rc<RefCell<TukaiConfig>>, language_index: Option<usize>) -> Self {
+  fn new(config: Rc<RefCell<TukaiConfig>>) -> Self {
     let generated_text = Generator::generate_random_string(
-      &config.borrow().typing_duration, language_index.unwrap_or_default()
+      &config.borrow()
     );
 
     Self {
@@ -370,8 +370,7 @@ impl TypingScreen {
     let app_config = self.config.borrow();
 
     self.generated_text = Generator::generate_random_string(
-      &app_config.typing_duration,
-      app_config.get_language().get_current_index()
+      &app_config
     );
 
     self.mistake_handler = MistakeHandler::new();

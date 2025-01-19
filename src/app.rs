@@ -4,7 +4,6 @@ use crate::storage::storage_handler::StorageHandler;
 
 use crate::screens::{stats_screen::StatsScreen, typing_screen::TypingScreen, Screen};
 
-use std::path::PathBuf;
 use std::{cell::RefCell, rc::Rc};
 
 use ratatui::prelude::CrosstermBackend;
@@ -12,7 +11,7 @@ use ratatui::Terminal;
 use ratatui::{
   crossterm::event::{KeyCode, KeyEvent, KeyModifiers},
   layout::{Constraint, Layout},
-  DefaultTerminal, Frame,
+  Frame
 };
 
 #[derive(PartialEq, Hash, Eq)]
@@ -61,16 +60,15 @@ impl<'a> Tukai<'a> {
     let storage_handler = StorageHandler::new(config.get_file_path()).init()?;
 
     config.typing_duration = storage_handler.get_typing_duration();
-
-    let mut layout = config.get_layout_mut();
-    layout.active_layout_name(storage_handler.get_layout_name().clone());
-
     config.has_transparent_bg = storage_handler.get_has_transparent_bg();
+
+    // let mut layout = config.get_layout_mut();
+    // layout.active_layout_name(storage_handler.get_layout_name().clone());
 
     let config = Rc::new(RefCell::new(config));
 
-    let typing_screen = TypingScreen::new(Rc::clone(&config), Some(0));
-    let stats_screen = StatsScreen::new(Rc::clone(&config), Some(0));
+    let typing_screen = TypingScreen::new(Rc::clone(&config));
+    let stats_screen = StatsScreen::new(Rc::clone(&config));
 
     Ok(Self {
       config,

@@ -9,7 +9,7 @@ mod screens;
 mod storage;
 
 use app::Tukai;
-use config::AppConfigBuilder;
+use config::TukaiConfigBuilder;
 use event_handler::EventHandler;
 
 #[tokio::main]
@@ -17,7 +17,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
   let mut terminal = ratatui::init();
   let mut event_handler = EventHandler::new();
 
-  let app_config = AppConfigBuilder::new().build();
+  let app_config = TukaiConfigBuilder::new().build();
 
   terminal.clear()?;
 

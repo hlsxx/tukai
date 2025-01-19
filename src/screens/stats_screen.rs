@@ -1,7 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::{
-  config::AppConfig,
+  config::TukaiConfig,
   helper::get_title,
   layout::LayoutColorTypeEnum,
   screens::{Instruction, InstructionWidget, Screen},
@@ -23,16 +23,15 @@ use ratatui::{
   },
   Frame,
 };
-
 use crate::helper::ToDark;
 
 pub struct StatsScreen {
-  config: Rc<RefCell<AppConfig>>,
+  config: Rc<RefCell<TukaiConfig>>,
   is_active: bool,
 }
 
 impl Screen for StatsScreen {
-  fn new(config: Rc<RefCell<AppConfig>>, _: Option<usize>) -> Self {
+  fn new(config: Rc<RefCell<TukaiConfig>>) -> Self {
     Self {
       config,
       is_active: false,
