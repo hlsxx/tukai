@@ -50,17 +50,20 @@ pub struct Tukai<'a> {
 
 impl<'a> Tukai<'a> {
 
-  /// Try create new Tukai application.
-  /// Try to initialize `StorageHandler` then load a
-  /// existing configurations.
+  /// Attempts to create a new Tukai application.
+  /// Tries to initialize `StorageHandler` then load
+  /// an existing saved settings file.
   pub fn try_new(
     event_handler: &'a mut EventHandler,
     mut config: TukaiConfig
   ) -> Result<Self, Box<dyn std::error::Error>> {
-    let storage_handler = StorageHandler::new(config.get_file_path()).init()?;
+    // Inits storage handler
+    let storage_handler = StorageHandler::new(config.get_file_path())
+      .init()?;
 
     config.typing_duration = storage_handler.get_typing_duration();
     config.has_transparent_bg = storage_handler.get_has_transparent_bg();
+    // config. = storage_handler.get_has_transparent_bg();
 
     // let mut layout = config.get_layout_mut();
     // layout.active_layout_name(storage_handler.get_layout_name().clone());
@@ -222,13 +225,18 @@ impl<'a> Tukai<'a> {
             self.storage_handler.set_layout(new_layout);
           }
           'p' => {
-            // let new_language = self
-            //   .config
-            //   .borrow_mut()
-            //   .get_language_mut()
-            //   .switch_language();
+            // switches language
+            let new_language_index = self
+              .config
+              .borrow_mut()
+              .get_language_mut()
+              .switch_language();
 
-            // self.storage_handler.set_layout(new_layout);
+            // saved into the storage
+            self.storage_handler.set_language_index(new_language_index);
+
+            self.reset();
+
           },
           _ => {}
         },

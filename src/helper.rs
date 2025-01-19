@@ -128,16 +128,20 @@ impl Language {
     self
   }
 
+  #[allow(unused)]
   pub fn get_current_index(&self) -> &usize {
     &self.current_index
   }
 
-  pub fn switch_language(&mut self) {
+  /// Switches a current language
+  pub fn switch_language(&mut self) -> usize {
     self.current_index += 1;
 
-    if self.current_index > self.language_files.len() {
+    if self.current_index >= self.language_files.len() {
       self.current_index = 0;
     }
+
+    self.current_index.clone()
   }
 
   /// Returns the paths of all available language files in the `words` folder.

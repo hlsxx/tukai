@@ -33,7 +33,7 @@ impl StorageHandlerError {
 /// Storage data type
 ///
 /// Represents types saved on a device's secondary memory.
-pub type StorageData = (Vec<Stat>, TypingDuration, LayoutName, bool);
+pub type StorageData = (Vec<Stat>, TypingDuration, LayoutName, bool, usize);
 
 /// Default data for storage
 ///
@@ -43,6 +43,7 @@ static DEFAULT_STORAGE_DATA: StorageData = (
   TypingDuration::Minute,
   LayoutName::Iced,
   false,
+  0
 );
 
 /// Represents a storage file with a specified file path
@@ -205,6 +206,11 @@ impl StorageHandler {
     self.get_data().2.clone()
   }
 
+  /// Returns a current language index
+  pub fn get_language_index(&self) -> usize {
+    self.get_data().4.clone()
+  }
+
   /// Returns if has a transparend background
   pub fn get_has_transparent_bg(&self) -> bool {
     self.get_data().3
@@ -231,21 +237,28 @@ impl StorageHandler {
     self.flush().is_ok()
   }
 
-  /// Sets new typing duration
+  /// Sets a new typing duration
   pub fn set_typing_duration(&mut self, typin_duration: TypingDuration) {
     if let Some(storage_data) = self.get_data_mut() {
       storage_data.1 = typin_duration;
     }
   }
 
-  /// Sets new active layout name
+  /// Sets a new active layout name
   pub fn set_layout(&mut self, layout_name_changed: LayoutName) {
     if let Some(storage_data) = self.get_data_mut() {
       storage_data.2 = layout_name_changed;
     }
   }
 
-  /// Toggles background transparency
+  /// Sets a new language_index
+  pub fn set_language_index(&mut self, language_index: usize) {
+    if let Some(storage_data) = self.get_data_mut() {
+      storage_data.4 = language_index;
+    }
+  }
+
+  /// Toggles a background transparency
   pub fn set_transparent_bg(&mut self, state: bool) {
     if let Some(storage_data) = self.get_data_mut() {
       storage_data.3 = state;
