@@ -38,14 +38,7 @@ pub struct Tukai<'a> {
   // Time counter from start
   time_secs: u32,
 
-  // Active screen
-  active_screen: ActiveScreenEnum,
-
-  // Typing screen (ctrl-h)
-  typing_screen: TypingScreen,
-
-  // Stats screen (ctrl-l)
-  stats_screen: StatsScreen,
+  screen: Box<dyn Screen>
 }
 
 impl<'a> Tukai<'a> {
@@ -75,7 +68,7 @@ impl<'a> Tukai<'a> {
     let config = Rc::new(RefCell::new(config));
 
     let typing_screen = TypingScreen::new(Rc::clone(&config));
-    let stats_screen = StatsScreen::new(Rc::clone(&config));
+    // let stats_screen = StatsScreen::new(Rc::clone(&config));
 
     Ok(Self {
       config,
@@ -88,11 +81,7 @@ impl<'a> Tukai<'a> {
 
       time_secs: 0,
 
-      active_screen: ActiveScreenEnum::Typing,
-
-      typing_screen,
-
-      stats_screen,
+      screen: Box::new(typing_screen)
     })
   }
 
@@ -108,9 +97,10 @@ impl<'a> Tukai<'a> {
       match self.event_handler.next().await? {
         TukaiEvent::Key(key_event) => self.handle_events(key_event),
         TukaiEvent::Tick => {
-          if self.typing_screen.is_running() {
-            self.time_secs += 1;
-          }
+          //TODO
+          // if self.screen.is_running() {
+          //   self.time_secs += 1;
+          // }
         }
       };
 
@@ -126,52 +116,39 @@ impl<'a> Tukai<'a> {
       .constraints(vec![Constraint::Min(0), Constraint::Length(3)])
       .split(frame.area());
 
-    match self.active_screen {
-      ActiveScreenEnum::Typing => {
-        if self.typing_screen.is_popup_visible() {
-          if self.typing_screen.is_active() {
-            self.typing_screen.toggle_active();
-          }
-        } else if !self.typing_screen.is_active() {
-          self.typing_screen.toggle_active();
-        }
+    self.screen.render(frame, main_layout[0]);
 
-        self.typing_screen.time_secs = self.time_secs;
+    // if self.screen.is_popup_visible() {
+    //   if self.typing_screen.is_active() {
+    //     self.typing_screen.toggle_active();
+    //   }
+    // } else if !self.typing_screen.is_active() {
+    //   self.typing_screen.toggle_active();
+    // }
 
-        if self.typing_screen.get_remaining_time() == 0 {
-          self.typing_screen.stop(&mut self.storage_handler);
-        }
+    // self.screen.set_time_secs() = self.time_secs;
+    //
 
-        // Renders
-        self.typing_screen.render(frame, main_layout[0]);
+    // if self.get_remaining_time() == 0 {
+      // self.typing_screen.stop(&mut self.storage_handler);
+    // }
 
-        self
-          .typing_screen
-          .render_instructions(frame, main_layout[1]);
+    // Renders
+    self.screen.render(frame, main_layout[0]);
+    self.screen.render_instructions(frame, main_layout[1]);
 
-        if self.typing_screen.is_popup_visible() {
-          self.typing_screen.render_popup(frame);
-        }
-      }
-      ActiveScreenEnum::Stats => {
-        self.stats_screen.render(frame, main_layout[0]);
-
-        self.stats_screen.render_instructions(frame, main_layout[1]);
-      }
+    if self.screen.is_popup_visible() {
+      self.screen.render_popup(frame);
     }
   }
 
   fn handle_screen_events(&mut self, key: KeyEvent) -> bool {
-    //implicit return
-    match self.active_screen {
-      ActiveScreenEnum::Typing => self.typing_screen.handle_events(key),
-      _ => false,
-    }
+    self.screen.handle_events(key)
   }
 
   fn reset(&mut self) {
     self.time_secs = 0;
-    self.typing_screen.reset();
+    self.screen.reset();
   }
 
   /// Exits the running application
@@ -191,11 +168,13 @@ impl<'a> Tukai<'a> {
   /// Sets the `active_screen` to the switched screen
   fn switch_active_screen(&mut self, switch_to_screen: ActiveScreenEnum) {
     match switch_to_screen {
-      ActiveScreenEnum::Stats => self.typing_screen.hide(),
-      ActiveScreenEnum::Typing => self.stats_screen.hide(),
+      ActiveScreenEnum::Stats => {
+        self.screen = Box::new(StatsScreen::new(self.config.clone()));
+      },
+      ActiveScreenEnum::Typing => {
+        self.screen = Box::new(TypingScreen::new(self.config.clone()));
+      }
     }
-
-    self.active_screen = switch_to_screen;
   }
 
   /// Handles crossterm events.
@@ -259,9 +238,20 @@ impl<'a> Tukai<'a> {
     if key_event.code == KeyCode::Esc {
       self.exit();
     } else if key_event.code == KeyCode::Left {
-      self.active_screen = ActiveScreenEnum::Typing;
+      self.switch_active_screen(ActiveScreenEnum::Typing)
     } else if key_event.code == KeyCode::Right {
-      self.active_screen = ActiveScreenEnum::Stats;
+      self.switch_active_screen(ActiveScreenEnum::Stats)
     }
   }
+
+  fn get_remaining_time(&self) -> usize {
+    let app_config = &self.config.borrow();
+
+    app_config
+      .typing_duration
+      .as_seconds()
+      .checked_sub(self.time_secs as usize)
+      .unwrap_or(0)
+  }
+
 }

@@ -86,8 +86,8 @@ pub struct TypingScreen {
   motto: String,
 }
 
-impl Screen for TypingScreen {
-  fn new(config: Rc<RefCell<TukaiConfig>>) -> Self {
+impl TypingScreen {
+  pub fn new(config: Rc<RefCell<TukaiConfig>>) -> Self {
     let generated_text = Generator::generate_random_string(&config.borrow());
 
     Self {
@@ -114,7 +114,9 @@ impl Screen for TypingScreen {
       motto: Generator::generate_random_motto(),
     }
   }
+}
 
+impl Screen for TypingScreen {
   fn get_config(&self) -> &Rc<RefCell<TukaiConfig>> {
     &self.config
   }
@@ -122,6 +124,21 @@ impl Screen for TypingScreen {
   fn get_screen_name(&self) -> String {
     String::from("Typing")
   }
+
+  /// Resets all necessary properties
+  fn reset(&mut self) {
+    self.is_running = false;
+
+    let app_config = self.config.borrow();
+
+    self.generated_text = Generator::generate_random_string(&app_config);
+
+    self.mistake_handler = MistakeHandler::new();
+    self.cursor_index = 0;
+    self.input = String::new();
+    self.is_popup_visible = false;
+  }
+
 
   fn toggle_active(&mut self) {
     self.is_active = !self.is_active;
@@ -182,15 +199,11 @@ impl Screen for TypingScreen {
       .border_style(Style::default().fg(app_layout.get_primary_color()))
       .padding(Padding::new(40, 40, (area.height / 2) - 5, 0));
 
-    // let block_rect = &block.inner(area);
-    // let cursor_start_pos = block_rect.x;
-
     let p = self
       .get_paragraph(&app_layout)
       .block(block)
       .alignment(Alignment::Left);
 
-    // frame.set_cursor_position(Position::new(cursor_start_pos, (area.height / 2) - 2));
     frame.render_widget(p, area);
   }
 
@@ -246,14 +259,59 @@ impl Screen for TypingScreen {
 
     frame.render_widget(instructions, area);
   }
+
+  /// Renders a popup screen
+  ///
+  /// Used after the run is completed
+  fn render_popup(&self, frame: &mut Frame) {
+    let app_config = self.config.borrow();
+    let app_layout = app_config.get_layout();
+    let area = frame.area();
+
+    let block = Block::bordered()
+      .style(app_config.get_bg_color())
+      .border_type(BorderType::Rounded)
+      .border_style(Style::new().fg(app_layout.get_primary_color()));
+
+    let text = Text::from(vec![
+      Line::from(vec![
+        Span::from("🔥 Average WPM: "),
+        Span::from(format!("{}", self.get_calculated_wpm())).bold(),
+      ])
+      .style(Style::default().fg(app_layout.get_primary_color())),
+      Line::from(vec![
+        Span::from("🎯 Accuracy: "),
+        Span::from(format!("{}%", self.get_calculated_accuracy())).bold(),
+      ])
+      .style(Style::default().fg(app_layout.get_primary_color())),
+      Line::from(vec![
+        Span::from("🥩 Raw WPM: "),
+        Span::from(format!("{}", self.get_calculated_raw_wpm())).bold(),
+      ])
+      .style(Style::default().fg(app_layout.get_primary_color().to_dark())),
+      Line::from(""),
+      Line::from(vec![
+        Span::from("Try again").style(Style::default().fg(app_layout.get_primary_color())),
+        Span::from(" ctrl + r").style(Style::default().fg(app_layout.get_primary_color()).bold()),
+      ]),
+    ]);
+
+    let p = Paragraph::new(text)
+      .block(block)
+      .alignment(Alignment::Center)
+      .centered();
+
+    let vertical = Layout::vertical([Constraint::Percentage(22)]).flex(Flex::Center);
+    let horizontal = Layout::horizontal([Constraint::Percentage(22)]).flex(Flex::Center);
+    let [area] = vertical.areas(area);
+    let [area] = horizontal.areas(area);
+
+    frame.render_widget(Clear, area);
+    frame.render_widget(p, area);
+  }
 }
 
 impl TypingScreen {
-  /// Returns whether the popup is visible
-  pub fn is_popup_visible(&self) -> bool {
-    self.is_popup_visible
-  }
-
   /// Returns whether typing has begun
   pub fn is_running(&self) -> bool {
     self.is_running
@@ -355,33 +413,8 @@ impl TypingScreen {
     }
   }
 
-  /// Calculate the remaining time
-  pub fn get_remaining_time(&self) -> usize {
-    let app_config = &self.config.borrow();
-
-    app_config
-      .typing_duration
-      .as_seconds()
-      .checked_sub(self.time_secs as usize)
-      .unwrap_or(0)
-  }
-
-  /// Resets all necessary properties
-  pub fn reset(&mut self) {
-    self.is_running = false;
-
-    let app_config = self.config.borrow();
-
-    self.generated_text = Generator::generate_random_string(&app_config);
-
-    self.mistake_handler = MistakeHandler::new();
-    self.cursor_index = 0;
-    self.input = String::new();
-    self.is_popup_visible = false;
-  }
-
   /// Prepare and get a paragraph
-  pub fn get_paragraph(&self, layout: &TukaiLayout) -> Paragraph {
+  pub fn get_paragraph(&self, layout: &TukaiLayout, remaining_time: usize) -> Paragraph {
     let mut lines = Vec::new();
 
     let color = if self.is_active() {
@@ -392,7 +425,7 @@ impl TypingScreen {
 
     let remaining_time_line = Line::from(vec![Span::from(format!(
       "⏳{}",
-      self.get_remaining_time(),
+      remaining_time,
     ))
     .style(Style::default().fg(color).bold())]);
 
@@ -454,55 +487,5 @@ impl TypingScreen {
     let text = Text::from(lines);
 
     Paragraph::new(text).wrap(Wrap { trim: true })
-  }
-
-  /// Renders a popup screen
-  ///
-  /// Used after the run is completed
-  pub fn render_popup(&self, frame: &mut Frame) {
-    let app_config = self.config.borrow();
-    let app_layout = app_config.get_layout();
-    let area = frame.area();
-
-    let block = Block::bordered()
-      .style(app_config.get_bg_color())
-      .border_type(BorderType::Rounded)
-      .border_style(Style::new().fg(app_layout.get_primary_color()));
-
-    let text = Text::from(vec![
-      Line::from(vec![
-        Span::from("🔥 Average WPM: "),
-        Span::from(format!("{}", self.get_calculated_wpm())).bold(),
-      ])
-      .style(Style::default().fg(app_layout.get_primary_color())),
-      Line::from(vec![
-        Span::from("🎯 Accuracy: "),
-        Span::from(format!("{}%", self.get_calculated_accuracy())).bold(),
-      ])
-      .style(Style::default().fg(app_layout.get_primary_color())),
-      Line::from(vec![
-        Span::from("🥩 Raw WPM: "),
-        Span::from(format!("{}", self.get_calculated_raw_wpm())).bold(),
-      ])
-      .style(Style::default().fg(app_layout.get_primary_color().to_dark())),
-      Line::from(""),
-      Line::from(vec![
-        Span::from("Try again").style(Style::default().fg(app_layout.get_primary_color())),
-        Span::from(" ctrl + r").style(Style::default().fg(app_layout.get_primary_color()).bold()),
-      ]),
-    ]);
-
-    let p = Paragraph::new(text)
-      .block(block)
-      .alignment(Alignment::Center)
-      .centered();
-
-    let vertical = Layout::vertical([Constraint::Percentage(22)]).flex(Flex::Center);
-    let horizontal = Layout::horizontal([Constraint::Percentage(22)]).flex(Flex::Center);
-    let [area] = vertical.areas(area);
-    let [area] = horizontal.areas(area);
-
-    frame.render_widget(Clear, area);
-    frame.render_widget(p, area);
   }
 }

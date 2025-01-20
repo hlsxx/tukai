@@ -121,7 +121,7 @@ impl<'a> InstructionWidget<'a> {
 }
 
 pub trait Screen {
-  fn new(config: Rc<RefCell<TukaiConfig>>) -> Self;
+  // fn new(config: Rc<RefCell<TukaiConfig>>) -> Box<Screen>;
 
   fn get_config(&self) -> &Rc<RefCell<TukaiConfig>>;
   fn get_screen_name(&self) -> String;
@@ -139,6 +139,13 @@ pub trait Screen {
       self.get_screen_name()
     ))
   }
+
+  /// Returns whether the popup is visible
+  fn is_popup_visible(&self) -> bool {
+    false
+  }
+
+  fn reset(&mut self);
 
   /// Handles key events
   ///
@@ -159,4 +166,9 @@ pub trait Screen {
 
   /// Render screen
   fn render(&self, frame: &mut Frame, area: Rect);
+
+  /// Renders a popup screen
+  ///
+  /// Used after the run is completed
+  fn render_popup(&self, frame: &mut Frame);
 }

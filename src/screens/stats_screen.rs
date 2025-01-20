@@ -27,14 +27,16 @@ pub struct StatsScreen {
   is_active: bool,
 }
 
-impl Screen for StatsScreen {
-  fn new(config: Rc<RefCell<TukaiConfig>>) -> Self {
+impl StatsScreen {
+  pub fn new(config: Rc<RefCell<TukaiConfig>>) -> Self {
     Self {
       config,
       is_active: false,
     }
   }
+}
 
+impl Screen for StatsScreen {
   fn get_config(&self) -> &Rc<RefCell<TukaiConfig>> {
     &self.config
   }
@@ -42,6 +44,8 @@ impl Screen for StatsScreen {
   fn get_screen_name(&self) -> String {
     String::from("Stats")
   }
+
+  fn reset(&mut self) {}
 
   fn toggle_active(&mut self) {
     self.is_active = !self.is_active;
@@ -123,6 +127,8 @@ impl Screen for StatsScreen {
     frame.render_widget(stats_overview_widget, right_widget[0]);
     frame.render_widget(best_score_widget, right_widget[1]);
   }
+
+  fn render_popup(&self, _frame: &mut Frame) {}
 }
 
 impl StatsScreen {
