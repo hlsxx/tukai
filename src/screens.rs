@@ -9,7 +9,7 @@ use ratatui::{
   layout::Rect,
   style::{Color, Style, Stylize},
   text::{Line, Span, Text},
-  widgets::Paragraph,
+  widgets::{block::Title, Paragraph},
   Frame,
 };
 
@@ -122,6 +122,23 @@ impl<'a> InstructionWidget<'a> {
 
 pub trait Screen {
   fn new(config: Rc<RefCell<TukaiConfig>>) -> Self;
+
+  fn get_config(&self) -> &Rc<RefCell<TukaiConfig>>;
+  fn get_screen_name(&self) -> String;
+
+  /// Returns the application title
+  /// including version from the `Cargo.toml`.
+  fn get_title<'a>(&self) -> Title<'a> {
+    let app_config = self.get_config().borrow();
+    let app_layout = app_config.get_layout();
+
+    Title::from(format!(
+      " tukai v{} 》{} 》{} ",
+      env!("CARGO_PKG_VERSION"),
+      app_layout.get_active_layout_name(),
+      self.get_screen_name()
+    ))
+  }
 
   /// Handles key events
   ///

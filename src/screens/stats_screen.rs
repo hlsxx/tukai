@@ -2,7 +2,6 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::{
   config::{TukaiConfig, TukaiLayoutColorTypeEnum},
-  helper::get_title,
   screens::{Instruction, InstructionWidget, Screen, ToDark},
   storage::{
     stats::Stat,
@@ -34,6 +33,14 @@ impl Screen for StatsScreen {
       config,
       is_active: false,
     }
+  }
+
+  fn get_config(&self) -> &Rc<RefCell<TukaiConfig>> {
+    &self.config
+  }
+
+  fn get_screen_name(&self) -> String {
+    String::from("Stats")
   }
 
   fn toggle_active(&mut self) {
@@ -165,14 +172,12 @@ impl StatsScreen {
   }
 
   /// Gets the main table widget (Last runs)
-  fn get_last_runs_table_widget<'a>(&self, stats: &[Stat]) -> Table<'a> {
+  fn get_last_runs_table_widget<'a>(&'a self, stats: &[Stat]) -> Table<'a> {
     let app_config = self.config.borrow();
-    let app_layout = &app_config.get_layout();
-
-    let block_title = get_title(app_layout.get_active_layout_name(), "Stats");
+    let app_layout = app_config.get_layout();
 
     let block = Block::new()
-      .title(block_title)
+      .title(self.get_title())
       .title_style(Style::new().fg(app_layout.get_primary_color()))
       .borders(Borders::ALL)
       .border_style(Style::default().fg(app_layout.get_primary_color()))

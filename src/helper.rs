@@ -1,20 +1,10 @@
 use rand::{seq::SliceRandom, Rng};
-use ratatui::{style::Color, widgets::block::Title};
-
-use crate::config::{TukaiConfig, TukaiLayoutName};
+use crate::config::TukaiConfig;
 
 pub struct Generator;
 
-pub fn get_title(layout_name: &TukaiLayoutName, screen_name: &str) -> Title<'static> {
-  Title::from(format!(
-    " tukai v{} 》{} 》{} ",
-    env!("CARGO_PKG_VERSION"),
-    layout_name,
-    screen_name
-  ))
-}
-
 impl Generator {
+
   /// Generates a random string of words
   ///
   /// This method generates a string containing random
@@ -38,7 +28,7 @@ impl Generator {
     text
   }
 
-  /// Generates a random motto for the block bottom title
+  /// Generates a random motto for the block bottom title.
   pub fn generate_random_motto() -> String {
     let mottos = [
       " Practice today, master tomorrow ",

@@ -11,7 +11,7 @@ use ratatui::{
 
 use crate::{
   config::{TukaiConfig, TukaiLayout, TukaiLayoutColorTypeEnum},
-  helper::{get_title, Generator},
+  helper::Generator,
   screens::{Instruction, InstructionWidget, Screen, ToDark},
   storage::{stats::Stat, storage_handler::StorageHandler},
 };
@@ -115,6 +115,14 @@ impl Screen for TypingScreen {
     }
   }
 
+  fn get_config(&self) -> &Rc<RefCell<TukaiConfig>> {
+    &self.config
+  }
+
+  fn get_screen_name(&self) -> String {
+    String::from("Typing")
+  }
+
   fn toggle_active(&mut self) {
     self.is_active = !self.is_active;
   }
@@ -162,10 +170,8 @@ impl Screen for TypingScreen {
     let app_config = self.config.borrow();
     let app_layout = app_config.get_layout();
 
-    let block_title = get_title(app_layout.get_active_layout_name(), "Typing");
-
     let block = Block::new()
-      .title(block_title)
+      .title(self.get_title())
       .title_alignment(Alignment::Left)
       .title_bottom(self.motto.as_ref())
       .title_style(Style::default().fg(app_layout.get_primary_color()))
