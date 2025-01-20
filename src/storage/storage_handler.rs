@@ -4,9 +4,8 @@ use std::{
   path::{Path, PathBuf},
 };
 
-use crate::config::TypingDuration;
+use crate::config::{TukaiLayoutName, TypingDuration};
 use crate::file_handler::FileHandler;
-use crate::layout::LayoutName;
 
 use super::stats::Stat;
 
@@ -33,7 +32,7 @@ impl StorageHandlerError {
 /// Storage data type
 ///
 /// Represents types saved on a device's secondary memory.
-pub type StorageData = (Vec<Stat>, TypingDuration, LayoutName, bool, usize);
+pub type StorageData = (Vec<Stat>, TypingDuration, TukaiLayoutName, bool, usize);
 
 /// Default data for storage
 ///
@@ -41,9 +40,9 @@ pub type StorageData = (Vec<Stat>, TypingDuration, LayoutName, bool, usize);
 static DEFAULT_STORAGE_DATA: StorageData = (
   Vec::<Stat>::new(),
   TypingDuration::Minute,
-  LayoutName::Iced,
+  TukaiLayoutName::Iced,
   false,
-  0
+  0,
 );
 
 /// Represents a storage file with a specified file path
@@ -202,7 +201,7 @@ impl StorageHandler {
   }
 
   /// Returns an active layout name
-  pub fn get_layout_name(&self) -> LayoutName {
+  pub fn get_layout_name(&self) -> TukaiLayoutName {
     self.get_data().2.clone()
   }
 
@@ -245,7 +244,7 @@ impl StorageHandler {
   }
 
   /// Sets a new active layout name
-  pub fn set_layout(&mut self, layout_name_changed: LayoutName) {
+  pub fn set_layout(&mut self, layout_name_changed: TukaiLayoutName) {
     if let Some(storage_data) = self.get_data_mut() {
       storage_data.2 = layout_name_changed;
     }

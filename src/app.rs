@@ -11,7 +11,7 @@ use ratatui::Terminal;
 use ratatui::{
   crossterm::event::{KeyCode, KeyEvent, KeyModifiers},
   layout::{Constraint, Layout},
-  Frame
+  Frame,
 };
 
 #[derive(PartialEq, Hash, Eq)]
@@ -49,17 +49,15 @@ pub struct Tukai<'a> {
 }
 
 impl<'a> Tukai<'a> {
-
   /// Attempts to create a new Tukai application.
   /// Tries to initialize `StorageHandler` then load
   /// an existing saved settings file.
   pub fn try_new(
     event_handler: &'a mut EventHandler,
-    mut config: TukaiConfig
+    mut config: TukaiConfig,
   ) -> Result<Self, Box<dyn std::error::Error>> {
     // Inits storage handler
-    let storage_handler = StorageHandler::new(config.get_file_path())
-      .init()?;
+    let storage_handler = StorageHandler::new(config.get_file_path()).init()?;
 
     config.typing_duration = storage_handler.get_typing_duration();
     config.has_transparent_bg = storage_handler.get_has_transparent_bg();
@@ -102,7 +100,10 @@ impl<'a> Tukai<'a> {
   ///
   /// Handles events from `EventHandler`
   /// Handles tick (seconds, it's time counter) from `EventHandler`
-  pub async fn run(&mut self, terminal: &mut TukaiTerminal) -> Result<(), Box<dyn std::error::Error>> {
+  pub async fn run(
+    &mut self,
+    terminal: &mut TukaiTerminal,
+  ) -> Result<(), Box<dyn std::error::Error>> {
     while !self.is_exit {
       match self.event_handler.next().await? {
         TukaiEvent::Key(key_event) => self.handle_events(key_event),
@@ -242,8 +243,7 @@ impl<'a> Tukai<'a> {
             self.storage_handler.set_language_index(new_language_index);
 
             self.reset();
-
-          },
+          }
           _ => {}
         },
         _ => {}

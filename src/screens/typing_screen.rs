@@ -10,10 +10,9 @@ use ratatui::{
 };
 
 use crate::{
-  config::TukaiConfig,
-  helper::{get_title, Generator, ToDark},
-  layout::{Layout as TukaiLayout, LayoutColorTypeEnum},
-  screens::{Instruction, InstructionWidget, Screen},
+  config::{TukaiConfig, TukaiLayout, TukaiLayoutColorTypeEnum},
+  helper::{get_title, Generator},
+  screens::{Instruction, InstructionWidget, Screen, ToDark},
   storage::{stats::Stat, storage_handler::StorageHandler},
 };
 
@@ -89,9 +88,7 @@ pub struct TypingScreen {
 
 impl Screen for TypingScreen {
   fn new(config: Rc<RefCell<TukaiConfig>>) -> Self {
-    let generated_text = Generator::generate_random_string(
-      &config.borrow()
-    );
+    let generated_text = Generator::generate_random_string(&config.borrow());
 
     Self {
       config,
@@ -200,37 +197,37 @@ impl Screen for TypingScreen {
     instruction_widget.add_instruction(Instruction::new(
       "Exit",
       "esc",
-      LayoutColorTypeEnum::Secondary,
+      TukaiLayoutColorTypeEnum::Secondary,
     ));
     instruction_widget.add_instruction(Instruction::new(
       "Reset",
       "ctrl + r",
-      LayoutColorTypeEnum::Secondary,
+      TukaiLayoutColorTypeEnum::Secondary,
     ));
     instruction_widget.add_instruction(Instruction::new(
       "Duration",
       "ctrl + d",
-      LayoutColorTypeEnum::Secondary,
+      TukaiLayoutColorTypeEnum::Secondary,
     ));
     instruction_widget.add_instruction(Instruction::new(
       "Layout",
       "ctrl + s",
-      LayoutColorTypeEnum::Secondary,
+      TukaiLayoutColorTypeEnum::Secondary,
     ));
     instruction_widget.add_instruction(Instruction::new(
       "Transparent",
       "ctrl + t",
-      LayoutColorTypeEnum::Secondary,
+      TukaiLayoutColorTypeEnum::Secondary,
     ));
     instruction_widget.add_instruction(Instruction::new(
       "Stats screen",
       "ctrl + l",
-      LayoutColorTypeEnum::Secondary,
+      TukaiLayoutColorTypeEnum::Secondary,
     ));
     instruction_widget.add_instruction(Instruction::new(
       "Language",
       "ctrl + p",
-      LayoutColorTypeEnum::Secondary,
+      TukaiLayoutColorTypeEnum::Secondary,
     ));
 
     let block = Block::new().padding(Padding::new(0, 0, area.height / 2, 0));
@@ -369,9 +366,7 @@ impl TypingScreen {
 
     let app_config = self.config.borrow();
 
-    self.generated_text = Generator::generate_random_string(
-      &app_config
-    );
+    self.generated_text = Generator::generate_random_string(&app_config);
 
     self.mistake_handler = MistakeHandler::new();
     self.cursor_index = 0;

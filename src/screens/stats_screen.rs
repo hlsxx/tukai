@@ -1,10 +1,9 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::{
-  config::TukaiConfig,
+  config::{TukaiConfig, TukaiLayoutColorTypeEnum},
   helper::get_title,
-  layout::LayoutColorTypeEnum,
-  screens::{Instruction, InstructionWidget, Screen},
+  screens::{Instruction, InstructionWidget, Screen, ToDark},
   storage::{
     stats::Stat,
     storage_handler::{StatOverview, StorageHandler},
@@ -23,7 +22,6 @@ use ratatui::{
   },
   Frame,
 };
-use crate::helper::ToDark;
 
 pub struct StatsScreen {
   config: Rc<RefCell<TukaiConfig>>,
@@ -60,17 +58,17 @@ impl Screen for StatsScreen {
     instruction_widget.add_instruction(Instruction::new(
       "Exit",
       "esc",
-      LayoutColorTypeEnum::Secondary,
+      TukaiLayoutColorTypeEnum::Secondary,
     ));
     instruction_widget.add_instruction(Instruction::new(
       "Transparent",
       "ctrl + t",
-      LayoutColorTypeEnum::Secondary,
+      TukaiLayoutColorTypeEnum::Secondary,
     ));
     instruction_widget.add_instruction(Instruction::new(
       "Typing",
       "ctrl + h",
-      LayoutColorTypeEnum::Secondary,
+      TukaiLayoutColorTypeEnum::Secondary,
     ));
 
     let block = Block::new().padding(Padding::new(0, 0, area.height / 2, 0));
@@ -283,11 +281,8 @@ impl StatsScreen {
       Line::from(vec![
         Span::from(" Total average accuracy: ")
           .style(Style::default().fg(app_layout.get_text_color())),
-        Span::from(format!(
-          "{}%",
-          stat_overview.total_average_accuracy,
-        ))
-        .style(Style::default().fg(app_layout.get_primary_color()).bold()),
+        Span::from(format!("{}%", stat_overview.total_average_accuracy,))
+          .style(Style::default().fg(app_layout.get_primary_color()).bold()),
       ]),
     ];
 

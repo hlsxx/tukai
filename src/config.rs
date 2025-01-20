@@ -1,10 +1,348 @@
 use ratatui::style::Style;
 use std::cell::{Ref, RefCell, RefMut};
-use std::path::{Path, PathBuf};
 
-use crate::helper::Language;
-use crate::layout::Layout as TukaiLayout;
 use serde::{Deserialize, Serialize};
+
+use std::{collections::HashMap, fmt::Display, hash::Hash};
+use std::{
+  fs::{self, File},
+  io::{BufRead, BufReader},
+  path::{Path, PathBuf},
+};
+
+use maplit::hashmap;
+use ratatui::style::Color;
+
+pub trait ToColor {
+  /// Converts the `(u8, u8, u8)` tuple to a `Color::Rgb`
+  ///
+  /// # Example
+  ///
+  /// ```
+  /// use ratatui::style::Color
+  ///
+  /// let rgb: (u8, u8, u8) = (128, 64, 255);
+  /// let color = rgb.to_color();
+  ///
+  /// assert_eq!(color, Color::Rgb(128, 64, 255));
+  /// ```
+  fn to_color(self) -> Color;
+}
+
+/// Type alias for representing an RGB color as a tuple
+type RgbColor = (u8, u8, u8);
+
+impl ToColor for RgbColor {
+  fn to_color(self) -> Color {
+    Color::Rgb(self.0, self.1, self.2)
+  }
+}
+
+#[allow(dead_code)]
+pub enum TukaiLayoutColorTypeEnum {
+  Primary,
+  Secondary,
+  Text,
+  TextReverse,
+  Background,
+  Error,
+}
+
+/// Layout name for Tukai application
+/// Used for a switchable layout colors
+///
+/// Switchable with a `ctrl-s` shortcut
+#[derive(PartialEq, Eq, Hash, Debug, Serialize, Deserialize, Clone)]
+pub enum TukaiLayoutName {
+  Iced,
+  Rust,
+  Anime,
+  Deadpool,
+  Wolverine,
+}
+
+/// Display used in the Tukai paragraph block_title
+impl Display for TukaiLayoutName {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    use TukaiLayoutName::*;
+
+    let display_text = match self {
+      Iced => "🥶 Iced",
+      Rust => "🦀 Rust",
+      Anime => "🌸 Anime",
+      Deadpool => "🩸🔞 Deadpool",
+      Wolverine => "💪🍺 Wolverine",
+    };
+
+    write!(f, "{}", display_text)
+  }
+}
+
+/// Set of the colors used in the application.
+pub struct TukaiLayoutColors {
+  primary: RgbColor,
+  text: RgbColor,
+  text_current: RgbColor,
+  text_current_bg: RgbColor,
+  background: RgbColor,
+  error: RgbColor,
+}
+
+impl TukaiLayoutColors {
+  pub fn new(
+    primary: RgbColor,
+    text: RgbColor,
+    text_current: RgbColor,
+    text_current_bg: RgbColor,
+    background: RgbColor,
+    error: RgbColor,
+  ) -> Self {
+    Self {
+      primary,
+      text,
+      text_current,
+      text_current_bg,
+      background,
+      error,
+    }
+  }
+}
+
+/// Tukai layout includes all layouts
+/// also, contains `transitions`, and the current selected layout name
+pub struct TukaiLayout {
+  // Set of the layouts
+  layouts: HashMap<TukaiLayoutName, TukaiLayoutColors>,
+
+  // Rules for switchable transition of the layout
+  transitions: HashMap<TukaiLayoutName, TukaiLayoutName>,
+
+  // Current selected layout name
+  active_layout_name: TukaiLayoutName,
+}
+
+impl TukaiLayout {
+  pub fn default() -> Self {
+    use TukaiLayoutName::*;
+
+    let layouts = hashmap! {
+      Iced => {
+        TukaiLayoutColors::new(
+         (108, 181, 230),
+         (232, 232, 232),
+         (25, 74, 107),
+         (200, 200, 200),
+         (37, 40, 46),
+         (214, 90, 90),
+        )
+      },
+      Anime => {
+        TukaiLayoutColors::new(
+          (152, 117, 201),
+          (222, 135, 174),
+          (49, 45, 51),
+          (222, 170, 146),
+          (31, 27, 30),
+          (227, 138, 138),
+        )
+      },
+      Deadpool => {
+        TukaiLayoutColors::new(
+          (139, 35, 35),
+          (210, 210, 210),
+          (23, 23, 23),
+          (210, 210, 210),
+          (33, 29, 29),
+          (110, 110, 110),
+        )
+      },
+      Wolverine => {
+        TukaiLayoutColors::new(
+          (196, 166, 51),
+          (200, 200, 200),
+          (23,23,23),
+          (210, 210, 210),
+          (10, 14, 18),
+          (110, 110, 110),
+        )
+      },
+      Rust => {
+        TukaiLayoutColors::new(
+          (150, 63, 17),
+          (255, 178, 137),
+          (255, 178, 137),
+          (150, 63, 17),
+          (24, 8, 2),
+          (120, 120, 120),
+        )
+      }
+    };
+
+    // Define transtions for switch order
+    let transitions = HashMap::from([
+      (Iced, Anime),
+      (Anime, Deadpool),
+      (Deadpool, Wolverine),
+      (Wolverine, Rust),
+      (Rust, Iced),
+    ]);
+
+    Self {
+      layouts,
+      transitions,
+      active_layout_name: TukaiLayoutName::Iced,
+    }
+  }
+
+  /// Returns the currect active layout name
+  pub fn get_active_layout_name(&self) -> &TukaiLayoutName {
+    &self.active_layout_name
+  }
+
+  /// Sets a new active layout name
+  pub fn active_layout_name(&mut self, active_layout_name: TukaiLayoutName) {
+    self.active_layout_name = active_layout_name;
+  }
+
+  /// Switches to a next layout, then returns that layout
+  ///
+  /// Check `self.transitions`.
+  pub fn switch_to_next_layout(&mut self) -> TukaiLayoutName {
+    if let Some(next_layout_name) = self.transitions.get(&self.active_layout_name) {
+      self.active_layout_name = next_layout_name.clone();
+    };
+
+    self.active_layout_name.clone()
+  }
+
+  fn get_layout_colors(&self) -> &TukaiLayoutColors {
+    self.layouts.get(&self.active_layout_name).unwrap()
+  }
+
+  pub fn get_primary_color(&self) -> Color {
+    self.get_layout_colors().primary.to_color()
+  }
+
+  pub fn get_text_color(&self) -> Color {
+    self.get_layout_colors().text.to_color()
+  }
+
+  pub fn get_text_current_color(&self) -> Color {
+    self.get_layout_colors().text_current.to_color()
+  }
+
+  pub fn get_text_current_bg_color(&self) -> Color {
+    self.get_layout_colors().text_current_bg.to_color()
+  }
+
+  pub fn get_error_color(&self) -> Color {
+    self.get_layout_colors().error.to_color()
+  }
+
+  pub fn get_background_color(&self) -> Color {
+    self.get_layout_colors().background.to_color()
+  }
+}
+
+pub struct Language {
+  // Language files paths from the `words` folder
+  language_files: Vec<PathBuf>,
+
+  // Current used language index
+  current_index: usize,
+
+  // Current selected language words
+  words: Vec<String>,
+}
+
+impl Language {
+  // Creates default empty list of the language files
+  pub fn default() -> Self {
+    Self {
+      language_files: Vec::new(),
+      current_index: 0,
+      words: Vec::new(),
+    }
+  }
+
+  /// Load language files from the `words` folder
+  pub fn init(mut self) -> Self {
+    if let Ok(language_files) = self.load_language_files() {
+      self.language_files = language_files;
+    }
+
+    // If language dictionary files were founded
+    // Sets the words
+    if self.language_files.len() > 0 {
+      if let Ok(words) = self.load_language_words() {
+        self.words = words;
+      }
+    }
+
+    self
+  }
+
+  pub fn current_index(&mut self, index: usize) {
+    self.current_index = index;
+  }
+
+  #[allow(unused)]
+  pub fn get_current_index(&self) -> &usize {
+    &self.current_index
+  }
+
+  /// Switches a current language
+  pub fn switch_language(&mut self) -> usize {
+    self.current_index += 1;
+
+    if self.current_index >= self.language_files.len() {
+      self.current_index = 0;
+    }
+
+    self.current_index.clone()
+  }
+
+  /// Returns the paths of all available language files in the `words` folder.
+  ///
+  /// So i.e. available languages
+  pub fn load_language_files(&self) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
+    let entries = fs::read_dir("words")?;
+
+    let languages = entries
+      .filter_map(|entry| entry.ok())
+      .filter(|entry| entry.path().is_file())
+      .map(|entry| entry.path())
+      .collect::<Vec<PathBuf>>();
+
+    Ok(languages)
+  }
+
+  /// Returns current selected languages words from the language file
+  ///
+  /// So i.e. language words
+  pub fn load_language_words(&self) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    let language_file_path = self
+      .language_files
+      .get(self.current_index)
+      .ok_or("Not found a language dictionary file")?;
+
+    let file = File::open(&language_file_path)?;
+    let buffer = BufReader::new(file);
+
+    let words = buffer
+      .lines()
+      .filter_map(|line| line.ok())
+      .flat_map(|line| {
+        line
+          .split_whitespace()
+          .map(String::from)
+          .collect::<Vec<String>>()
+      }) // Split into words
+      .collect::<Vec<String>>();
+
+    Ok(words)
+  }
+}
 
 #[derive(Serialize, Deserialize, Hash, PartialEq, Eq, Debug, Clone)]
 /// Represents the available durations for the test

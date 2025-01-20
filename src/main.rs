@@ -4,7 +4,6 @@ mod file_handler;
 
 mod event_handler;
 mod helper;
-mod layout;
 mod screens;
 mod storage;
 

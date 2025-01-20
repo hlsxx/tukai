@@ -13,11 +13,39 @@ use ratatui::{
   Frame,
 };
 
-use crate::{
-  config::TukaiConfig,
-  helper::ToDark,
-  layout::{Layout as TukaiLayout, LayoutColorTypeEnum},
-};
+use crate::config::{TukaiConfig, TukaiLayout, TukaiLayoutColorTypeEnum};
+
+#[allow(unused)]
+pub trait ToDark {
+  /// Converts the `(u8, u8, u8)` tuple to a `Color::Rgb`
+  ///
+  /// # Example
+  ///
+  /// ```
+  /// use ratatui::style::Color
+  ///
+  /// let rgb: (u8, u8, u8) = (128, 64, 255);
+  /// let color = rgb.to_color();
+  ///
+  /// assert_eq!(color, Color::Rgb(128, 64, 255));
+  /// ```
+  fn to_dark(self) -> Color;
+}
+
+impl ToDark for Color {
+  fn to_dark(self) -> Color {
+    match self {
+      Color::Rgb(r, g, b) => {
+        let darkened_r = (r as f32 * (1.0 - 0.2)) as u8;
+        let darkened_g = (g as f32 * (1.0 - 0.2)) as u8;
+        let darkened_b = (b as f32 * (1.0 - 0.2)) as u8;
+
+        Color::Rgb(darkened_r, darkened_g, darkened_b)
+      }
+      _ => self,
+    }
+  }
+}
 
 pub struct Instruction<'a> {
   // Instruction title text (description)
@@ -27,11 +55,11 @@ pub struct Instruction<'a> {
   shortcut: &'a str,
 
   // Layout color
-  color_type: LayoutColorTypeEnum,
+  color_type: TukaiLayoutColorTypeEnum,
 }
 
 impl<'a> Instruction<'a> {
-  pub fn new(title: &'a str, shortcut: &'a str, color_type: LayoutColorTypeEnum) -> Self {
+  pub fn new(title: &'a str, shortcut: &'a str, color_type: TukaiLayoutColorTypeEnum) -> Self {
     Self {
       title,
       shortcut,
@@ -53,9 +81,9 @@ impl<'a> InstructionWidget<'a> {
     }
   }
 
-  fn get_instruction_color(&self, color_type: &LayoutColorTypeEnum) -> Color {
+  fn get_instruction_color(&self, color_type: &TukaiLayoutColorTypeEnum) -> Color {
     match color_type {
-      _ => self.layout.get_primary_color()
+      _ => self.layout.get_primary_color(),
     }
   }
 
