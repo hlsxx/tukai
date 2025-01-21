@@ -37,12 +37,18 @@ impl StatsScreen {
 }
 
 impl Screen for StatsScreen {
+  fn increment_time_secs(&mut self) {}
+
   fn get_config(&self) -> &Rc<RefCell<TukaiConfig>> {
     &self.config
   }
 
   fn get_screen_name(&self) -> String {
     String::from("Stats")
+  }
+
+  fn get_remaining_time(&self) -> usize {
+    0
   }
 
   fn reset(&mut self) {}

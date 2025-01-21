@@ -13,7 +13,7 @@ use ratatui::{
   Frame,
 };
 
-use crate::config::{TukaiConfig, TukaiLayout, TukaiLayoutColorTypeEnum};
+use crate::{config::{TukaiConfig, TukaiLayout, TukaiLayoutColorTypeEnum}, storage::storage_handler::StorageHandler};
 
 #[allow(unused)]
 pub trait ToDark {
@@ -122,9 +122,12 @@ impl<'a> InstructionWidget<'a> {
 
 pub trait Screen {
   // fn new(config: Rc<RefCell<TukaiConfig>>) -> Box<Screen>;
-
+  fn increment_time_secs(&mut self);
   fn get_config(&self) -> &Rc<RefCell<TukaiConfig>>;
   fn get_screen_name(&self) -> String;
+  fn get_remaining_time(&self) -> usize;
+
+  fn stop(&mut self, _storage_handler: &mut StorageHandler) {}
 
   /// Returns the application title
   /// including version from the `Cargo.toml`.
@@ -154,6 +157,10 @@ pub trait Screen {
 
   /// Screen is currently active
   fn is_active(&self) -> bool;
+  fn is_running(&self) -> bool {
+    false
+  }
+
   fn toggle_active(&mut self);
 
   /// After another screen switched

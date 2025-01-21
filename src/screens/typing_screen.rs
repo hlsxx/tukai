@@ -117,8 +117,49 @@ impl TypingScreen {
 }
 
 impl Screen for TypingScreen {
+  fn increment_time_secs(&mut self) {
+    self.time_secs += 1;
+  }
+
   fn get_config(&self) -> &Rc<RefCell<TukaiConfig>> {
     &self.config
+  }
+
+  fn get_remaining_time(&self) -> usize {
+    let app_config = &self.config.borrow();
+
+    app_config
+      .typing_duration
+      .as_seconds()
+      .checked_sub(self.time_secs as usize)
+      .unwrap_or(0)
+  }
+
+  /// Stops the running typing process
+  ///
+  /// Makes the popup screen visible
+  ///
+  /// Inserts the created stat into storage
+  fn stop(&mut self, storage_handler: &mut StorageHandler) {
+    self.is_running = false;
+    self.is_popup_visible = true;
+
+    if self.stat.is_none() {
+      let stat = Stat::new(
+        &self.config.borrow().typing_duration,
+        self.input.len(),
+        self.mistake_handler.get_mistakes_counter(),
+      );
+
+      storage_handler.insert_into_stats(&stat);
+
+      self.stat = Some(stat);
+    }
+  }
+
+  /// Returns whether typing has begun
+  fn is_running(&self) -> bool {
+    self.is_running
   }
 
   fn get_screen_name(&self) -> String {
@@ -128,15 +169,15 @@ impl Screen for TypingScreen {
   /// Resets all necessary properties
   fn reset(&mut self) {
     self.is_running = false;
-
-    let app_config = self.config.borrow();
-
-    self.generated_text = Generator::generate_random_string(&app_config);
+    self.time_secs = 0;
 
     self.mistake_handler = MistakeHandler::new();
     self.cursor_index = 0;
     self.input = String::new();
     self.is_popup_visible = false;
+
+    let app_config = self.config.borrow();
+    self.generated_text = Generator::generate_random_string(&app_config);
   }
 
 
@@ -146,11 +187,6 @@ impl Screen for TypingScreen {
 
   fn is_active(&self) -> bool {
     self.is_active
-  }
-
-  fn hide(&mut self) {
-    self.toggle_active();
-    self.is_popup_visible = false;
   }
 
   fn handle_events(&mut self, key_event: KeyEvent) -> bool {
@@ -312,39 +348,12 @@ impl Screen for TypingScreen {
 }
 
 impl TypingScreen {
-  /// Returns whether typing has begun
-  pub fn is_running(&self) -> bool {
-    self.is_running
-  }
-
   /// Starts the running typing process
   ///
   /// Unsets last stat
   fn run(&mut self) {
     self.is_running = true;
     self.stat = None;
-  }
-
-  /// Stops the running typing process
-  ///
-  /// Makes the popup screen visible
-  ///
-  /// Inserts the created stat into storage
-  pub fn stop(&mut self, storage_handler: &mut StorageHandler) {
-    self.is_running = false;
-    self.is_popup_visible = true;
-
-    if self.stat.is_none() {
-      let stat = Stat::new(
-        &self.config.borrow().typing_duration,
-        self.input.len(),
-        self.mistake_handler.get_mistakes_counter(),
-      );
-
-      storage_handler.insert_into_stats(&stat);
-
-      self.stat = Some(stat);
-    }
   }
 
   /// Validates an inserted char
@@ -414,7 +423,7 @@ impl TypingScreen {
   }
 
   /// Prepare and get a paragraph
-  pub fn get_paragraph(&self, layout: &TukaiLayout, remaining_time: usize) -> Paragraph {
+  pub fn get_paragraph(&self, layout: &TukaiLayout) -> Paragraph {
     let mut lines = Vec::new();
 
     let color = if self.is_active() {
@@ -425,7 +434,7 @@ impl TypingScreen {
 
     let remaining_time_line = Line::from(vec![Span::from(format!(
       "⏳{}",
-      remaining_time,
+      self.get_remaining_time(),
     ))
     .style(Style::default().fg(color).bold())]);
 

@@ -35,9 +35,6 @@ pub struct Tukai<'a> {
   // App was interrupted
   is_exit: bool,
 
-  // Time counter from start
-  time_secs: u32,
-
   screen: Box<dyn Screen>
 }
 
@@ -79,8 +76,6 @@ impl<'a> Tukai<'a> {
 
       is_exit: false,
 
-      time_secs: 0,
-
       screen: Box::new(typing_screen)
     })
   }
@@ -97,10 +92,9 @@ impl<'a> Tukai<'a> {
       match self.event_handler.next().await? {
         TukaiEvent::Key(key_event) => self.handle_events(key_event),
         TukaiEvent::Tick => {
-          //TODO
-          // if self.screen.is_running() {
-          //   self.time_secs += 1;
-          // }
+          if self.screen.is_running() {
+            self.screen.increment_time_secs();
+          }
         }
       };
 
@@ -126,12 +120,9 @@ impl<'a> Tukai<'a> {
     //   self.typing_screen.toggle_active();
     // }
 
-    // self.screen.set_time_secs() = self.time_secs;
-    //
-
-    // if self.get_remaining_time() == 0 {
-      // self.typing_screen.stop(&mut self.storage_handler);
-    // }
+    if self.screen.get_remaining_time() == 0 {
+      self.screen.stop(&mut self.storage_handler);
+    }
 
     // Renders
     self.screen.render(frame, main_layout[0]);
@@ -147,7 +138,6 @@ impl<'a> Tukai<'a> {
   }
 
   fn reset(&mut self) {
-    self.time_secs = 0;
     self.screen.reset();
   }
 
@@ -243,15 +233,4 @@ impl<'a> Tukai<'a> {
       self.switch_active_screen(ActiveScreenEnum::Stats)
     }
   }
-
-  fn get_remaining_time(&self) -> usize {
-    let app_config = &self.config.borrow();
-
-    app_config
-      .typing_duration
-      .as_seconds()
-      .checked_sub(self.time_secs as usize)
-      .unwrap_or(0)
-  }
-
 }
