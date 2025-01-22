@@ -23,15 +23,13 @@ use ratatui::{
 };
 
 pub struct StatsScreen {
-  config: Rc<RefCell<TukaiConfig>>,
-  is_active: bool,
+  config: Rc<RefCell<TukaiConfig>>
 }
 
 impl StatsScreen {
   pub fn new(config: Rc<RefCell<TukaiConfig>>) -> Self {
     Self {
-      config,
-      is_active: false,
+      config
     }
   }
 }
@@ -52,14 +50,6 @@ impl Screen for StatsScreen {
   }
 
   fn reset(&mut self) {}
-
-  fn toggle_active(&mut self) {
-    self.is_active = !self.is_active;
-  }
-
-  fn is_active(&self) -> bool {
-    self.is_active
-  }
 
   #[allow(dead_code)]
   fn handle_events(&mut self, _key: KeyEvent) -> bool {
@@ -143,16 +133,19 @@ impl StatsScreen {
     let app_config = self.config.borrow();
     let app_layout = &app_config.get_layout();
 
+    let primary_color = app_layout.get_primary_color();
+    let text_color = app_layout.get_text_color();
+
     let stats = storage_handler.get_data_stats_best();
 
     let block = Block::new()
       .title(" Best score ")
-      .title_style(Style::new().fg(app_layout.get_primary_color()))
+      .title_style(Style::new().fg(primary_color))
       .borders(Borders::ALL)
-      .border_style(Style::default().fg(app_layout.get_primary_color()))
+      .border_style(Style::default().fg(primary_color))
       .border_type(BorderType::Rounded);
 
-    let default_cell_style = Style::default().fg(app_layout.get_text_color());
+    let default_cell_style = Style::default().fg(text_color);
 
     let rows = stats
       .iter()
@@ -166,7 +159,7 @@ impl StatsScreen {
 
     let widths = [Constraint::Percentage(50), Constraint::Percentage(50)];
 
-    let default_header_cell_style = Style::default().fg(app_layout.get_primary_color()).bold();
+    let default_header_cell_style = Style::default().fg(primary_color).bold();
 
     let table = Table::new(rows, widths)
       .block(block)
@@ -188,11 +181,14 @@ impl StatsScreen {
     let app_config = self.config.borrow();
     let app_layout = app_config.get_layout();
 
+    let primary_color = app_layout.get_primary_color();
+    let text_color = app_layout.get_text_color();
+
     let block = Block::new()
       .title(self.get_title())
-      .title_style(Style::new().fg(app_layout.get_primary_color()))
+      .title_style(Style::new().fg(primary_color))
       .borders(Borders::ALL)
-      .border_style(Style::default().fg(app_layout.get_primary_color()))
+      .border_style(Style::default().fg(primary_color))
       .border_type(BorderType::Rounded);
 
     let default_cell_style = Style::default().fg(app_layout.get_text_color());
@@ -202,11 +198,11 @@ impl StatsScreen {
       .map(|stat| {
         Row::new(vec![
           Cell::from(stat.get_duration().to_string())
-            .style(Style::default().fg(app_layout.get_text_color().to_dark())),
+            .style(Style::default().fg(text_color.to_dark())),
           Cell::from(stat.get_average_wpm().to_string()).style(default_cell_style),
           Cell::from(format!("{}%", stat.get_accuracy())).style(default_cell_style),
           Cell::from(stat.get_raw_wpm().to_string())
-            .style(Style::default().fg(app_layout.get_text_color().to_dark())),
+            .style(Style::default().fg(text_color.to_dark())),
         ])
       })
       .collect::<Vec<Row>>();
@@ -218,7 +214,7 @@ impl StatsScreen {
       Constraint::Percentage(25),
     ];
 
-    let default_header_cell_style = Style::default().fg(app_layout.get_primary_color()).bold();
+    let default_header_cell_style = Style::default().fg(primary_color).bold();
 
     let table = Table::new(rows, widths)
       .block(block)
@@ -243,6 +239,9 @@ impl StatsScreen {
     let app_config = self.config.borrow();
     let app_layout = &app_config.get_layout();
 
+    let primary_color = app_layout.get_primary_color();
+    let text_color = app_layout.get_text_color();
+
     let (_best_wpm, chart_data) = chart_widget_data;
 
     // Validate best_wpm
@@ -251,12 +250,12 @@ impl StatsScreen {
     let datasets = vec![Dataset::default()
       .marker(symbols::Marker::Dot)
       .graph_type(GraphType::Scatter)
-      .style(Style::default().fg(app_layout.get_text_color()))
+      .style(Style::default().fg(text_color))
       .data(chart_data)];
 
     let y_labels = (0..=125)
       .step_by(25)
-      .map(|y| Span::from(y.to_string()).style(Style::default().fg(app_layout.get_text_color())))
+      .map(|y| Span::from(y.to_string()).style(Style::default().fg(text_color)))
       .collect::<Vec<Span>>();
 
     let x_axis = Axis::default()
@@ -264,15 +263,15 @@ impl StatsScreen {
       .bounds([0.0, chart_data.len() as f64]);
 
     let y_axis = Axis::default()
-      .style(Style::default().fg(app_layout.get_primary_color()))
+      .style(Style::default().fg(primary_color))
       .bounds([0.0, 125_f64])
       .labels(y_labels);
 
     let chart_block = Block::new()
       .title_top(" WPM progress ")
-      .title_style(Style::new().fg(app_layout.get_primary_color()))
+      .title_style(Style::new().fg(primary_color))
       .borders(Borders::ALL)
-      .border_style(Style::default().fg(app_layout.get_primary_color()))
+      .border_style(Style::default().fg(primary_color))
       .border_type(BorderType::Rounded);
 
     let chart = Chart::new(datasets)
@@ -288,26 +287,29 @@ impl StatsScreen {
     let app_config = self.config.borrow();
     let app_layout = &app_config.get_layout();
 
+    let primary_color = app_layout.get_primary_color();
+    let text_color = app_layout.get_text_color();
+
     let text = vec![
       Line::default(),
       Line::from(vec![
-        Span::from(" Total average WPM: ").style(Style::default().fg(app_layout.get_text_color())),
+        Span::from(" Total average WPM: ").style(Style::default().fg(text_color)),
         Span::from(stat_overview.total_average_wpm.to_string())
-          .style(Style::default().fg(app_layout.get_primary_color()).bold()),
+          .style(Style::default().fg(primary_color).bold()),
       ]),
       Line::from(vec![
         Span::from(" Total average accuracy: ")
-          .style(Style::default().fg(app_layout.get_text_color())),
+          .style(Style::default().fg(text_color)),
         Span::from(format!("{}%", stat_overview.total_average_accuracy,))
-          .style(Style::default().fg(app_layout.get_primary_color()).bold()),
+          .style(Style::default().fg(primary_color).bold()),
       ]),
     ];
 
     let block = Block::new()
       .title(" Total score ")
-      .title_style(Style::new().fg(app_layout.get_primary_color()))
+      .title_style(Style::new().fg(primary_color))
       .borders(Borders::ALL)
-      .border_style(Style::default().fg(app_layout.get_primary_color()))
+      .border_style(Style::default().fg(primary_color))
       .border_type(BorderType::Rounded);
 
     let p = Paragraph::new(text)

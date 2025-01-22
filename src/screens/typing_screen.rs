@@ -68,9 +68,6 @@ pub struct TypingScreen {
   /// User statistics after the current run is completed
   pub stat: Option<Stat>,
 
-  /// The TypingScreen is currently active screen
-  is_active: bool,
-
   /// Typing running
   is_running: bool,
 
@@ -100,8 +97,6 @@ impl TypingScreen {
       mistake_handler: MistakeHandler::new(),
 
       stat: None,
-
-      is_active: false,
 
       is_running: false,
 
@@ -162,6 +157,10 @@ impl Screen for TypingScreen {
     self.is_running
   }
 
+  fn is_popup_visible(&self) -> bool {
+    self.is_popup_visible
+  }
+
   fn get_screen_name(&self) -> String {
     String::from("Typing")
   }
@@ -178,15 +177,6 @@ impl Screen for TypingScreen {
 
     let app_config = self.config.borrow();
     self.generated_text = Generator::generate_random_string(&app_config);
-  }
-
-
-  fn toggle_active(&mut self) {
-    self.is_active = !self.is_active;
-  }
-
-  fn is_active(&self) -> bool {
-    self.is_active
   }
 
   fn handle_events(&mut self, key_event: KeyEvent) -> bool {
@@ -422,21 +412,29 @@ impl TypingScreen {
     }
   }
 
-  /// Prepare and get a paragraph
+  /// Prepares and returns a paragraph.
+  ///
+  /// If popup window is showed then colors converts to dark.
   pub fn get_paragraph(&self, layout: &TukaiLayout) -> Paragraph {
     let mut lines = Vec::new();
 
-    let color = if self.is_active() {
-      layout.get_primary_color()
-    } else {
-      layout.get_primary_color().to_dark()
+    let (primary_color, error_color, text_color) = {
+      let colors = {
+        (layout.get_primary_color(), layout.get_error_color(), layout.get_text_color())
+      };
+
+      if self.is_popup_visible() {
+        (colors.0.to_dark(), colors.1.to_dark(), colors.2.to_dark())
+      } else {
+        colors
+      }
     };
 
     let remaining_time_line = Line::from(vec![Span::from(format!(
       "⏳{}",
       self.get_remaining_time(),
     ))
-    .style(Style::default().fg(color).bold())]);
+    .style(Style::default().fg(primary_color).bold())]);
 
     let text_line = self
       .generated_text
@@ -450,35 +448,17 @@ impl TypingScreen {
               .bg(layout.get_text_current_bg_color()),
           )
         } else if i < self.cursor_index {
-          let color = if self.is_active() {
-            layout.get_primary_color()
-          } else {
-            layout.get_primary_color().to_dark()
-          };
-
           if self.input.chars().nth(i) == Some(c) {
-            Span::from(c.to_string()).style(Style::default().fg(color))
+            Span::from(c.to_string()).style(Style::default().fg(primary_color))
           } else {
-            let color = if self.is_active() {
-              layout.get_error_color()
-            } else {
-              layout.get_error_color().to_dark()
-            };
-
             Span::from(c.to_string()).style(
               Style::default()
-                .fg(color)
+                .fg(error_color)
                 .add_modifier(Modifier::CROSSED_OUT),
             )
           }
         } else {
-          let color = if self.is_active() {
-            layout.get_text_color()
-          } else {
-            layout.get_text_color().to_dark()
-          };
-
-          Span::from(c.to_string()).style(Style::default().fg(color))
+          Span::from(c.to_string()).style(Style::default().fg(text_color))
         }
       })
       .collect::<Line>();

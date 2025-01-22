@@ -26,15 +26,16 @@ pub struct Tukai<'a> {
   // App config
   pub config: Rc<RefCell<TukaiConfig>>,
 
-  // Cathing crossterm keyboard events
+  // Handles a crossterm keyboard events
   event_handler: &'a mut EventHandler,
 
   // Storage handler
   storage_handler: StorageHandler,
 
-  // App was interrupted
-  is_exit: bool,
+  // App was terminated
+  is_terminated: bool,
 
+  // Displayed screen (typing|stats)
   screen: Box<dyn Screen>
 }
 
@@ -63,9 +64,7 @@ impl<'a> Tukai<'a> {
     }
 
     let config = Rc::new(RefCell::new(config));
-
     let typing_screen = TypingScreen::new(Rc::clone(&config));
-    // let stats_screen = StatsScreen::new(Rc::clone(&config));
 
     Ok(Self {
       config,
@@ -74,7 +73,7 @@ impl<'a> Tukai<'a> {
 
       storage_handler,
 
-      is_exit: false,
+      is_terminated: false,
 
       screen: Box::new(typing_screen)
     })
@@ -88,7 +87,7 @@ impl<'a> Tukai<'a> {
     &mut self,
     terminal: &mut TukaiTerminal,
   ) -> Result<(), Box<dyn std::error::Error>> {
-    while !self.is_exit {
+    while !self.is_terminated {
       match self.event_handler.next().await? {
         TukaiEvent::Key(key_event) => self.handle_events(key_event),
         TukaiEvent::Tick => {
@@ -98,33 +97,23 @@ impl<'a> Tukai<'a> {
         }
       };
 
+      if self.screen.get_remaining_time() == 0 {
+        self.screen.stop(&mut self.storage_handler);
+      }
+
       terminal.draw(|frame| self.draw(frame))?;
     }
 
     Ok(())
   }
 
-  /// Render tui components for a current screen
+  /// Renders TUI components of the current
+  /// selected screen.
   fn draw(&mut self, frame: &mut Frame) {
     let main_layout = Layout::default()
       .constraints(vec![Constraint::Min(0), Constraint::Length(3)])
       .split(frame.area());
 
-    self.screen.render(frame, main_layout[0]);
-
-    // if self.screen.is_popup_visible() {
-    //   if self.typing_screen.is_active() {
-    //     self.typing_screen.toggle_active();
-    //   }
-    // } else if !self.typing_screen.is_active() {
-    //   self.typing_screen.toggle_active();
-    // }
-
-    if self.screen.get_remaining_time() == 0 {
-      self.screen.stop(&mut self.storage_handler);
-    }
-
-    // Renders
     self.screen.render(frame, main_layout[0]);
     self.screen.render_instructions(frame, main_layout[1]);
 
@@ -133,19 +122,17 @@ impl<'a> Tukai<'a> {
     }
   }
 
-  fn handle_screen_events(&mut self, key: KeyEvent) -> bool {
-    self.screen.handle_events(key)
-  }
-
+  /// Resets the application
   fn reset(&mut self) {
     self.screen.reset();
   }
 
   /// Exits the running application
   ///
-  /// Attempts to flush storage data before sets the `is_exit`.
+  /// Attempts to flush storage data before sets the `is_terminated`.
   fn exit(&mut self) {
-    self.is_exit = true;
+    self.is_terminated = true;
+
     self
       .storage_handler
       .flush()
@@ -156,7 +143,7 @@ impl<'a> Tukai<'a> {
   ///
   /// Hides the currently active screen.
   /// Sets the `active_screen` to the switched screen
-  fn switch_active_screen(&mut self, switch_to_screen: ActiveScreenEnum) {
+  fn switch_screen(&mut self, switch_to_screen: ActiveScreenEnum) {
     match switch_to_screen {
       ActiveScreenEnum::Stats => {
         self.screen = Box::new(StatsScreen::new(self.config.clone()));
@@ -177,8 +164,8 @@ impl<'a> Tukai<'a> {
       match key_event.code {
         KeyCode::Char(c) => match c {
           'r' => self.reset(),
-          'l' => self.switch_active_screen(ActiveScreenEnum::Stats),
-          'h' => self.switch_active_screen(ActiveScreenEnum::Typing),
+          'l' => self.switch_screen(ActiveScreenEnum::Stats),
+          'h' => self.switch_screen(ActiveScreenEnum::Typing),
           'c' => self.exit(),
           'd' => {
             self
@@ -208,9 +195,7 @@ impl<'a> Tukai<'a> {
               .get_language_mut()
               .switch_language();
 
-            // saved into the storage
             self.storage_handler.set_language_index(new_language_index);
-
             self.reset();
           }
           _ => {}
@@ -221,16 +206,16 @@ impl<'a> Tukai<'a> {
       return;
     }
 
-    if self.handle_screen_events(key_event) {
+    if self.screen.handle_events(key_event) {
       return;
     }
 
     if key_event.code == KeyCode::Esc {
       self.exit();
     } else if key_event.code == KeyCode::Left {
-      self.switch_active_screen(ActiveScreenEnum::Typing)
+      self.switch_screen(ActiveScreenEnum::Typing)
     } else if key_event.code == KeyCode::Right {
-      self.switch_active_screen(ActiveScreenEnum::Stats)
+      self.switch_screen(ActiveScreenEnum::Stats)
     }
   }
 }

@@ -143,11 +143,6 @@ pub trait Screen {
     ))
   }
 
-  /// Returns whether the popup is visible
-  fn is_popup_visible(&self) -> bool {
-    false
-  }
-
   fn reset(&mut self);
 
   /// Handles key events
@@ -155,23 +150,24 @@ pub trait Screen {
   /// If any key consumed by the screen returns false
   fn handle_events(&mut self, key: KeyEvent) -> bool;
 
-  /// Screen is currently active
-  fn is_active(&self) -> bool;
+  /// Typing is running
   fn is_running(&self) -> bool {
     false
   }
 
-  fn toggle_active(&mut self);
-
-  /// After another screen switched
-  fn hide(&mut self) {
-    self.toggle_active();
+  /// Returns whether the popup is visible.
+  ///
+  /// Default set to false (not used in stats screen)
+  fn is_popup_visible(&self) -> bool {
+    false
   }
 
-  /// Render screen instructions
+  /// Renders screen instructions.
+  ///
+  /// Visible of the bottom of screen
   fn render_instructions(&self, frame: &mut Frame, area: Rect);
 
-  /// Render screen
+  /// Renders screen widgets.
   fn render(&self, frame: &mut Frame, area: Rect);
 
   /// Renders a popup screen
