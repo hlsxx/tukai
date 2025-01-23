@@ -246,32 +246,32 @@ impl Screen for TypingScreen {
     ));
     instruction_widget.add_instruction(Instruction::new(
       "Reset",
-      "ctrl + r",
+      "ctrl-r",
       TukaiLayoutColorTypeEnum::Secondary,
     ));
     instruction_widget.add_instruction(Instruction::new(
       "Duration",
-      "ctrl + d",
+      "ctrl-d",
       TukaiLayoutColorTypeEnum::Secondary,
     ));
     instruction_widget.add_instruction(Instruction::new(
       "Layout",
-      "ctrl + s",
+      "ctrl-s",
       TukaiLayoutColorTypeEnum::Secondary,
     ));
     instruction_widget.add_instruction(Instruction::new(
       "Transparent",
-      "ctrl + t",
+      "ctrl-t",
       TukaiLayoutColorTypeEnum::Secondary,
     ));
     instruction_widget.add_instruction(Instruction::new(
-      "Stats screen",
-      "ctrl + l",
+      "Stats",
+      "ctrl-l",
       TukaiLayoutColorTypeEnum::Secondary,
     ));
     instruction_widget.add_instruction(Instruction::new(
       "Language",
-      "ctrl + p",
+      "ctrl-p",
       TukaiLayoutColorTypeEnum::Secondary,
     ));
 
@@ -318,7 +318,7 @@ impl Screen for TypingScreen {
       Line::from(""),
       Line::from(vec![
         Span::from("Try again").style(Style::default().fg(app_layout.get_primary_color())),
-        Span::from(" ctrl + r").style(Style::default().fg(app_layout.get_primary_color()).bold()),
+        Span::from(" ctrl-r").style(Style::default().fg(app_layout.get_primary_color()).bold()),
       ]),
     ]);
 

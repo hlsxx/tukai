@@ -69,12 +69,12 @@ impl Screen for StatsScreen {
     ));
     instruction_widget.add_instruction(Instruction::new(
       "Transparent",
-      "ctrl + t",
+      "ctrl-t",
       TukaiLayoutColorTypeEnum::Secondary,
     ));
     instruction_widget.add_instruction(Instruction::new(
       "Typing",
-      "ctrl + h",
+      "ctrl-h",
       TukaiLayoutColorTypeEnum::Secondary,
     ));
 
