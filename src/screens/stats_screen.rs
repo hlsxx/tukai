@@ -104,7 +104,7 @@ impl Screen for StatsScreen {
 
     let right_widget = Layout::default()
       .direction(Direction::Vertical)
-      .constraints(vec![Constraint::Length(5), Constraint::Percentage(100)])
+      .constraints(vec![Constraint::Length(7), Constraint::Percentage(100)])
       .split(chunks[1]);
 
     let last_runs_table_widget_data = storage_handler.get_data_stats_reversed();
@@ -293,12 +293,17 @@ impl StatsScreen {
     let text = vec![
       Line::default(),
       Line::from(vec![
-        Span::from(" Total average WPM: ").style(Style::default().fg(text_color)),
+        Span::from(" Tests count: ").style(Style::default().fg(text_color)),
+        Span::from(stat_overview.total_stats_count.to_string())
+          .style(Style::default().fg(primary_color).bold()),
+      ]),
+      Line::from(vec![
+        Span::from(" Average WPM: ").style(Style::default().fg(text_color)),
         Span::from(stat_overview.total_average_wpm.to_string())
           .style(Style::default().fg(primary_color).bold()),
       ]),
       Line::from(vec![
-        Span::from(" Total average accuracy: ")
+        Span::from(" Average accuracy: ")
           .style(Style::default().fg(text_color)),
         Span::from(format!("{}%", stat_overview.total_average_accuracy,))
           .style(Style::default().fg(primary_color).bold()),

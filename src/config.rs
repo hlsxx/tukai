@@ -59,6 +59,7 @@ pub enum TukaiLayoutName {
   Anime,
   Deadpool,
   Wolverine,
+  Goblin
 }
 
 /// Display used in the Tukai paragraph block_title
@@ -72,6 +73,7 @@ impl Display for TukaiLayoutName {
       Anime => "🌸 Anime",
       Deadpool => "🩸🔞 Deadpool",
       Wolverine => "💪🍺 Wolverine",
+      Goblin => "🌳 Goblin",
     };
 
     write!(f, "{}", display_text)
@@ -175,6 +177,16 @@ impl TukaiLayout {
           (24, 8, 2),
           (120, 120, 120),
         )
+      },
+      Goblin => {
+        TukaiLayoutColors::new(
+          (82, 140, 25),
+          (136, 207, 66),
+          (255, 255, 255),
+          (56, 51, 49),
+          (32, 36, 30),
+          (117, 71, 56),
+        )
       }
     };
 
@@ -184,7 +196,8 @@ impl TukaiLayout {
       (Anime, Deadpool),
       (Deadpool, Wolverine),
       (Wolverine, Rust),
-      (Rust, Iced),
+      (Rust, Goblin),
+      (Goblin, Iced),
     ]);
 
     Self {

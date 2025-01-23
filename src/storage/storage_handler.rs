@@ -61,6 +61,7 @@ pub struct StorageHandler {
 ///
 /// Includes the average WPM (words per minute) and average accuracy.
 pub struct StatOverview {
+  pub total_stats_count: usize,
   pub total_average_wpm: usize,
   pub total_average_accuracy: f64,
 }
@@ -150,6 +151,7 @@ impl StorageHandler {
     let accuracy = (sum_accuracy / stats.len() as f64).round();
 
     StatOverview {
+      total_stats_count: stats.len(),
       total_average_wpm: sum_wpm.checked_div(stats.len()).unwrap_or(0),
       total_average_accuracy: if accuracy.is_nan() { 0.0 } else { accuracy },
     }
