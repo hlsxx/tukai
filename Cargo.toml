@@ -1,6 +1,6 @@
 [package]
 name = "tukai"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 authors = ["hlsxx"]
 description = "The app provides an interactive typing experience with switchable templates, designed to help users improve their typing speed and accuracy."
@@ -15,6 +15,7 @@ futures = "0.3.31"
 maplit = "1.0.2"
 rand = "0.8.5"
 ratatui = "0.29.0"
+rust-embed = "8.5.0"
 serde = { version = "1.0.217", features = ["derive"] }
 tokio = { version = "1.43.0", features = ["full"] }
 

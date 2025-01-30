@@ -1,14 +1,11 @@
 use ratatui::style::Style;
+use rust_embed::RustEmbed;
 use std::cell::{Ref, RefCell, RefMut};
 
 use serde::{Deserialize, Serialize};
 
 use std::{collections::HashMap, fmt::Display, hash::Hash};
-use std::{
-  fs::{self, File},
-  io::{BufRead, BufReader},
-  path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 
 use maplit::hashmap;
 use ratatui::style::Color;
@@ -257,9 +254,13 @@ impl TukaiLayout {
   }
 }
 
+#[derive(RustEmbed)]
+#[folder = "dictionary/"]
+struct LanguageDictionary;
+
 pub struct Language {
   // Language files paths from the `words` folder
-  language_files: Vec<PathBuf>,
+  language_files: Vec<String>,
 
   // Current used language index
   current_index: usize,
@@ -318,14 +319,18 @@ impl Language {
   /// Returns the paths of all available language files in the `words` folder.
   ///
   /// So i.e. available languages
-  pub fn load_language_files(&self) -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
-    let entries = fs::read_dir("words")?;
+  pub fn load_language_files(&self) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    let languages = LanguageDictionary::iter()
+      .map(|file| file.to_string())
+      .collect::<Vec<String>>();
 
-    let languages = entries
-      .filter_map(|entry| entry.ok())
-      .filter(|entry| entry.path().is_file())
-      .map(|entry| entry.path())
-      .collect::<Vec<PathBuf>>();
+    // Maybe in feature manual load custom languages
+    //
+    // let languages = entries
+    //   .filter_map(|entry| entry.ok())
+    //   .filter(|entry| entry.path().is_file())
+    //   .map(|entry| entry.path())
+    //   .collect::<Vec<PathBuf>>();
 
     Ok(languages)
   }
@@ -339,18 +344,16 @@ impl Language {
       .get(self.current_index)
       .ok_or("Not found a language dictionary file")?;
 
-    let file = File::open(&language_file_path)?;
-    let buffer = BufReader::new(file);
+    let file = LanguageDictionary::get(language_file_path).unwrap();
 
-    let words = buffer
+    let words = std::str::from_utf8(&file.data)?
       .lines()
-      .filter_map(|line| line.ok())
       .flat_map(|line| {
         line
           .split_whitespace()
           .map(String::from)
           .collect::<Vec<String>>()
-      }) // Split into words
+      })
       .collect::<Vec<String>>();
 
     Ok(words)
