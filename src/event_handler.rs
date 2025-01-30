@@ -2,6 +2,9 @@ use std::{error, io, time::Duration};
 
 use ratatui::crossterm::event::{Event, EventStream, KeyEvent};
 
+#[cfg(target_os = "windows")]
+use ratatui::crossterm::event::KeyEventKind;
+
 use tokio::sync::mpsc;
 
 use futures::{FutureExt, StreamExt};
