@@ -196,9 +196,10 @@ impl StatsScreen {
     let rows = stats
       .iter()
       .map(|stat| {
+        let duration_pretty = stat.get_duration_pretty();
+
         Row::new(vec![
-          Cell::from(stat.get_duration().to_string())
-            .style(Style::default().fg(text_color.to_dark())),
+          Cell::from(duration_pretty),
           Cell::from(stat.get_average_wpm().to_string()).style(default_cell_style),
           Cell::from(format!("{}%", stat.get_accuracy())).style(default_cell_style),
           Cell::from(stat.get_raw_wpm().to_string())

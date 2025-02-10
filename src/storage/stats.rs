@@ -1,5 +1,6 @@
 use super::stat_helper::StatHelper;
 use crate::config::TypingDuration;
+use ratatui::{style::{Color, Style}, text::{Line, Span}};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
@@ -45,8 +46,20 @@ impl Stat {
   }
 
   /// Returns the duration
-  pub fn get_duration(&self) -> usize {
-    self.typing_duration.as_seconds()
+  pub fn get_time_difficulty(&self) -> Span<'static> {
+    match self.typing_duration {
+      TypingDuration::ThirtySec => Span::from(" (Short)").style(Style::default().fg(Color::Green)),
+      TypingDuration::Minute => Span::from(" (Medium)").style(Style::default().fg(Color::Yellow)),
+      TypingDuration::ThreeMinutes => Span::from(" (Long)").style(Style::default().fg(Color::Red)),
+    }
+  }
+
+  /// Returns the duration
+  pub fn get_duration_pretty(&self) -> Line<'static> {
+    Line::from(vec![
+      Span::from(format!("{}s", self.typing_duration.as_seconds().to_string())),
+      self.get_time_difficulty()
+    ])
   }
 
   /// Returns the raw WPM
