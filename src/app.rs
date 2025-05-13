@@ -36,7 +36,7 @@ pub struct Tukai<'a> {
   is_terminated: bool,
 
   // Displayed screen (typing|stats)
-  screen: Box<dyn Screen>
+  screen: Box<dyn Screen>,
 }
 
 impl<'a> Tukai<'a> {
@@ -75,7 +75,7 @@ impl<'a> Tukai<'a> {
 
       is_terminated: false,
 
-      screen: Box::new(typing_screen)
+      screen: Box::new(typing_screen),
     })
   }
 
@@ -147,7 +147,7 @@ impl<'a> Tukai<'a> {
     match switch_to_screen {
       ActiveScreenEnum::Stats => {
         self.screen = Box::new(StatsScreen::new(self.config.clone()));
-      },
+      }
       ActiveScreenEnum::Typing => {
         self.screen = Box::new(TypingScreen::new(self.config.clone()));
       }
@@ -198,8 +198,18 @@ impl<'a> Tukai<'a> {
             self.storage_handler.set_language_index(new_language_index);
             self.reset();
           }
+          'w' => {
+            if let Some(typing_screen) = self.screen.as_typing_screen_mut() {
+              typing_screen.delete_last_word();
+            }
+          }
           _ => {}
         },
+        KeyCode::Backspace => {
+          if let Some(typing_screen) = self.screen.as_typing_screen_mut() {
+            typing_screen.delete_last_word();
+          }
+        }
         _ => {}
       }
 

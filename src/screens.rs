@@ -13,7 +13,11 @@ use ratatui::{
   Frame,
 };
 
-use crate::{config::{TukaiConfig, TukaiLayout, TukaiLayoutColorTypeEnum}, storage::storage_handler::StorageHandler};
+use crate::{
+  config::{TukaiConfig, TukaiLayout, TukaiLayoutColorTypeEnum},
+  screens::typing_screen::TypingScreen as TypinngScreenType,
+  storage::storage_handler::StorageHandler,
+};
 
 #[allow(unused)]
 pub trait ToDark {
@@ -174,4 +178,9 @@ pub trait Screen {
   ///
   /// Used after the run is completed
   fn render_popup(&self, frame: &mut Frame);
+
+  // Allows downcasting to a mutable TypingScreen if applicable.
+  fn as_typing_screen_mut(&mut self) -> Option<&mut TypinngScreenType> {
+    None
+  }
 }
