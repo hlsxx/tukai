@@ -161,6 +161,11 @@ impl<'a> Tukai<'a> {
   /// Finally, processes remainig keys.
   fn handle_events(&mut self, key_event: KeyEvent) {
     if key_event.modifiers.contains(KeyModifiers::CONTROL) {
+      // Handle screen specific CTRL key events
+      if self.screen.handle_control_events(key_event) {
+        return;
+      }
+
       match key_event.code {
         KeyCode::Char(c) => match c {
           'r' => self.reset(),
@@ -198,18 +203,8 @@ impl<'a> Tukai<'a> {
             self.storage_handler.set_language_index(new_language_index);
             self.reset();
           }
-          'w' => {
-            if let Some(typing_screen) = self.screen.as_typing_screen_mut() {
-              typing_screen.delete_last_word();
-            }
-          }
           _ => {}
         },
-        KeyCode::Backspace => {
-          if let Some(typing_screen) = self.screen.as_typing_screen_mut() {
-            typing_screen.delete_last_word();
-          }
-        }
         _ => {}
       }
 

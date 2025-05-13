@@ -15,7 +15,6 @@ use ratatui::{
 
 use crate::{
   config::{TukaiConfig, TukaiLayout, TukaiLayoutColorTypeEnum},
-  screens::typing_screen::TypingScreen as TypinngScreenType,
   storage::storage_handler::StorageHandler,
 };
 
@@ -179,8 +178,11 @@ pub trait Screen {
   /// Used after the run is completed
   fn render_popup(&self, frame: &mut Frame);
 
-  // Allows downcasting to a mutable TypingScreen if applicable.
-  fn as_typing_screen_mut(&mut self) -> Option<&mut TypinngScreenType> {
-    None
+  /// Handles control-modified key events specific to the screen.
+  ///
+  /// True if event consumed, false otherwise.
+  #[allow(unused_variables)]
+  fn handle_control_events(&mut self, key_event: KeyEvent) -> bool {
+    false
   }
 }

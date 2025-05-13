@@ -165,8 +165,18 @@ impl Screen for TypingScreen {
     String::from("Typing")
   }
 
-  fn as_typing_screen_mut(&mut self) -> Option<&mut TypingScreen> {
-    Some(self)
+  fn handle_control_events(&mut self, key_event: KeyEvent) -> bool {
+    if self.is_popup_visible {
+      return false;
+    }
+
+    match key_event.code {
+      KeyCode::Char('w') | KeyCode::Backspace => {
+        self.delete_last_word();
+        true
+      }
+      _ => false,
+    }
   }
 
   /// Resets all necessary properties
