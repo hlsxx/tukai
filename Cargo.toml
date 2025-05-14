@@ -17,7 +17,7 @@ rand = "0.8.5"
 ratatui = "0.29.0"
 rust-embed = "8.5.0"
 serde = { version = "1.0.217", features = ["derive"] }
-tokio = { version = "1.43.0", features = ["full"] }
+tokio = { version = "1.45.0", features = ["full"] }
 
 [dev-dependencies]
 uuid = { version = "1.11.0", features = ["v4"] }
