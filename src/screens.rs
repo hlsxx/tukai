@@ -13,7 +13,10 @@ use ratatui::{
   Frame,
 };
 
-use crate::{config::{TukaiConfig, TukaiLayout, TukaiLayoutColorTypeEnum}, storage::storage_handler::StorageHandler};
+use crate::{
+  config::{TukaiConfig, TukaiLayout, TukaiLayoutColorTypeEnum},
+  storage::storage_handler::StorageHandler,
+};
 
 #[allow(unused)]
 pub trait ToDark {
@@ -174,4 +177,12 @@ pub trait Screen {
   ///
   /// Used after the run is completed
   fn render_popup(&self, frame: &mut Frame);
+
+  /// Handles control-modified key events specific to the screen.
+  ///
+  /// True if event consumed, false otherwise.
+  #[allow(unused_variables)]
+  fn handle_control_events(&mut self, key_event: KeyEvent) -> bool {
+    false
+  }
 }

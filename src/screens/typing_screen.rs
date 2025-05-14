@@ -165,6 +165,20 @@ impl Screen for TypingScreen {
     String::from("Typing")
   }
 
+  fn handle_control_events(&mut self, key_event: KeyEvent) -> bool {
+    if self.is_popup_visible {
+      return false;
+    }
+
+    match key_event.code {
+      KeyCode::Char('w') | KeyCode::Backspace => {
+        self.delete_last_word();
+        true
+      }
+      _ => false,
+    }
+  }
+
   /// Resets all necessary properties
   fn reset(&mut self) {
     self.is_running = false;
@@ -385,6 +399,42 @@ impl TypingScreen {
     }
   }
 
+  // Deletes the last word form the input.
+  // Handles trailing spaces and updates mistakes.
+  pub fn delete_last_word(&mut self) {
+    if self.input.is_empty() {
+      return;
+    }
+
+    let original_input_len = self.input.len();
+
+    // Find the end of the actual contnet (trim trailing whitespace for logic)
+    let trimmed_end_len = self.input.trim_end().len();
+
+    if trimmed_end_len == 0 {
+      // Input was all spaces
+      for i in 0..original_input_len {
+        self.mistake_handler.remove_from_mistakes_indexes(i);
+      }
+      self.input.clear();
+      self.cursor_index = 0;
+      return;
+    }
+
+    // Find the last space before the last word in the trimmed part
+    let last_word_start_idx = match self.input[..trimmed_end_len].rfind(' ') {
+      Some(space_idx) => space_idx + 1, // Word starts after the space
+      None => 0,                        // No space found, word starts at the beginning
+    };
+
+    for i in last_word_start_idx..original_input_len {
+      self.mistake_handler.remove_from_mistakes_indexes(i);
+    }
+
+    self.input.truncate(last_word_start_idx);
+    self.cursor_index = self.input.len();
+  }
+
   /// Returns the raw WPM
   pub fn get_calculated_raw_wpm(&self) -> usize {
     if let Some(last_stat) = &self.stat {
@@ -420,7 +470,11 @@ impl TypingScreen {
 
     let (primary_color, error_color, text_color) = {
       let colors = {
-        (layout.get_primary_color(), layout.get_error_color(), layout.get_text_color())
+        (
+          layout.get_primary_color(),
+          layout.get_error_color(),
+          layout.get_text_color(),
+        )
       };
 
       if self.is_popup_visible() {

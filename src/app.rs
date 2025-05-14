@@ -36,7 +36,7 @@ pub struct Tukai<'a> {
   is_terminated: bool,
 
   // Displayed screen (typing|stats)
-  screen: Box<dyn Screen>
+  screen: Box<dyn Screen>,
 }
 
 impl<'a> Tukai<'a> {
@@ -75,7 +75,7 @@ impl<'a> Tukai<'a> {
 
       is_terminated: false,
 
-      screen: Box::new(typing_screen)
+      screen: Box::new(typing_screen),
     })
   }
 
@@ -147,7 +147,7 @@ impl<'a> Tukai<'a> {
     match switch_to_screen {
       ActiveScreenEnum::Stats => {
         self.screen = Box::new(StatsScreen::new(self.config.clone()));
-      },
+      }
       ActiveScreenEnum::Typing => {
         self.screen = Box::new(TypingScreen::new(self.config.clone()));
       }
@@ -161,6 +161,11 @@ impl<'a> Tukai<'a> {
   /// Finally, processes remainig keys.
   fn handle_events(&mut self, key_event: KeyEvent) {
     if key_event.modifiers.contains(KeyModifiers::CONTROL) {
+      // Handle screen specific CTRL key events
+      if self.screen.handle_control_events(key_event) {
+        return;
+      }
+
       match key_event.code {
         KeyCode::Char(c) => match c {
           'r' => self.reset(),
