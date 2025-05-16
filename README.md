@@ -33,6 +33,14 @@ tukai is available in the Arch Linux [extra repository](https://archlinux.org/pa
 pacman -S tukai
 ```
 
+### X-CMD
+
+If you are a user of [x-cmd](https://x-cmd.com/install/tukai), you can run:
+
+```sh
+x install tukai
+```
+
 ### Installation from the Cargo
 ```sh
 cargo install tukai
