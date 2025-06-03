@@ -1,6 +1,9 @@
 use super::stat_helper::StatHelper;
 use crate::config::TypingDuration;
-use ratatui::{style::{Color, Style}, text::{Line, Span}};
+use ratatui::{
+  style::{Color, Style},
+  text::{Line, Span},
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
@@ -57,8 +60,11 @@ impl Stat {
   /// Returns the duration
   pub fn get_duration_pretty(&self) -> Line<'static> {
     Line::from(vec![
-      Span::from(format!("{}s", self.typing_duration.as_seconds().to_string())),
-      self.get_time_difficulty()
+      Span::from(format!(
+        "{}s",
+        self.typing_duration.as_seconds().to_string()
+      )),
+      self.get_time_difficulty(),
     ])
   }
 

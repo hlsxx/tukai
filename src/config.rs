@@ -4,8 +4,8 @@ use std::cell::{Ref, RefCell, RefMut};
 
 use serde::{Deserialize, Serialize};
 
-use std::{collections::HashMap, fmt::Display, hash::Hash};
 use std::path::{Path, PathBuf};
+use std::{collections::HashMap, fmt::Display, hash::Hash};
 
 use maplit::hashmap;
 use ratatui::style::Color;
@@ -56,7 +56,7 @@ pub enum TukaiLayoutName {
   Anime,
   Deadpool,
   Wolverine,
-  Goblin
+  Goblin,
 }
 
 /// Display used in the Tukai paragraph block_title

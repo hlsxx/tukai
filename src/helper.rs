@@ -1,10 +1,9 @@
-use rand::{seq::SliceRandom, Rng};
 use crate::config::TukaiConfig;
+use rand::{seq::SliceRandom, Rng};
 
 pub struct Generator;
 
 impl Generator {
-
   /// Generates a random string of words
   ///
   /// This method generates a string containing random

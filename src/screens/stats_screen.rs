@@ -23,14 +23,12 @@ use ratatui::{
 };
 
 pub struct StatsScreen {
-  config: Rc<RefCell<TukaiConfig>>
+  config: Rc<RefCell<TukaiConfig>>,
 }
 
 impl StatsScreen {
   pub fn new(config: Rc<RefCell<TukaiConfig>>) -> Self {
-    Self {
-      config
-    }
+    Self { config }
   }
 }
 
@@ -304,8 +302,7 @@ impl StatsScreen {
           .style(Style::default().fg(primary_color).bold()),
       ]),
       Line::from(vec![
-        Span::from(" Average accuracy: ")
-          .style(Style::default().fg(text_color)),
+        Span::from(" Average accuracy: ").style(Style::default().fg(text_color)),
         Span::from(format!("{}%", stat_overview.total_average_accuracy,))
           .style(Style::default().fg(primary_color).bold()),
       ]),
