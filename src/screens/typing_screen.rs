@@ -171,7 +171,8 @@ impl Screen for TypingScreen {
     }
 
     match key_event.code {
-      KeyCode::Char('w') | KeyCode::Backspace => {
+      KeyCode::Char('w') | KeyCode::Char('h') => {
+      //KeyCode::Char('w') | KeyCode::Backspace => {
         self.delete_last_word();
         true
       }
