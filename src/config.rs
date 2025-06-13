@@ -370,6 +370,7 @@ impl Language {
 /// - `Minute` - 60 seconds typing duration
 /// - `ThreeMinutes` - 180 seconds typing duration
 pub enum TypingDuration {
+  FifteenSec,
   ThirtySec,
   Minute,
   ThreeMinutes,
@@ -383,10 +384,13 @@ impl Default for TypingDuration {
 
 impl TypingDuration {
   pub fn as_seconds(&self) -> usize {
+    use TypingDuration::*;
+
     match self {
-      TypingDuration::ThirtySec => 30,
-      TypingDuration::Minute => 60,
-      TypingDuration::ThreeMinutes => 180,
+      FifteenSec => 15,
+      ThirtySec => 30,
+      Minute => 60,
+      ThreeMinutes => 180,
     }
   }
 }
@@ -467,7 +471,8 @@ impl TukaiConfig {
   pub fn switch_typing_duration(&mut self) -> TypingDuration {
     self.typing_duration = match self.typing_duration {
       TypingDuration::Minute => TypingDuration::ThreeMinutes,
-      TypingDuration::ThreeMinutes => TypingDuration::ThirtySec,
+      TypingDuration::ThreeMinutes => TypingDuration::FifteenSec,
+      TypingDuration::FifteenSec => TypingDuration::ThirtySec,
       TypingDuration::ThirtySec => TypingDuration::Minute,
     };
 
