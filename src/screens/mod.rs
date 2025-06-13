@@ -1,5 +1,6 @@
-pub mod stats_screen;
-pub mod typing_screen;
+pub mod stats;
+pub mod typing;
+pub mod repeat;
 
 use std::cell::RefCell;
 use std::rc::Rc;
