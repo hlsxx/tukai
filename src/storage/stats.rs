@@ -51,6 +51,9 @@ impl Stat {
   /// Returns the duration
   pub fn get_time_difficulty(&self) -> Span<'static> {
     match self.typing_duration {
+      TypingDuration::FifteenSec => {
+        Span::from(" (Super short)").style(Style::default().fg(Color::Cyan))
+      }
       TypingDuration::ThirtySec => Span::from(" (Short)").style(Style::default().fg(Color::Green)),
       TypingDuration::Minute => Span::from(" (Medium)").style(Style::default().fg(Color::Yellow)),
       TypingDuration::ThreeMinutes => Span::from(" (Long)").style(Style::default().fg(Color::Red)),

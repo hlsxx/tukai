@@ -161,7 +161,6 @@ impl<'a> Tukai<'a> {
   /// Finally, processes remainig keys.
   fn handle_events(&mut self, key_event: KeyEvent) {
     if key_event.modifiers.contains(KeyModifiers::CONTROL) {
-
       // Handle screen specific CTRL key events
       if self.screen.handle_control_events(key_event) {
         return;

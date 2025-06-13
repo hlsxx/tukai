@@ -471,7 +471,8 @@ impl TukaiConfig {
   pub fn switch_typing_duration(&mut self) -> TypingDuration {
     self.typing_duration = match self.typing_duration {
       TypingDuration::Minute => TypingDuration::ThreeMinutes,
-      TypingDuration::ThreeMinutes => TypingDuration::ThirtySec,
+      TypingDuration::ThreeMinutes => TypingDuration::FifteenSec,
+      TypingDuration::FifteenSec => TypingDuration::ThirtySec,
       TypingDuration::ThirtySec => TypingDuration::Minute,
     };
 
