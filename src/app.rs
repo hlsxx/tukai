@@ -1,9 +1,9 @@
 use crate::config::TukaiConfig;
 use crate::event_handler::{EventHandler, TukaiEvent};
+use crate::screens::repeat::RepeatScreen;
+use crate::screens::ActiveScreenEnum;
 use crate::storage::storage_handler::StorageHandler;
-
-use crate::screens::{stats_screen::StatsScreen, typing_screen::TypingScreen, Screen};
-
+use crate::screens::{stats::StatsScreen, typing::TypingScreen, Screen};
 use std::{cell::RefCell, rc::Rc};
 
 use ratatui::prelude::CrosstermBackend;
@@ -13,12 +13,6 @@ use ratatui::{
   layout::{Constraint, Layout},
   Frame,
 };
-
-#[derive(PartialEq, Hash, Eq)]
-enum ActiveScreenEnum {
-  Typing,
-  Stats,
-}
 
 type TukaiTerminal = Terminal<CrosstermBackend<std::io::Stdout>>;
 
@@ -144,13 +138,10 @@ impl<'a> Tukai<'a> {
   /// Hides the currently active screen.
   /// Sets the `active_screen` to the switched screen
   fn switch_screen(&mut self, switch_to_screen: ActiveScreenEnum) {
-    match switch_to_screen {
-      ActiveScreenEnum::Stats => {
-        self.screen = Box::new(StatsScreen::new(self.config.clone()));
-      }
-      ActiveScreenEnum::Typing => {
-        self.screen = Box::new(TypingScreen::new(self.config.clone()));
-      }
+    self.screen = match switch_to_screen {
+      ActiveScreenEnum::Typing => Box::new(TypingScreen::new(self.config.clone())),
+      ActiveScreenEnum::Repeat => Box::new(RepeatScreen::new(self.config.clone())),
+      ActiveScreenEnum::Stats => Box::new(StatsScreen::new(self.config.clone()))
     }
   }
 
@@ -169,8 +160,16 @@ impl<'a> Tukai<'a> {
       match key_event.code {
         KeyCode::Char(c) => match c {
           'r' => self.reset(),
-          'l' => self.switch_screen(ActiveScreenEnum::Stats),
-          'h' => self.switch_screen(ActiveScreenEnum::Typing),
+          'l' => {
+            if let Some(next_screen) = self.screen.get_next_screen() {
+              self.switch_screen(next_screen);
+            }
+          },
+          'h' => {
+            if let Some(previous_screen) = self.screen.get_previous_screen() {
+              self.switch_screen(previous_screen);
+            }
+          },
           'c' => self.exit(),
           'd' => {
             self

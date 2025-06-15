@@ -1,5 +1,6 @@
-pub mod stats_screen;
-pub mod typing_screen;
+pub mod stats;
+pub mod typing;
+pub mod repeat;
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -17,6 +18,13 @@ use crate::{
   config::{TukaiConfig, TukaiLayout, TukaiLayoutColorTypeEnum},
   storage::storage_handler::StorageHandler,
 };
+
+#[derive(PartialEq, Hash, Eq, Debug)]
+pub enum ActiveScreenEnum {
+  Typing,
+  Repeat,
+  Stats,
+}
 
 #[allow(unused)]
 pub trait ToDark {
@@ -129,6 +137,14 @@ pub trait Screen {
   fn get_config(&self) -> &Rc<RefCell<TukaiConfig>>;
   fn get_screen_name(&self) -> String;
   fn get_remaining_time(&self) -> usize;
+
+  fn get_previous_screen(&self) -> Option<ActiveScreenEnum> {
+    None
+  }
+
+  fn get_next_screen(&self) -> Option<ActiveScreenEnum> {
+    None
+  }
 
   fn stop(&mut self, _storage_handler: &mut StorageHandler) {}
 

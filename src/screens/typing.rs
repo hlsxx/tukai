@@ -16,6 +16,8 @@ use crate::{
   storage::{stats::Stat, storage_handler::StorageHandler},
 };
 
+use super::ActiveScreenEnum;
+
 /// Handler for incorrect symbols
 ///
 /// Inserts incorrect characters into a HashSet
@@ -128,6 +130,10 @@ impl Screen for TypingScreen {
       .as_seconds()
       .checked_sub(self.time_secs as usize)
       .unwrap_or(0)
+  }
+
+  fn get_next_screen(&self) -> Option<ActiveScreenEnum> {
+    Some(ActiveScreenEnum::Repeat)
   }
 
   /// Stops the running typing process
@@ -280,7 +286,7 @@ impl Screen for TypingScreen {
       TukaiLayoutColorTypeEnum::Secondary,
     ));
     instruction_widget.add_instruction(Instruction::new(
-      "Stats",
+      "Repeat word",
       "ctrl-l",
       TukaiLayoutColorTypeEnum::Secondary,
     ));
