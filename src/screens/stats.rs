@@ -49,10 +49,6 @@ impl Screen for StatsScreen {
     0
   }
 
-  fn get_next_screen(&self) -> Option<ActiveScreenEnum> {
-    None
-  }
-
   fn get_previous_screen(&self) -> Option<ActiveScreenEnum> {
     Some(ActiveScreenEnum::Repeat)
   }

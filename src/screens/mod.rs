@@ -137,8 +137,14 @@ pub trait Screen {
   fn get_config(&self) -> &Rc<RefCell<TukaiConfig>>;
   fn get_screen_name(&self) -> String;
   fn get_remaining_time(&self) -> usize;
-  fn get_previous_screen(&self) -> Option<ActiveScreenEnum>;
-  fn get_next_screen(&self) -> Option<ActiveScreenEnum>;
+
+  fn get_previous_screen(&self) -> Option<ActiveScreenEnum> {
+    None
+  }
+
+  fn get_next_screen(&self) -> Option<ActiveScreenEnum> {
+    None
+  }
 
   fn stop(&mut self, _storage_handler: &mut StorageHandler) {}
 

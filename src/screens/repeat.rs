@@ -115,17 +115,6 @@ impl Screen for RepeatScreen {
     Some(ActiveScreenEnum::Typing)
   }
 
-  fn handle_control_events(&mut self, key_event: KeyEvent) -> bool {
-    match key_event.code {
-      KeyCode::Char('w') | KeyCode::Char('h') => {
-        //KeyCode::Char('w') | KeyCode::Backspace => {
-        self.delete_last_word();
-        true
-      }
-      _ => false,
-    }
-  }
-
   /// Resets all necessary properties
   fn reset(&mut self) {
     self.mistake_handler = MistakeHandler::new();
@@ -191,11 +180,6 @@ impl Screen for RepeatScreen {
     instruction_widget.add_instruction(Instruction::new(
       "Reset",
       "ctrl-r",
-      TukaiLayoutColorTypeEnum::Secondary,
-    ));
-    instruction_widget.add_instruction(Instruction::new(
-      "Duration",
-      "ctrl-d",
       TukaiLayoutColorTypeEnum::Secondary,
     ));
     instruction_widget.add_instruction(Instruction::new(
@@ -339,7 +323,8 @@ impl RepeatScreen {
       }
     };
 
-    let repeat_word_line = Line::from("🔁 Repeat word");
+    let repeat_word_line = Line::from("🔄 Repeat word")
+      .style(Style::default().fg(layout.get_primary_color()));
 
     let text_line = self
       .generated_text

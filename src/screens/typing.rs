@@ -136,10 +136,6 @@ impl Screen for TypingScreen {
     Some(ActiveScreenEnum::Repeat)
   }
 
-  fn get_previous_screen(&self) -> Option<ActiveScreenEnum> {
-    None
-  }
-
   /// Stops the running typing process
   ///
   /// Makes the popup screen visible
@@ -290,7 +286,7 @@ impl Screen for TypingScreen {
       TukaiLayoutColorTypeEnum::Secondary,
     ));
     instruction_widget.add_instruction(Instruction::new(
-      "Stats",
+      "Repeat word",
       "ctrl-l",
       TukaiLayoutColorTypeEnum::Secondary,
     ));
