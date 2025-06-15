@@ -19,6 +19,13 @@ use crate::{
   storage::storage_handler::StorageHandler,
 };
 
+#[derive(PartialEq, Hash, Eq, Debug)]
+pub enum ActiveScreenEnum {
+  Typing,
+  Repeat,
+  Stats,
+}
+
 #[allow(unused)]
 pub trait ToDark {
   /// Converts the `(u8, u8, u8)` tuple to a `Color::Rgb`
@@ -130,6 +137,8 @@ pub trait Screen {
   fn get_config(&self) -> &Rc<RefCell<TukaiConfig>>;
   fn get_screen_name(&self) -> String;
   fn get_remaining_time(&self) -> usize;
+  fn get_previous_screen(&self) -> Option<ActiveScreenEnum>;
+  fn get_next_screen(&self) -> Option<ActiveScreenEnum>;
 
   fn stop(&mut self, _storage_handler: &mut StorageHandler) {}
 

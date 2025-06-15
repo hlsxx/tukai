@@ -16,6 +16,8 @@ use crate::{
   storage::{stats::Stat, storage_handler::StorageHandler},
 };
 
+use super::ActiveScreenEnum;
+
 /// Handler for incorrect symbols
 ///
 /// Inserts incorrect characters into a HashSet
@@ -128,6 +130,14 @@ impl Screen for TypingScreen {
       .as_seconds()
       .checked_sub(self.time_secs as usize)
       .unwrap_or(0)
+  }
+
+  fn get_next_screen(&self) -> Option<ActiveScreenEnum> {
+    Some(ActiveScreenEnum::Repeat)
+  }
+
+  fn get_previous_screen(&self) -> Option<ActiveScreenEnum> {
+    None
   }
 
   /// Stops the running typing process

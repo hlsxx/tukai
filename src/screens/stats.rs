@@ -22,6 +22,8 @@ use ratatui::{
   Frame,
 };
 
+use super::ActiveScreenEnum;
+
 pub struct StatsScreen {
   config: Rc<RefCell<TukaiConfig>>,
 }
@@ -45,6 +47,14 @@ impl Screen for StatsScreen {
 
   fn get_remaining_time(&self) -> usize {
     0
+  }
+
+  fn get_next_screen(&self) -> Option<ActiveScreenEnum> {
+    None
+  }
+
+  fn get_previous_screen(&self) -> Option<ActiveScreenEnum> {
+    Some(ActiveScreenEnum::Repeat)
   }
 
   fn reset(&mut self) {}

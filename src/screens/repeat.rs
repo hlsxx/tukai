@@ -15,6 +15,8 @@ use crate::{
   screens::{Instruction, InstructionWidget, Screen, ToDark}
 };
 
+use super::ActiveScreenEnum;
+
 /// Handler for incorrect symbols
 ///
 /// Inserts incorrect characters into a HashSet
@@ -103,6 +105,14 @@ impl Screen for RepeatScreen {
 
   fn get_screen_name(&self) -> String {
     String::from("Repeat")
+  }
+
+  fn get_next_screen(&self) -> Option<ActiveScreenEnum> {
+    Some(ActiveScreenEnum::Stats)
+  }
+
+  fn get_previous_screen(&self) -> Option<ActiveScreenEnum> {
+    Some(ActiveScreenEnum::Typing)
   }
 
   fn handle_control_events(&mut self, key_event: KeyEvent) -> bool {
