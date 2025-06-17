@@ -2,7 +2,7 @@ use std::{cell::RefCell, collections::HashSet, rc::Rc};
 
 use ratatui::{
   crossterm::event::{KeyCode, KeyEvent},
-  layout::{Alignment, Constraint, Flex, Layout, Rect},
+  layout::{Alignment, Constraint, Flex, Layout, Position, Rect},
   style::{Modifier, Style, Stylize},
   text::{Line, Span, Text},
   widgets::{Block, BorderType, Borders, Clear, Padding, Paragraph, Wrap},
@@ -51,6 +51,33 @@ impl MistakeHandler {
   /// Returns the current mistake count
   pub fn get_mistakes_counter(&self) -> usize {
     self.mistakes_indexes.len()
+  }
+}
+
+struct CursorPosition {
+  x: u16,
+  y: u16
+}
+
+impl CursorPosition {
+  pub fn new(area: Rect) -> Self {
+    let left_padding = 40;
+    let top_padding = (area.height / 2) - 5;
+
+    let x = area.x + left_padding + 1;
+    let y = area.y + top_padding + 3;
+
+    Self {
+      x,
+      y
+    }
+  }
+
+  pub fn position(&mut self, x: u16, y: u16) -> Position {
+    self.x += x;
+    self.y += y;
+
+    Position::new(self.x, self.y)
   }
 }
 
@@ -231,6 +258,7 @@ impl Screen for TypingScreen {
   }
 
   fn render(&self, frame: &mut Frame, area: Rect) {
+    let mut cursor_position = CursorPosition::new(area);
     let app_config = self.config.borrow();
     let app_layout = app_config.get_layout();
 
@@ -252,6 +280,7 @@ impl Screen for TypingScreen {
       .alignment(Alignment::Left);
 
     frame.render_widget(p, area);
+    frame.set_cursor_position(cursor_position.position(self.cursor_index as u16, 0));
   }
 
   fn render_instructions(&self, frame: &mut Frame, area: Rect) {
@@ -505,8 +534,8 @@ impl TypingScreen {
         if i == self.cursor_index {
           Span::from(c.to_string()).style(
             Style::default()
-              .fg(layout.get_text_current_color())
-              .bg(layout.get_text_current_bg_color()),
+              //.fg(layout.get_text_current_color())
+              //.bg(layout.get_text_current_bg_color()),
           )
         } else if i < self.cursor_index {
           if self.input.chars().nth(i) == Some(c) {
@@ -536,6 +565,6 @@ impl TypingScreen {
 
     let text = Text::from(lines);
 
-    Paragraph::new(text).wrap(Wrap { trim: true })
+    Paragraph::new(text)
   }
 }
