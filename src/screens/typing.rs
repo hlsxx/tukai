@@ -16,6 +16,8 @@ use crate::{
   storage::{stats::Stat, storage_handler::StorageHandler},
 };
 
+use unicode_width::UnicodeWidthChar;
+
 use super::ActiveScreenEnum;
 
 /// Handler for incorrect symbols
@@ -60,7 +62,7 @@ struct CursorPosition {
 }
 
 impl CursorPosition {
-  pub fn new(area: Rect) -> Self {
+  pub fn new(area: &Rect) -> Self {
     let left_padding = 40;
     let top_padding = (area.height / 2) - 5;
 
@@ -258,7 +260,6 @@ impl Screen for TypingScreen {
   }
 
   fn render(&self, frame: &mut Frame, area: Rect) {
-    let mut cursor_position = CursorPosition::new(area);
     let app_config = self.config.borrow();
     let app_layout = app_config.get_layout();
 
@@ -274,13 +275,14 @@ impl Screen for TypingScreen {
       .border_style(Style::default().fg(app_layout.get_primary_color()))
       .padding(Padding::new(40, 40, (area.height / 2) - 5, 0));
 
-    let p = self
-      .get_paragraph(&app_layout)
-      .block(block)
+    let (position, p) = self
+      .get_paragraph(&app_layout, &area);
+
+    let text_paragraph = p.block(block)
       .alignment(Alignment::Left);
 
-    frame.render_widget(p, area);
-    frame.set_cursor_position(cursor_position.position(self.cursor_index as u16, 0));
+    frame.render_widget(text_paragraph, area);
+    frame.set_cursor_position(position);
   }
 
   fn render_instructions(&self, frame: &mut Frame, area: Rect) {
@@ -501,7 +503,10 @@ impl TypingScreen {
   /// Prepares and returns a paragraph.
   ///
   /// If popup window is showed then colors converts to dark.
-  pub fn get_paragraph(&self, layout: &TukaiLayout) -> Paragraph {
+  pub fn get_paragraph(&self, layout: &TukaiLayout, area: &Rect) -> (Position, Paragraph) {
+    let max_width = area.width / 2;
+    let mut cursor_position = CursorPosition::new(area);
+
     let mut lines = Vec::new();
 
     let (primary_color, error_color, text_color) = {
@@ -526,41 +531,45 @@ impl TypingScreen {
     ))
     .style(Style::default().fg(primary_color).bold())]);
 
+    let mut text_lines: Vec<Line> = Vec::new();
+    let mut current_text_line: Vec<Span> = Vec::new();
+    let mut width = 0;
+    let mut line_number = 0;
 
-    let words = self.generated_text.split_whitespace().collect::<Vec<&str>>();
-    let mut text_lines = Vec::new();
+    // if self.cursor_index > 0 && (self.cursor_index + width) as u16 % max_width == 0 {
+    //   line_number += 1;
+    // }
 
-    for chunk in words.chunks(5) {
-      let line_text = chunk.join(" ");
-      text_lines.push(Line::from(line_text));
+    for (i, c) in self.generated_text.chars().enumerate() {
+      let cw = c.width().unwrap_or(1) as u16;
+
+      if cw + width > max_width {
+        text_lines.push(Line::from(current_text_line));
+        current_text_line = Vec::new();
+        width = 0;
+      }
+
+      let span = if i < self.cursor_index {
+        if self.input.chars().nth(i) == Some(c) {
+          Span::from(c.to_string()).style(Style::default().fg(primary_color))
+        } else {
+          Span::from(c.to_string()).style(
+            Style::default()
+              .fg(error_color)
+              .add_modifier(Modifier::CROSSED_OUT),
+          )
+        }
+      } else {
+        Span::from(c.to_string()).style(Style::default().fg(text_color))
+      };
+
+      current_text_line.push(span);
+      width += cw;
     }
 
-    // let text_line = self
-    //   .generated_text
-    //   .chars()
-    //   .enumerate()
-    //   .map(|(i, c)| {
-    //     if i == self.cursor_index {
-    //       Span::from(c.to_string()).style(
-    //         Style::default()
-    //           //.fg(layout.get_text_current_color())
-    //           //.bg(layout.get_text_current_bg_color()),
-    //       )
-    //     } else if i < self.cursor_index {
-    //       if self.input.chars().nth(i) == Some(c) {
-    //         Span::from(c.to_string()).style(Style::default().fg(primary_color))
-    //       } else {
-    //         Span::from(c.to_string()).style(
-    //           Style::default()
-    //             .fg(error_color)
-    //             .add_modifier(Modifier::CROSSED_OUT),
-    //         )
-    //       }
-    //     } else {
-    //       Span::from(c.to_string()).style(Style::default().fg(text_color))
-    //     }
-    //   })
-    //   .collect::<Line>();
+    if !current_text_line.is_empty() {
+      text_lines.push(Line::from(current_text_line));
+    }
 
     let empty_line = Line::from(Vec::new());
 
@@ -574,6 +583,6 @@ impl TypingScreen {
 
     let text = Text::from(lines);
 
-    Paragraph::new(text)
+    (cursor_position.position(self.cursor_index as u16, line_number), Paragraph::new(text))
   }
 }
