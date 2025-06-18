@@ -975,6 +975,7 @@ dependencies = [
  "rust-embed",
  "serde",
  "tokio",
+ "unicode-width 0.2.0",
  "uuid",
 ]
 

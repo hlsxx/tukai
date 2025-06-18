@@ -526,32 +526,41 @@ impl TypingScreen {
     ))
     .style(Style::default().fg(primary_color).bold())]);
 
-    let text_line = self
-      .generated_text
-      .chars()
-      .enumerate()
-      .map(|(i, c)| {
-        if i == self.cursor_index {
-          Span::from(c.to_string()).style(
-            Style::default()
-              //.fg(layout.get_text_current_color())
-              //.bg(layout.get_text_current_bg_color()),
-          )
-        } else if i < self.cursor_index {
-          if self.input.chars().nth(i) == Some(c) {
-            Span::from(c.to_string()).style(Style::default().fg(primary_color))
-          } else {
-            Span::from(c.to_string()).style(
-              Style::default()
-                .fg(error_color)
-                .add_modifier(Modifier::CROSSED_OUT),
-            )
-          }
-        } else {
-          Span::from(c.to_string()).style(Style::default().fg(text_color))
-        }
-      })
-      .collect::<Line>();
+
+    let words = self.generated_text.split_whitespace().collect::<Vec<&str>>();
+    let mut text_lines = Vec::new();
+
+    for chunk in words.chunks(5) {
+      let line_text = chunk.join(" ");
+      text_lines.push(Line::from(line_text));
+    }
+
+    // let text_line = self
+    //   .generated_text
+    //   .chars()
+    //   .enumerate()
+    //   .map(|(i, c)| {
+    //     if i == self.cursor_index {
+    //       Span::from(c.to_string()).style(
+    //         Style::default()
+    //           //.fg(layout.get_text_current_color())
+    //           //.bg(layout.get_text_current_bg_color()),
+    //       )
+    //     } else if i < self.cursor_index {
+    //       if self.input.chars().nth(i) == Some(c) {
+    //         Span::from(c.to_string()).style(Style::default().fg(primary_color))
+    //       } else {
+    //         Span::from(c.to_string()).style(
+    //           Style::default()
+    //             .fg(error_color)
+    //             .add_modifier(Modifier::CROSSED_OUT),
+    //         )
+    //       }
+    //     } else {
+    //       Span::from(c.to_string()).style(Style::default().fg(text_color))
+    //     }
+    //   })
+    //   .collect::<Line>();
 
     let empty_line = Line::from(Vec::new());
 
@@ -559,7 +568,7 @@ impl TypingScreen {
 
     lines.push(empty_line.clone());
 
-    lines.push(text_line);
+    lines.extend(text_lines);
 
     lines.push(empty_line);
 
