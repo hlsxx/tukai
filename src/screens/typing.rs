@@ -56,7 +56,7 @@ impl MistakeHandler {
   }
 }
 
-struct Cursor<'a> {
+struct Cursor {
   /// Index within a generated text
   index: u16,
 
@@ -65,15 +65,9 @@ struct Cursor<'a> {
 
   // Y axis position of the cursor
   y: u16,
-
-  frame: Option<&'a Frame<'a>>
 }
 
-impl<'a> Cursor<'a> {
-  pub fn set_frame(&mut self, frame: &'a Frame) {
-    self.frame = Some(frame);
-  }
-
+impl Cursor {
   pub fn reset(&mut self) {
     self.index = 0;
     self.x = 0;
@@ -82,12 +76,10 @@ impl<'a> Cursor<'a> {
 
   pub fn move_forward(&mut self) {
     self.index += 1;
-    self.x += 1;
   }
 
   pub fn move_backward(&mut self) {
     self.index -= 1;
-    self.x -= 1;
   }
 
   pub fn index(&self) -> usize {
@@ -110,23 +102,20 @@ impl<'a> Cursor<'a> {
   pub fn positition(&mut self, area: &Rect) -> Position {
     let max_width = area.width / 2;
 
-    if self.index > 0 && self.index % max_width == 0 {
-      self.x = 0;
-      self.y += 1;
-    }
+    self.y = self.index / max_width;
+    self.x = self.index % max_width;
 
     let [cursor_x, cursor_y] = self.prepare_absolute_position(area);
     Position::new(cursor_x + self.x, cursor_y + self.y)
   }
 }
 
-impl<'a> Default for Cursor<'a> {
+impl Default for Cursor {
   fn default() -> Self {
     Self {
       index: 0,
       x: 0,
-      y: 0,
-      frame: None
+      y: 0
     }
   }
 }
@@ -155,7 +144,7 @@ pub struct TypingScreen {
 
   pub time_secs: u32,
 
-  cursor: RefCell<Cursor<'static>>,
+  cursor: RefCell<Cursor>,
 
   /// Block motto
   motto: String,
