@@ -83,6 +83,56 @@ impl CursorPosition {
   }
 }
 
+struct Cursor {
+  /// Index within a generated text
+  index: u16,
+
+  // X axis position of the cursor
+  x: u16,
+
+  // Y axis position of the cursor
+  y: u16
+}
+
+impl Cursor {
+  pub fn reset(&mut self) {
+    self.index = 0;
+    self.x = 0;
+    self.y = 0;
+  }
+
+  pub fn move_forward(&mut self) {
+    self.index += 1;
+    self.x += 1;
+  }
+
+  pub fn move_backward(&mut self) {
+    self.index -= 1;
+    self.y += 1;
+  }
+
+  pub fn positition(&mut self, area: &Rect) -> Position {
+    let max_width = area.width / 2;
+
+    if self.index > 0 && self.index % max_width == 0 {
+      self.x = 0;
+      self.y += 1;
+    }
+
+    CursorPosition::new(area).position(self.x, self.y)
+  }
+}
+
+impl Default for Cursor {
+  fn default() -> Self {
+    Self {
+      index: 0,
+      x: 0,
+      y: 0
+    }
+  }
+}
+
 pub struct TypingScreen {
   /// Application config
   config: Rc<RefCell<TukaiConfig>>,
@@ -107,8 +157,7 @@ pub struct TypingScreen {
 
   pub time_secs: u32,
 
-  /// The current cursor index withing generated_text
-  cursor_index: usize,
+  cursor: RefCell<Cursor>,
 
   /// Block motto
   motto: String,
@@ -135,7 +184,7 @@ impl TypingScreen {
 
       time_secs: 0,
 
-      cursor_index: 0,
+      cursor: RefCell::new(Cursor::default()),
 
       motto: Generator::generate_random_motto(),
     }
@@ -221,7 +270,7 @@ impl Screen for TypingScreen {
     self.time_secs = 0;
 
     self.mistake_handler = MistakeHandler::new();
-    self.cursor_index = 0;
+    self.cursor.borrow_mut().reset();
     self.input = String::new();
     self.is_popup_visible = false;
 
@@ -230,7 +279,7 @@ impl Screen for TypingScreen {
   }
 
   fn handle_events(&mut self, key_event: KeyEvent) -> bool {
-    if self.cursor_index > 0 && !self.is_running() {
+    if self.cursor.borrow().index > 0 && !self.is_running() {
       return false;
     }
 
@@ -244,7 +293,7 @@ impl Screen for TypingScreen {
         }
       }
       KeyCode::Char(c) => {
-        if self.cursor_index == 0 {
+        if self.cursor.borrow().index == 0 {
           self.run();
         }
 
@@ -275,14 +324,13 @@ impl Screen for TypingScreen {
       .border_style(Style::default().fg(app_layout.get_primary_color()))
       .padding(Padding::new(40, 40, (area.height / 2) - 5, 0));
 
-    let (position, p) = self
-      .get_paragraph(&app_layout, &area);
-
-    let text_paragraph = p.block(block)
+    let text_paragraph = self
+      .get_paragraph(&app_layout, &area)
+      .block(block)
       .alignment(Alignment::Left);
 
     frame.render_widget(text_paragraph, area);
-    frame.set_cursor_position(position);
+    frame.set_cursor_position(self.cursor.borrow_mut().positition(&area));
   }
 
   fn render_instructions(&self, frame: &mut Frame, area: Rect) {
@@ -402,11 +450,13 @@ impl TypingScreen {
   ///
   /// If it is not valid, insert it into the set of mistakes
   fn validate_input_char(&mut self, inserted_char: char) {
-    if let Some(generated_char) = self.generated_text.chars().nth(self.cursor_index) {
+    let cursor_index = self.cursor.borrow().index as usize;
+
+    if let Some(generated_char) = self.generated_text.chars().nth(cursor_index) {
       if generated_char != inserted_char {
         self
           .mistake_handler
-          .add_to_mistakes_indexes(self.cursor_index);
+          .add_to_mistakes_indexes(cursor_index);
       }
     }
   }
@@ -417,7 +467,7 @@ impl TypingScreen {
   fn move_cursor_forward_with(&mut self, c: char) {
     self.validate_input_char(c);
     self.input.push(c);
-    self.cursor_index += 1;
+    self.cursor.borrow_mut().move_forward();
   }
 
   /// Moves the cursor position backward
@@ -428,12 +478,13 @@ impl TypingScreen {
       return;
     }
 
-    self.cursor_index -= 1;
+    let cursor_index = self.cursor.borrow().index as usize;
+    self.cursor.borrow_mut().move_backward();
 
-    if self.mistake_handler.is_char_mistaken(self.cursor_index) {
+    if self.mistake_handler.is_char_mistaken(cursor_index) {
       self
         .mistake_handler
-        .remove_from_mistakes_indexes(self.cursor_index);
+        .remove_from_mistakes_indexes(cursor_index);
     }
   }
 
@@ -454,8 +505,9 @@ impl TypingScreen {
       for i in 0..original_input_len {
         self.mistake_handler.remove_from_mistakes_indexes(i);
       }
+
       self.input.clear();
-      self.cursor_index = 0;
+      self.cursor.borrow_mut().reset();
       return;
     }
 
@@ -470,7 +522,7 @@ impl TypingScreen {
     }
 
     self.input.truncate(last_word_start_idx);
-    self.cursor_index = self.input.len();
+    self.cursor.borrow_mut().index = self.input.len() as u16;
   }
 
   /// Returns the raw WPM
@@ -503,9 +555,8 @@ impl TypingScreen {
   /// Prepares and returns a paragraph.
   ///
   /// If popup window is showed then colors converts to dark.
-  pub fn get_paragraph(&self, layout: &TukaiLayout, area: &Rect) -> (Position, Paragraph) {
+  pub fn get_paragraph(&self, layout: &TukaiLayout, area: &Rect) -> Paragraph {
     let max_width = area.width / 2;
-    let mut cursor_position = CursorPosition::new(area);
 
     let mut lines = Vec::new();
 
@@ -534,11 +585,6 @@ impl TypingScreen {
     let mut text_lines: Vec<Line> = Vec::new();
     let mut current_text_line: Vec<Span> = Vec::new();
     let mut width = 0;
-    let mut line_number = 0;
-
-    // if self.cursor_index > 0 && (self.cursor_index + width) as u16 % max_width == 0 {
-    //   line_number += 1;
-    // }
 
     for (i, c) in self.generated_text.chars().enumerate() {
       let cw = c.width().unwrap_or(1) as u16;
@@ -549,7 +595,7 @@ impl TypingScreen {
         width = 0;
       }
 
-      let span = if i < self.cursor_index {
+      let span = if i < self.cursor.borrow().index as usize {
         if self.input.chars().nth(i) == Some(c) {
           Span::from(c.to_string()).style(Style::default().fg(primary_color))
         } else {
@@ -583,6 +629,6 @@ impl TypingScreen {
 
     let text = Text::from(lines);
 
-    (cursor_position.position(self.cursor_index as u16, line_number), Paragraph::new(text))
+    Paragraph::new(text)
   }
 }
