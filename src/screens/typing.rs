@@ -56,34 +56,7 @@ impl MistakeHandler {
   }
 }
 
-struct CursorPosition {
-  x: u16,
-  y: u16
-}
-
-impl CursorPosition {
-  pub fn new(area: &Rect) -> Self {
-    let left_padding = 40;
-    let top_padding = (area.height / 2) - 5;
-
-    let x = area.x + left_padding + 1;
-    let y = area.y + top_padding + 3;
-
-    Self {
-      x,
-      y
-    }
-  }
-
-  pub fn position(&mut self, x: u16, y: u16) -> Position {
-    self.x += x;
-    self.y += y;
-
-    Position::new(self.x, self.y)
-  }
-}
-
-struct Cursor {
+struct Cursor<'a> {
   /// Index within a generated text
   index: u16,
 
@@ -91,10 +64,16 @@ struct Cursor {
   x: u16,
 
   // Y axis position of the cursor
-  y: u16
+  y: u16,
+
+  frame: Option<&'a Frame<'a>>
 }
 
-impl Cursor {
+impl<'a> Cursor<'a> {
+  pub fn set_frame(&mut self, frame: &'a Frame) {
+    self.frame = Some(frame);
+  }
+
   pub fn reset(&mut self) {
     self.index = 0;
     self.x = 0;
@@ -108,7 +87,24 @@ impl Cursor {
 
   pub fn move_backward(&mut self) {
     self.index -= 1;
-    self.y += 1;
+    self.x -= 1;
+  }
+
+  pub fn index(&self) -> usize {
+    self.index as usize
+  }
+
+  /// Returns absolute position of the cursor.
+  ///
+  /// Contains both paddings and total `area.height`.
+  pub fn prepare_absolute_position(&self, area: &Rect) -> [u16; 2] {
+    let left_padding = 40;
+    let top_padding = (area.height / 2) - 5;
+
+    let x = area.x + left_padding + 1;
+    let y = area.y + top_padding + 3;
+
+    [x, y]
   }
 
   pub fn positition(&mut self, area: &Rect) -> Position {
@@ -119,16 +115,18 @@ impl Cursor {
       self.y += 1;
     }
 
-    CursorPosition::new(area).position(self.x, self.y)
+    let [cursor_x, cursor_y] = self.prepare_absolute_position(area);
+    Position::new(cursor_x + self.x, cursor_y + self.y)
   }
 }
 
-impl Default for Cursor {
+impl<'a> Default for Cursor<'a> {
   fn default() -> Self {
     Self {
       index: 0,
       x: 0,
-      y: 0
+      y: 0,
+      frame: None
     }
   }
 }
@@ -157,7 +155,7 @@ pub struct TypingScreen {
 
   pub time_secs: u32,
 
-  cursor: RefCell<Cursor>,
+  cursor: RefCell<Cursor<'static>>,
 
   /// Block motto
   motto: String,
@@ -450,7 +448,7 @@ impl TypingScreen {
   ///
   /// If it is not valid, insert it into the set of mistakes
   fn validate_input_char(&mut self, inserted_char: char) {
-    let cursor_index = self.cursor.borrow().index as usize;
+    let cursor_index = self.cursor.borrow().index();
 
     if let Some(generated_char) = self.generated_text.chars().nth(cursor_index) {
       if generated_char != inserted_char {
@@ -461,16 +459,20 @@ impl TypingScreen {
     }
   }
 
-  /// Moves the cursor position forward
+  /// Moves the cursor position forward.
   ///
-  /// Also validates a char
+  /// Also validates the entered char.
   fn move_cursor_forward_with(&mut self, c: char) {
     self.validate_input_char(c);
     self.input.push(c);
-    self.cursor.borrow_mut().move_forward();
+
+    let mut cursor = self.cursor.borrow_mut();
+    if cursor.index() < self.generated_text.len(){
+      cursor.move_forward();
+    }
   }
 
-  /// Moves the cursor position backward
+  /// Moves the cursor position backward.
   ///
   /// Remove the incorrect symbol from the set if its exists
   fn move_cursor_backward(&mut self) {
@@ -478,17 +480,18 @@ impl TypingScreen {
       return;
     }
 
-    let cursor_index = self.cursor.borrow().index as usize;
-    self.cursor.borrow_mut().move_backward();
+    let mut cursor = self.cursor.borrow_mut();
+    cursor.move_backward();
 
-    if self.mistake_handler.is_char_mistaken(cursor_index) {
+    if self.mistake_handler.is_char_mistaken(cursor.index()) {
       self
         .mistake_handler
-        .remove_from_mistakes_indexes(cursor_index);
+        .remove_from_mistakes_indexes(cursor.index());
     }
   }
 
   // Deletes the last word form the input.
+  //
   // Handles trailing spaces and updates mistakes.
   pub fn delete_last_word(&mut self) {
     if self.input.is_empty() {
@@ -595,7 +598,7 @@ impl TypingScreen {
         width = 0;
       }
 
-      let span = if i < self.cursor.borrow().index as usize {
+      let span = if i < self.cursor.borrow().index() {
         if self.input.chars().nth(i) == Some(c) {
           Span::from(c.to_string()).style(Style::default().fg(primary_color))
         } else {
