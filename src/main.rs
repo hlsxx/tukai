@@ -1,6 +1,7 @@
 mod app;
 mod config;
 mod file_handler;
+mod cursor;
 
 mod event_handler;
 mod helper;

@@ -10,10 +10,7 @@ use ratatui::{
 };
 
 use crate::{
-  config::{TukaiConfig, TukaiLayout, TukaiLayoutColorTypeEnum},
-  helper::Generator,
-  screens::{Instruction, InstructionWidget, Screen, ToDark},
-  storage::{stats::Stat, storage_handler::StorageHandler},
+  config::{TukaiConfig, TukaiLayout, TukaiLayoutColorTypeEnum}, cursor::Cursor, helper::Generator, screens::{Instruction, InstructionWidget, Screen, ToDark}, storage::{stats::Stat, storage_handler::StorageHandler}
 };
 
 use unicode_width::UnicodeWidthChar;
@@ -56,73 +53,11 @@ impl MistakeHandler {
   }
 }
 
-struct Cursor {
-  /// Index within a generated text
-  index: u16,
-
-  // X axis position of the cursor
-  x: u16,
-
-  // Y axis position of the cursor
-  y: u16,
-}
-
-impl Cursor {
-  pub fn reset(&mut self) {
-    self.index = 0;
-    self.x = 0;
-    self.y = 0;
-  }
-
-  pub fn move_forward(&mut self) {
-    self.index += 1;
-  }
-
-  pub fn move_backward(&mut self) {
-    self.index -= 1;
-  }
-
-  pub fn index(&self) -> usize {
-    self.index as usize
-  }
-
-  /// Returns absolute position of the cursor.
-  ///
-  /// Contains both paddings and total `area.height`.
-  pub fn prepare_absolute_position(&self, area: &Rect) -> [u16; 2] {
-    let left_padding = 40;
-    let top_padding = (area.height / 2) - 5;
-
-    let x = area.x + left_padding + 1;
-    let y = area.y + top_padding + 3;
-
-    [x, y]
-  }
-
-  pub fn positition(&mut self, area: &Rect) -> Position {
-    let max_width = area.width / 2;
-
-    self.y = self.index / max_width;
-    self.x = self.index % max_width;
-
-    let [cursor_x, cursor_y] = self.prepare_absolute_position(area);
-    Position::new(cursor_x + self.x, cursor_y + self.y)
-  }
-}
-
-impl Default for Cursor {
-  fn default() -> Self {
-    Self {
-      index: 0,
-      x: 0,
-      y: 0
-    }
-  }
-}
-
 pub struct TypingScreen {
   /// Application config
   config: Rc<RefCell<TukaiConfig>>,
+
+  cursor: RefCell<Cursor>,
 
   /// Random generated text from a words list
   pub generated_text: String,
@@ -144,8 +79,6 @@ pub struct TypingScreen {
 
   pub time_secs: u32,
 
-  cursor: RefCell<Cursor>,
-
   /// Block motto
   motto: String,
 }
@@ -156,23 +89,14 @@ impl TypingScreen {
 
     Self {
       config,
-
+      cursor: RefCell::new(Cursor::new(&generated_text)),
       generated_text,
-
       input: String::new(),
-
       mistake_handler: MistakeHandler::new(),
-
       stat: None,
-
       is_running: false,
-
       is_popup_visible: false,
-
       time_secs: 0,
-
-      cursor: RefCell::new(Cursor::default()),
-
       motto: Generator::generate_random_motto(),
     }
   }
@@ -581,7 +505,7 @@ impl TypingScreen {
     for (i, c) in self.generated_text.chars().enumerate() {
       let cw = c.width().unwrap_or(1) as u16;
 
-      if cw + width > max_width {
+      if cw + width > max_width && self.cursor.borrow_mut().is_space(i) {
         text_lines.push(Line::from(current_text_line));
         current_text_line = Vec::new();
         width = 0;
