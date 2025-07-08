@@ -360,6 +360,10 @@ impl Language {
   }
 }
 
+pub fn get_language_files(&self) -> &Vec<String> {
+  &self.language_files
+}
+
 #[derive(Serialize, Deserialize, Hash, PartialEq, Eq, Debug, Clone)]
 /// Represents the available durations for the test
 ///
