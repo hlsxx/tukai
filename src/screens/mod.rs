@@ -154,10 +154,24 @@ pub trait Screen {
     let app_config = self.get_config().borrow();
     let app_layout = app_config.get_layout();
 
+    let language = app_config.get_language();
+    let language_name = language
+      .language_files
+      .get(*language.get_current_index())
+      .map(|s| {
+        // Prendi solo il nome senza estensione e path
+        std::path::Path::new(s)
+          .file_stem()
+          .and_then(|os_str| os_str.to_str())
+          .unwrap_or(s)
+      })
+      .unwrap_or("unknown");
+    
     Title::from(format!(
-      " tukai v{} 》{} 》{} ",
+      " tukai v{} 》{} 》{} 》{}",
       env!("CARGO_PKG_VERSION"),
       app_layout.get_active_layout_name(),
+      language_name,
       self.get_screen_name()
     ))
   }
