@@ -156,7 +156,7 @@ pub trait Screen {
 
     let language = app_config.get_language();
     let language_name = language
-      .language_files
+      .get_language_files()
       .get(*language.get_current_index())
       .map(|s| {
         // Prendi solo il nome senza estensione e path
