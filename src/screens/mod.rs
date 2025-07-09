@@ -155,7 +155,7 @@ pub trait Screen {
     let app_layout = app_config.get_layout();
     
     Title::from(format!(
-      " tukai v{} 》{} 》{} 》{}",
+      " tukai v{} 》{} 》{} 》{} ",
       env!("CARGO_PKG_VERSION"),
       app_layout.get_active_layout_name(),
       app_config.get_language().get_lang_code(),
