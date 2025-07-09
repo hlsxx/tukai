@@ -265,6 +265,9 @@ pub struct Language {
   // Current used language index
   current_index: usize,
 
+  // Current used language shortcut
+  lang_code: String,
+
   // Current selected language words
   words: Vec<String>,
 }
@@ -275,8 +278,21 @@ impl Language {
     Self {
       language_files: Vec::new(),
       current_index: 0,
+      lang_code: String::from("en"),
       words: Vec::new(),
     }
+  }
+
+  pub fn init_lang_code(&mut self) {
+    let filename = &self.language_files[self.current_index];
+
+    let lang_code = Path::new(filename)
+      .file_stem()
+      .and_then(|s| s.to_str())
+      .unwrap_or("unknown")
+      .to_string();
+
+    self.lang_code = lang_code;
   }
 
   /// Load language files from the `words` folder
@@ -298,6 +314,7 @@ impl Language {
 
   pub fn current_index(&mut self, index: usize) {
     self.current_index = index;
+    self.init_lang_code();
   }
 
   #[allow(unused)]
@@ -313,7 +330,8 @@ impl Language {
       self.current_index = 0;
     }
 
-    self.current_index.clone()
+    self.init_lang_code();
+    self.current_index
   }
 
   /// Returns the paths of all available language files in the `words` folder.
@@ -359,8 +377,8 @@ impl Language {
     Ok(words)
   }
 
-  pub fn get_language_files(&self) -> &Vec<String> {
-    &self.language_files
+  pub fn get_lang_code(&self) -> &String {
+    &self.lang_code
   }
 }
 

@@ -153,25 +153,12 @@ pub trait Screen {
   fn get_title<'a>(&self) -> Title<'a> {
     let app_config = self.get_config().borrow();
     let app_layout = app_config.get_layout();
-
-    let language = app_config.get_language();
-    let language_name = language
-      .get_language_files()
-      .get(*language.get_current_index())
-      .map(|s| {
-        // Prendi solo il nome senza estensione e path
-        std::path::Path::new(s)
-          .file_stem()
-          .and_then(|os_str| os_str.to_str())
-          .unwrap_or(s)
-      })
-      .unwrap_or("unknown");
     
     Title::from(format!(
       " tukai v{} 》{} 》{} 》{}",
       env!("CARGO_PKG_VERSION"),
       app_layout.get_active_layout_name(),
-      language_name,
+      app_config.get_language().get_lang_code(),
       self.get_screen_name()
     ))
   }
