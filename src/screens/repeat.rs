@@ -146,7 +146,7 @@ impl Screen for RepeatScreen {
     let app_config = self.config.borrow();
     let app_layout = app_config.get_layout();
 
-    let horizontal_padding = area.width / 7;
+    let horizontal_padding = if (area.width / 4) < 8 { 2 } else { area.width / 4 - 8 };  
     
     let block = Block::new()
       .title(self.get_title())
