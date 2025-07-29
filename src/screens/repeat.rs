@@ -2,10 +2,10 @@ use std::{cell::RefCell, collections::HashSet, rc::Rc};
 
 use ratatui::{
   crossterm::event::{KeyCode, KeyEvent},
-  layout::{Alignment, Constraint, Flex, Layout, Rect},
-  style::{Modifier, Style, Stylize},
+  layout::{Alignment, Rect},
+  style::{Modifier, Style},
   text::{Line, Span, Text},
-  widgets::{Block, BorderType, Borders, Clear, Padding, Paragraph, Wrap},
+  widgets::{Block, BorderType, Borders, Padding, Paragraph, Wrap},
   Frame,
 };
 
@@ -278,6 +278,7 @@ impl RepeatScreen {
 
   // Deletes the last word form the input.
   // Handles trailing spaces and updates mistakes.
+  #[allow(unused)]
   pub fn delete_last_word(&mut self) {
     if self.input.is_empty() {
       return;

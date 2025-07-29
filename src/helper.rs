@@ -7,7 +7,7 @@ pub struct Generator;
 
 impl Generator {
   /// Loads a list of words from the current language from the configuration.
-  /// 
+  ///
   /// This method attempts to read words from the language specified
   /// in the provided [`TukaiConfig`]. If the word list cannot be readed
   /// (e.g., the file is missing or unreadable), it returns an empty vector.

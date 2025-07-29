@@ -147,7 +147,7 @@ impl Screen for TypingScreen {
 
     if self.stat.is_none() {
       let stat = Stat::new(
-        &self.config.borrow().typing_duration,
+        self.config.borrow().typing_duration.clone(),
         self.input.len(),
         self.mistake_handler.get_mistakes_counter(),
       );

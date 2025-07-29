@@ -39,10 +39,7 @@ impl<'a> Tukai<'a> {
   /// Attempts to create a new Tukai application.
   /// Tries to initialize `StorageHandler` then load
   /// an existing saved settings file.
-  pub fn try_new(
-    event_handler: &'a mut EventHandler,
-    mut config: TukaiConfig,
-  ) -> Result<Self> {
+  pub fn try_new(event_handler: &'a mut EventHandler, mut config: TukaiConfig) -> Result<Self> {
     let storage_handler = StorageHandler::new(config.get_file_path()).init()?;
 
     config.typing_duration = storage_handler.get_typing_duration();
@@ -78,10 +75,7 @@ impl<'a> Tukai<'a> {
   ///
   /// Handles events from `EventHandler`
   /// Handles tick (seconds, it's time counter) from `EventHandler`
-  pub async fn run(
-    &mut self,
-    terminal: &mut TukaiTerminal,
-  ) -> Result<()> {
+  pub async fn run(&mut self, terminal: &mut TukaiTerminal) -> Result<()> {
     while !self.is_terminated {
       match self.event_handler.next().await? {
         TukaiEvent::Key(key_event) => self.handle_events(key_event),

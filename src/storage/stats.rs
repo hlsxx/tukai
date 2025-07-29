@@ -25,7 +25,7 @@ impl Stat {
   ///   * Raw WPM
   ///   * Accuracy
   pub fn new(
-    typing_duration: &TypingDuration,
+    typing_duration: TypingDuration,
     chars_counter: usize,
     mistakes_counter: usize,
   ) -> Self {

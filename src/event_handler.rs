@@ -87,8 +87,10 @@ impl EventHandler {
   /// A [`Result`] containing the next `TukaiEvent` on success,
   /// or an error if the event stream has been closed.
   pub async fn next(&mut self) -> Result<TukaiEvent> {
-    self.rx.recv().await.ok_or_else(|| {
-      anyhow!("Some IO error occurred")
-    })
+    self
+      .rx
+      .recv()
+      .await
+      .ok_or_else(|| anyhow!("Some IO error occurred"))
   }
 }

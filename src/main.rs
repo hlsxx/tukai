@@ -7,10 +7,10 @@ mod helper;
 mod screens;
 mod storage;
 
+use anyhow::Result;
 use app::Tukai;
 use config::TukaiConfigBuilder;
 use event_handler::EventHandler;
-use anyhow::Result;
 
 #[tokio::main]
 async fn main() -> Result<()> {

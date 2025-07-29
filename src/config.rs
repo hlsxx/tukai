@@ -35,6 +35,15 @@ impl ToColor for RgbColor {
   }
 }
 
+/// Represents possible color combinations and preset types used in the layout.
+///
+/// Variants correspond to different semantic roles for colors:
+/// - `Primary`: Main accent color.
+/// - `Secondary`: Secondary accent color.
+/// - `Text`: Standard text color.
+/// - `TextReverse`: Inverted text color for contrast.
+/// - `Background`: Background color.
+/// - `Error`: Color used to indicate errors.
 #[allow(dead_code)]
 pub enum TukaiLayoutColorTypeEnum {
   Primary,
@@ -451,34 +460,32 @@ impl TukaiConfig {
     }
   }
 
-  /// Returns `TukaiLayout`
   pub fn get_layout(&self) -> Ref<TukaiLayout> {
     self.layout.borrow()
   }
 
-  /// Returns `Language`
   pub fn get_language(&self) -> Ref<Language> {
     self.language.borrow()
   }
 
-  /// Returns mutable TukaiLayout
   pub fn get_layout_mut(&mut self) -> RefMut<TukaiLayout> {
     self.layout.borrow_mut()
   }
 
-  /// Returns mutable TukaiLayout
   pub fn get_language_mut(&mut self) -> RefMut<Language> {
     self.language.borrow_mut()
   }
 
-  /// Returns the storage file
   pub fn get_file_path(&self) -> &PathBuf {
     &self.file_path
   }
 
-  /// Toggles a background (transparent | layout color)
+  /// Toggles the background between transparent and the layout color.
   ///
-  /// Returns a current state
+  /// Flips the `has_transparent_bg` flag and returns the updated state.
+  ///
+  /// # Returns
+  /// The new state of the background transparency (`true` if transparent, `false` otherwise).
   pub fn toggle_transparent_bg(&mut self) -> bool {
     self.has_transparent_bg = !self.has_transparent_bg;
     self.has_transparent_bg
@@ -489,7 +496,8 @@ impl TukaiConfig {
   /// Options:
   /// 1. Minute
   /// 2. Three minutes
-  /// 3. Thirty seconds
+  /// 3. Fifteen seconds
+  /// 4. Thirty seconds
   pub fn switch_typing_duration(&mut self) -> TypingDuration {
     self.typing_duration = match self.typing_duration {
       TypingDuration::Minute => TypingDuration::ThreeMinutes,
@@ -501,9 +509,9 @@ impl TukaiConfig {
     self.typing_duration.clone()
   }
 
-  /// Returns the background color
+  /// Returns the background color of the selected layout.
   ///
-  /// If has_transparent_bg not equals true
+  /// If `has_transparent_bg` is `true`, no background color is applied.
   pub fn get_bg_color(&self) -> Style {
     let style = Style::default();
     if self.has_transparent_bg {
@@ -515,7 +523,7 @@ impl TukaiConfig {
 }
 
 pub struct TukaiConfigBuilder {
-  // Path to the storage file
+  // Path to the `language file`
   file_path: Option<PathBuf>,
 
   // Selected layout
@@ -524,14 +532,13 @@ pub struct TukaiConfigBuilder {
   // Selected language
   language: Option<RefCell<Language>>,
 
-  // App background is transparent
+  // Has application background transparent
   has_transparent_bg: bool,
 
-  // Typing duration
+  // Typing duration per run
   typing_duration: Option<TypingDuration>,
 }
 
-#[allow(unused)]
 impl TukaiConfigBuilder {
   pub fn new() -> Self {
     Self {
@@ -543,19 +550,18 @@ impl TukaiConfigBuilder {
     }
   }
 
-  /// Sets the storage file path
+  #[allow(unused)]
   pub fn file_path<P: AsRef<Path>>(mut self, file_path: P) -> Self {
     self.file_path = Some(file_path.as_ref().to_path_buf());
     self
   }
 
-  /// Sets the layout
+  #[allow(unused)]
   pub fn layout(mut self, layout: TukaiLayout) -> Self {
     self.layout = Some(RefCell::new(layout));
     self
   }
 
-  /// Builds and returns `TukaiConfig`
   pub fn build(self) -> TukaiConfig {
     let config_default = TukaiConfig::default();
 

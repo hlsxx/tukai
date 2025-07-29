@@ -46,10 +46,7 @@ impl FileHandler {
   /// # Returns
   /// A [`Result`] which is [`Ok`] if the operation succeeds,
   /// or an error if opening or writing to the file fails.
-  pub fn write_bytes_into_file<P: AsRef<Path>>(
-    path: P,
-    bytes: &[u8],
-  ) -> Result<()> {
+  pub fn write_bytes_into_file<P: AsRef<Path>>(path: P, bytes: &[u8]) -> Result<()> {
     let mut file = FileHandler::open_file(path)?;
     file.write_all(bytes)?;
     Ok(())
