@@ -14,6 +14,8 @@ use ratatui::{
   Frame,
 };
 
+use anyhow::Result;
+
 type TukaiTerminal = Terminal<CrosstermBackend<std::io::Stdout>>;
 
 pub struct Tukai<'a> {
@@ -40,8 +42,7 @@ impl<'a> Tukai<'a> {
   pub fn try_new(
     event_handler: &'a mut EventHandler,
     mut config: TukaiConfig,
-  ) -> Result<Self, Box<dyn std::error::Error>> {
-    // Inits storage handler
+  ) -> Result<Self> {
     let storage_handler = StorageHandler::new(config.get_file_path()).init()?;
 
     config.typing_duration = storage_handler.get_typing_duration();
@@ -80,7 +81,7 @@ impl<'a> Tukai<'a> {
   pub async fn run(
     &mut self,
     terminal: &mut TukaiTerminal,
-  ) -> Result<(), Box<dyn std::error::Error>> {
+  ) -> Result<()> {
     while !self.is_terminated {
       match self.event_handler.next().await? {
         TukaiEvent::Key(key_event) => self.handle_events(key_event),

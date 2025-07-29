@@ -10,10 +10,10 @@ mod storage;
 use app::Tukai;
 use config::TukaiConfigBuilder;
 use event_handler::EventHandler;
-use std::error::Error;
+use anyhow::Result;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() -> Result<()> {
   let mut terminal = ratatui::init();
   let mut event_handler = EventHandler::new();
 

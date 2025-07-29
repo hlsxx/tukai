@@ -1,5 +1,6 @@
-use std::{error, io, time::Duration};
+use std::time::Duration;
 
+use anyhow::{anyhow, Result};
 use ratatui::crossterm::event::{Event, EventStream, KeyEvent};
 
 #[cfg(target_os = "windows")]
@@ -64,10 +65,9 @@ impl EventHandler {
     Self { _tx, rx }
   }
 
-  pub async fn next(&mut self) -> Result<TukaiEvent, Box<dyn error::Error>> {
-    self.rx.recv().await.ok_or(Box::new(io::Error::new(
-      io::ErrorKind::Other,
-      "Some IO error occured",
-    )))
+  pub async fn next(&mut self) -> Result<TukaiEvent> {
+    self.rx.recv().await.ok_or_else(|| {
+      anyhow!("Some IO error occurred")
+    })
   }
 }
