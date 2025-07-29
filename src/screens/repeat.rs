@@ -263,7 +263,7 @@ impl RepeatScreen {
   ///
   /// Remove the incorrect symbol from the set if its exists
   fn move_cursor_backward(&mut self) {
-    if !self.input.pop().is_some() {
+    if self.input.pop().is_none() {
       return;
     }
 

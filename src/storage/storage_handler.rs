@@ -208,7 +208,7 @@ impl StorageHandler {
 
   /// Returns a current language index
   pub fn get_language_index(&self) -> usize {
-    self.get_data().4.clone()
+    self.get_data().4
   }
 
   /// Returns if has a transparend background
@@ -220,9 +220,7 @@ impl StorageHandler {
   ///
   /// Flushes all serialized data to the storage file.
   pub fn flush(&self) -> Result<()> {
-    let data_bytes =
-      bincode::serialize(&self.data).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
-
+    let data_bytes = bincode::serialize(&self.data)?;
     FileHandler::write_bytes_into_file(&self.file_path, &data_bytes)
   }
 

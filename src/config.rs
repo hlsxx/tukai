@@ -82,7 +82,7 @@ impl Display for TukaiLayoutName {
       Goblin => "🌳 Goblin",
     };
 
-    write!(f, "{}", display_text)
+    write!(f, "{display_text}")
   }
 }
 

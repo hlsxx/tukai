@@ -92,10 +92,8 @@ impl<'a> InstructionWidget<'a> {
     }
   }
 
-  fn get_instruction_color(&self, color_type: &TukaiLayoutColorTypeEnum) -> Color {
-    match color_type {
-      _ => self.layout.get_primary_color(),
-    }
+  fn get_instruction_color(&self, _color_type: &TukaiLayoutColorTypeEnum) -> Color {
+    self.layout.get_primary_color()
   }
 
   pub fn add_instruction(&mut self, instruction: Instruction<'a>) {

@@ -1,4 +1,4 @@
-use std::iter::repeat;
+use std::iter::{repeat, repeat_n};
 
 use crate::config::TukaiConfig;
 use rand::{seq::SliceRandom, Rng};
@@ -58,9 +58,7 @@ impl Generator {
       .cloned()
       .unwrap_or(String::from("Hello"));
 
-    let generated_string = repeat(word).take(50).collect::<Vec<String>>().join(" ");
-
-    generated_string
+    repeat_n(word, 50).collect::<Vec<String>>().join(" ")
   }
 
   /// Generates and returns a random motto string.

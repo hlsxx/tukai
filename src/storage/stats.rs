@@ -65,7 +65,7 @@ impl Stat {
     Line::from(vec![
       Span::from(format!(
         "{}s",
-        self.typing_duration.as_seconds().to_string()
+        self.typing_duration.as_seconds()
       )),
       self.get_time_difficulty(),
     ])

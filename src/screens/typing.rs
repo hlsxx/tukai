@@ -128,8 +128,7 @@ impl Screen for TypingScreen {
     app_config
       .typing_duration
       .as_seconds()
-      .checked_sub(self.time_secs as usize)
-      .unwrap_or(0)
+      .saturating_sub(self.time_secs as usize)
   }
 
   fn get_next_screen(&self) -> Option<ActiveScreenEnum> {
@@ -404,7 +403,7 @@ impl TypingScreen {
   ///
   /// Remove the incorrect symbol from the set if its exists
   fn move_cursor_backward(&mut self) {
-    if !self.input.pop().is_some() {
+    if self.input.pop().is_none() {
       return;
     }
 
