@@ -1,6 +1,6 @@
+pub mod repeat;
 pub mod stats;
 pub mod typing;
-pub mod repeat;
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -153,7 +153,7 @@ pub trait Screen {
   fn get_title<'a>(&self) -> Title<'a> {
     let app_config = self.get_config().borrow();
     let app_layout = app_config.get_layout();
-    
+
     Title::from(format!(
       " tukai v{} 》{} 》{} 》{} ",
       env!("CARGO_PKG_VERSION"),

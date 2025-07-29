@@ -382,7 +382,6 @@ impl Language {
   }
 }
 
-
 #[derive(Serialize, Deserialize, Hash, PartialEq, Eq, Debug, Clone)]
 /// Represents the available durations for the test
 ///

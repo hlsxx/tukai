@@ -30,15 +30,12 @@ impl Generator {
 
   pub fn generate_repeated_word(config: &TukaiConfig) -> String {
     let mut rng = rand::thread_rng();
-    let word= Generator::get_words(config)
+    let word = Generator::get_words(config)
       .choose(&mut rng)
       .cloned()
       .unwrap_or(String::from("Hello"));
 
-    let generated_string = repeat(word)
-      .take(50)
-      .collect::<Vec<String>>()
-      .join(" ");
+    let generated_string = repeat(word).take(50).collect::<Vec<String>>().join(" ");
 
     generated_string
   }

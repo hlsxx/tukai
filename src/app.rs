@@ -2,8 +2,8 @@ use crate::config::TukaiConfig;
 use crate::event_handler::{EventHandler, TukaiEvent};
 use crate::screens::repeat::RepeatScreen;
 use crate::screens::ActiveScreenEnum;
-use crate::storage::storage_handler::StorageHandler;
 use crate::screens::{stats::StatsScreen, typing::TypingScreen, Screen};
+use crate::storage::storage_handler::StorageHandler;
 use std::{cell::RefCell, rc::Rc};
 
 use ratatui::prelude::CrosstermBackend;
@@ -141,7 +141,7 @@ impl<'a> Tukai<'a> {
     self.screen = match switch_to_screen {
       ActiveScreenEnum::Typing => Box::new(TypingScreen::new(self.config.clone())),
       ActiveScreenEnum::Repeat => Box::new(RepeatScreen::new(self.config.clone())),
-      ActiveScreenEnum::Stats => Box::new(StatsScreen::new(self.config.clone()))
+      ActiveScreenEnum::Stats => Box::new(StatsScreen::new(self.config.clone())),
     }
   }
 
@@ -164,12 +164,12 @@ impl<'a> Tukai<'a> {
             if let Some(next_screen) = self.screen.get_next_screen() {
               self.switch_screen(next_screen);
             }
-          },
+          }
           'h' => {
             if let Some(previous_screen) = self.screen.get_previous_screen() {
               self.switch_screen(previous_screen);
             }
-          },
+          }
           'c' => self.exit(),
           'd' => {
             self

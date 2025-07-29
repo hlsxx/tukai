@@ -12,7 +12,7 @@ use ratatui::{
 use crate::{
   config::{TukaiConfig, TukaiLayout, TukaiLayoutColorTypeEnum},
   helper::Generator,
-  screens::{Instruction, InstructionWidget, Screen, ToDark}
+  screens::{Instruction, InstructionWidget, Screen, ToDark},
 };
 
 use super::ActiveScreenEnum;
@@ -146,8 +146,12 @@ impl Screen for RepeatScreen {
     let app_config = self.config.borrow();
     let app_layout = app_config.get_layout();
 
-    let horizontal_padding = if (area.width / 4) < 8 { 2 } else { area.width / 4 - 8 };  
-    
+    let horizontal_padding = if (area.width / 4) < 8 {
+      2
+    } else {
+      area.width / 4 - 8
+    };
+
     let block = Block::new()
       .title(self.get_title())
       .title_alignment(Alignment::Left)
@@ -158,7 +162,12 @@ impl Screen for RepeatScreen {
       .borders(Borders::ALL)
       .border_type(BorderType::Rounded)
       .border_style(Style::default().fg(app_layout.get_primary_color()))
-      .padding(Padding::new(horizontal_padding, horizontal_padding, (area.height / 2) - 5, 0));
+      .padding(Padding::new(
+        horizontal_padding,
+        horizontal_padding,
+        (area.height / 2) - 5,
+        0,
+      ));
 
     let p = self
       .get_paragraph(&app_layout)
@@ -325,8 +334,8 @@ impl RepeatScreen {
       }
     };
 
-    let repeat_word_line = Line::from("🔄 Repeat word")
-      .style(Style::default().fg(layout.get_primary_color()));
+    let repeat_word_line =
+      Line::from("🔄 Repeat word").style(Style::default().fg(layout.get_primary_color()));
 
     let text_line = self
       .generated_text
