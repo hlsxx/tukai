@@ -212,9 +212,13 @@ impl<'a> Tukai<'a> {
     if key_event.code == KeyCode::Esc {
       self.exit();
     } else if key_event.code == KeyCode::Left {
-      self.switch_screen(ActiveScreenEnum::Typing)
+      if let Some(previous_screen) = self.screen.get_previous_screen() {
+        self.switch_screen(previous_screen);
+      }
     } else if key_event.code == KeyCode::Right {
-      self.switch_screen(ActiveScreenEnum::Stats)
+      if let Some(next_screen) = self.screen.get_next_screen() {
+        self.switch_screen(next_screen);
+      }
     }
   }
 }
