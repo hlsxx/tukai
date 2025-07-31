@@ -1,7 +1,7 @@
 [package]
 name = "tukai"
 version = "0.2.3"
-edition = "2021"
+edition = "2024"
 authors = ["hlsxx"]
 description = "The app provides an interactive typing experience with switchable templates, designed to help users improve their typing speed and accuracy."
 license = "MIT" 
@@ -18,7 +18,7 @@ rand = "0.8.5"
 ratatui = "0.29.0"
 rust-embed = "8.7.2"
 serde = { version = "1.0.219", features = ["derive"] }
-tokio = { version = "1.45.1", features = ["full"] }
+tokio = { version = "1.47.0", features = ["full"] }
 
 [dev-dependencies]
 uuid = { version = "1.17.0", features = ["v4"] }
