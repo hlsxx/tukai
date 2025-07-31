@@ -1,6 +1,5 @@
 use std::{
   fmt::{Debug, Display},
-  io,
   path::{Path, PathBuf},
 };
 
@@ -192,7 +191,7 @@ impl StorageHandler {
   /// Used to determine the `best score`.
   pub fn get_data_stats_best(&self) -> Vec<Stat> {
     let mut data = self.get_data().0.clone();
-    data.sort_by(|a, b| b.get_average_wpm().cmp(&a.get_average_wpm()));
+    data.sort_by_key(|b| std::cmp::Reverse(b.get_average_wpm()));
     data
   }
 

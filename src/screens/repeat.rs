@@ -1,12 +1,12 @@
 use std::{cell::RefCell, collections::HashSet, rc::Rc};
 
 use ratatui::{
+  Frame,
   crossterm::event::{KeyCode, KeyEvent},
   layout::{Alignment, Rect},
   style::{Modifier, Style},
   text::{Line, Span, Text},
   widgets::{Block, BorderType, Borders, Padding, Paragraph, Wrap},
-  Frame,
 };
 
 use crate::{

@@ -312,10 +312,10 @@ impl Language {
 
     // If language dictionary files were founded
     // Sets the words
-    if self.language_files.len() > 0 {
-      if let Ok(words) = self.load_language_words() {
-        self.words = words;
-      }
+    if !self.language_files.is_empty()
+      && let Ok(words) = self.load_language_words()
+    {
+      self.words = words;
     }
 
     self

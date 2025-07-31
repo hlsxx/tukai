@@ -6,12 +6,12 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use ratatui::{
+  Frame,
   crossterm::event::KeyEvent,
   layout::Rect,
   style::{Color, Style, Stylize},
   text::{Line, Span, Text},
-  widgets::{block::Title, Paragraph},
-  Frame,
+  widgets::{Paragraph, block::Title},
 };
 
 use crate::{

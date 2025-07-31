@@ -1,17 +1,17 @@
 use crate::config::TukaiConfig;
 use crate::event_handler::{EventHandler, TukaiEvent};
-use crate::screens::repeat::RepeatScreen;
 use crate::screens::ActiveScreenEnum;
-use crate::screens::{stats::StatsScreen, typing::TypingScreen, Screen};
+use crate::screens::repeat::RepeatScreen;
+use crate::screens::{Screen, stats::StatsScreen, typing::TypingScreen};
 use crate::storage::storage_handler::StorageHandler;
 use std::{cell::RefCell, rc::Rc};
 
-use ratatui::prelude::CrosstermBackend;
 use ratatui::Terminal;
+use ratatui::prelude::CrosstermBackend;
 use ratatui::{
+  Frame,
   crossterm::event::{KeyCode, KeyEvent, KeyModifiers},
   layout::{Constraint, Layout},
-  Frame,
 };
 
 use anyhow::Result;
@@ -152,8 +152,8 @@ impl<'a> Tukai<'a> {
         return;
       }
 
-      match key_event.code {
-        KeyCode::Char(c) => match c {
+      if let KeyCode::Char(c) = key_event.code {
+        match c {
           'r' => self.reset(),
           'l' => {
             if let Some(next_screen) = self.screen.get_next_screen() {
@@ -198,8 +198,7 @@ impl<'a> Tukai<'a> {
             self.reset();
           }
           _ => {}
-        },
-        _ => {}
+        }
       }
 
       return;

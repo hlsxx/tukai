@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use ratatui::crossterm::event::{Event, EventStream, KeyEvent};
 
 #[cfg(target_os = "windows")]
@@ -53,23 +53,16 @@ impl EventHandler {
         let crossterm_event = reader.next().fuse();
 
         tokio::select! {
-          Some(Ok(event)) = crossterm_event => {
-            match event {
-              Event::Key(key_event) => {
-
-                // On Windows terminal takes press and release
-                // To avoid symbols duplications checks a event kind
-                #[cfg(target_os = "windows")]
-                {
-                  if key_event.kind != KeyEventKind::Press {
-                    continue
-                  }
-                }
-
-                tx_clone.send(TukaiEvent::Key(key_event)).unwrap();
-              },
-              _ => {}
+          Some(Ok(Event::Key(key_event))) = crossterm_event => {
+            // On Windows terminal takes press and release
+            // To avoid symbols duplications checks a event kind
+            #[cfg(target_os = "windows")]
+            {
+              if key_event.kind != KeyEventKind::Press {
+                continue
+              }
             }
+            tx_clone.send(TukaiEvent::Key(key_event)).unwrap();
           },
           _ = tick_delay => {
             tx_clone.send(TukaiEvent::Tick).unwrap();

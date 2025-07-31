@@ -1,7 +1,7 @@
-use std::iter::{repeat, repeat_n};
+use std::iter::repeat_n;
 
 use crate::config::TukaiConfig;
-use rand::{seq::SliceRandom, Rng};
+use rand::{Rng, seq::SliceRandom};
 
 pub struct Generator;
 
@@ -15,7 +15,7 @@ impl Generator {
     config
       .get_language()
       .load_language_words()
-      .unwrap_or(Vec::new())
+      .unwrap_or_default()
   }
 
   /// Generates a random string composed of words from a language-specific word list.
@@ -35,7 +35,7 @@ impl Generator {
     Generator::get_words(config)
       .choose_multiple(&mut rng, config.typing_duration.as_seconds() * 2)
       .fold(String::new(), |mut acc, c| {
-        acc.push_str(format!("{} ", c).as_str());
+        acc.push_str(format!("{c} ").as_str());
         acc
       })
   }

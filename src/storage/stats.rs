@@ -63,10 +63,7 @@ impl Stat {
   /// Returns the duration
   pub fn get_duration_pretty(&self) -> Line<'static> {
     Line::from(vec![
-      Span::from(format!(
-        "{}s",
-        self.typing_duration.as_seconds()
-      )),
+      Span::from(format!("{}s", self.typing_duration.as_seconds())),
       self.get_time_difficulty(),
     ])
   }

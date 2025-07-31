@@ -1,12 +1,12 @@
 use std::{cell::RefCell, collections::HashSet, rc::Rc};
 
 use ratatui::{
+  Frame,
   crossterm::event::{KeyCode, KeyEvent},
   layout::{Alignment, Constraint, Flex, Layout, Rect},
   style::{Modifier, Style, Stylize},
   text::{Line, Span, Text},
   widgets::{Block, BorderType, Borders, Clear, Padding, Paragraph, Wrap},
-  Frame,
 };
 
 use crate::{
@@ -501,11 +501,10 @@ impl TypingScreen {
       }
     };
 
-    let remaining_time_line = Line::from(vec![Span::from(format!(
-      "⏳{}",
-      self.get_remaining_time(),
-    ))
-    .style(Style::default().fg(primary_color).bold())]);
+    let remaining_time_line = Line::from(vec![
+      Span::from(format!("⏳{}", self.get_remaining_time(),))
+        .style(Style::default().fg(primary_color).bold()),
+    ]);
 
     let text_line = self
       .generated_text
