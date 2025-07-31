@@ -1,18 +1,20 @@
 use crate::config::TukaiConfig;
 use crate::event_handler::{EventHandler, TukaiEvent};
-use crate::screens::repeat::RepeatScreen;
 use crate::screens::ActiveScreenEnum;
-use crate::screens::{stats::StatsScreen, typing::TypingScreen, Screen};
+use crate::screens::repeat::RepeatScreen;
+use crate::screens::{Screen, stats::StatsScreen, typing::TypingScreen};
 use crate::storage::storage_handler::StorageHandler;
 use std::{cell::RefCell, rc::Rc};
 
-use ratatui::prelude::CrosstermBackend;
 use ratatui::Terminal;
+use ratatui::prelude::CrosstermBackend;
 use ratatui::{
+  Frame,
   crossterm::event::{KeyCode, KeyEvent, KeyModifiers},
   layout::{Constraint, Layout},
-  Frame,
 };
+
+use anyhow::Result;
 
 type TukaiTerminal = Terminal<CrosstermBackend<std::io::Stdout>>;
 
@@ -37,11 +39,7 @@ impl<'a> Tukai<'a> {
   /// Attempts to create a new Tukai application.
   /// Tries to initialize `StorageHandler` then load
   /// an existing saved settings file.
-  pub fn try_new(
-    event_handler: &'a mut EventHandler,
-    mut config: TukaiConfig,
-  ) -> Result<Self, Box<dyn std::error::Error>> {
-    // Inits storage handler
+  pub fn try_new(event_handler: &'a mut EventHandler, mut config: TukaiConfig) -> Result<Self> {
     let storage_handler = StorageHandler::new(config.get_file_path()).init()?;
 
     config.typing_duration = storage_handler.get_typing_duration();
@@ -77,10 +75,7 @@ impl<'a> Tukai<'a> {
   ///
   /// Handles events from `EventHandler`
   /// Handles tick (seconds, it's time counter) from `EventHandler`
-  pub async fn run(
-    &mut self,
-    terminal: &mut TukaiTerminal,
-  ) -> Result<(), Box<dyn std::error::Error>> {
+  pub async fn run(&mut self, terminal: &mut TukaiTerminal) -> Result<()> {
     while !self.is_terminated {
       match self.event_handler.next().await? {
         TukaiEvent::Key(key_event) => self.handle_events(key_event),
@@ -157,8 +152,8 @@ impl<'a> Tukai<'a> {
         return;
       }
 
-      match key_event.code {
-        KeyCode::Char(c) => match c {
+      if let KeyCode::Char(c) = key_event.code {
+        match c {
           'r' => self.reset(),
           'l' => {
             if let Some(next_screen) = self.screen.get_next_screen() {
@@ -203,8 +198,7 @@ impl<'a> Tukai<'a> {
             self.reset();
           }
           _ => {}
-        },
-        _ => {}
+        }
       }
 
       return;
@@ -217,9 +211,13 @@ impl<'a> Tukai<'a> {
     if key_event.code == KeyCode::Esc {
       self.exit();
     } else if key_event.code == KeyCode::Left {
-      self.switch_screen(ActiveScreenEnum::Typing)
+      if let Some(previous_screen) = self.screen.get_previous_screen() {
+        self.switch_screen(previous_screen);
+      }
     } else if key_event.code == KeyCode::Right {
-      self.switch_screen(ActiveScreenEnum::Stats)
+      if let Some(next_screen) = self.screen.get_next_screen() {
+        self.switch_screen(next_screen);
+      }
     }
   }
 }

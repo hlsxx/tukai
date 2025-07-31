@@ -1,12 +1,12 @@
 use std::{cell::RefCell, collections::HashSet, rc::Rc};
 
 use ratatui::{
+  Frame,
   crossterm::event::{KeyCode, KeyEvent},
   layout::{Alignment, Constraint, Flex, Layout, Rect},
   style::{Modifier, Style, Stylize},
   text::{Line, Span, Text},
   widgets::{Block, BorderType, Borders, Clear, Padding, Paragraph, Wrap},
-  Frame,
 };
 
 use crate::{
@@ -128,8 +128,7 @@ impl Screen for TypingScreen {
     app_config
       .typing_duration
       .as_seconds()
-      .checked_sub(self.time_secs as usize)
-      .unwrap_or(0)
+      .saturating_sub(self.time_secs as usize)
   }
 
   fn get_next_screen(&self) -> Option<ActiveScreenEnum> {
@@ -147,7 +146,7 @@ impl Screen for TypingScreen {
 
     if self.stat.is_none() {
       let stat = Stat::new(
-        &self.config.borrow().typing_duration,
+        self.config.borrow().typing_duration.clone(),
         self.input.len(),
         self.mistake_handler.get_mistakes_counter(),
       );
@@ -234,10 +233,10 @@ impl Screen for TypingScreen {
     let app_config = self.config.borrow();
     let app_layout = app_config.get_layout();
 
-    let horizontal_padding = if (area.width / 4) < 8 {
+    let horizontal_padding = if (area.width / 3) < 8 {
       2
     } else {
-      area.width / 4 - 8
+      area.width / 3 - 8
     };
 
     let block = Block::new()
@@ -404,7 +403,7 @@ impl TypingScreen {
   ///
   /// Remove the incorrect symbol from the set if its exists
   fn move_cursor_backward(&mut self) {
-    if !self.input.pop().is_some() {
+    if self.input.pop().is_none() {
       return;
     }
 
@@ -502,11 +501,10 @@ impl TypingScreen {
       }
     };
 
-    let remaining_time_line = Line::from(vec![Span::from(format!(
-      "⏳{}",
-      self.get_remaining_time(),
-    ))
-    .style(Style::default().fg(primary_color).bold())]);
+    let remaining_time_line = Line::from(vec![
+      Span::from(format!("⏳{}", self.get_remaining_time(),))
+        .style(Style::default().fg(primary_color).bold()),
+    ]);
 
     let text_line = self
       .generated_text

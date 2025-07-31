@@ -25,7 +25,7 @@ impl Stat {
   ///   * Raw WPM
   ///   * Accuracy
   pub fn new(
-    typing_duration: &TypingDuration,
+    typing_duration: TypingDuration,
     chars_counter: usize,
     mistakes_counter: usize,
   ) -> Self {
@@ -63,10 +63,7 @@ impl Stat {
   /// Returns the duration
   pub fn get_duration_pretty(&self) -> Line<'static> {
     Line::from(vec![
-      Span::from(format!(
-        "{}s",
-        self.typing_duration.as_seconds().to_string()
-      )),
+      Span::from(format!("{}s", self.typing_duration.as_seconds())),
       self.get_time_difficulty(),
     ])
   }

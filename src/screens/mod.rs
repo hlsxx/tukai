@@ -6,12 +6,12 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use ratatui::{
+  Frame,
   crossterm::event::KeyEvent,
   layout::Rect,
   style::{Color, Style, Stylize},
   text::{Line, Span, Text},
-  widgets::{block::Title, Paragraph},
-  Frame,
+  widgets::{Paragraph, block::Title},
 };
 
 use crate::{
@@ -92,10 +92,8 @@ impl<'a> InstructionWidget<'a> {
     }
   }
 
-  fn get_instruction_color(&self, color_type: &TukaiLayoutColorTypeEnum) -> Color {
-    match color_type {
-      _ => self.layout.get_primary_color(),
-    }
+  fn get_instruction_color(&self, _color_type: &TukaiLayoutColorTypeEnum) -> Color {
+    self.layout.get_primary_color()
   }
 
   pub fn add_instruction(&mut self, instruction: Instruction<'a>) {

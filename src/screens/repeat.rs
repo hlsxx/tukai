@@ -1,12 +1,12 @@
 use std::{cell::RefCell, collections::HashSet, rc::Rc};
 
 use ratatui::{
-  crossterm::event::{KeyCode, KeyEvent},
-  layout::{Alignment, Constraint, Flex, Layout, Rect},
-  style::{Modifier, Style, Stylize},
-  text::{Line, Span, Text},
-  widgets::{Block, BorderType, Borders, Clear, Padding, Paragraph, Wrap},
   Frame,
+  crossterm::event::{KeyCode, KeyEvent},
+  layout::{Alignment, Rect},
+  style::{Modifier, Style},
+  text::{Line, Span, Text},
+  widgets::{Block, BorderType, Borders, Padding, Paragraph, Wrap},
 };
 
 use crate::{
@@ -146,10 +146,10 @@ impl Screen for RepeatScreen {
     let app_config = self.config.borrow();
     let app_layout = app_config.get_layout();
 
-    let horizontal_padding = if (area.width / 4) < 8 {
+    let horizontal_padding = if (area.width / 3) < 8 {
       2
     } else {
-      area.width / 4 - 8
+      area.width / 3 - 8
     };
 
     let block = Block::new()
@@ -263,7 +263,7 @@ impl RepeatScreen {
   ///
   /// Remove the incorrect symbol from the set if its exists
   fn move_cursor_backward(&mut self) {
-    if !self.input.pop().is_some() {
+    if self.input.pop().is_none() {
       return;
     }
 
@@ -278,6 +278,7 @@ impl RepeatScreen {
 
   // Deletes the last word form the input.
   // Handles trailing spaces and updates mistakes.
+  #[allow(unused)]
   pub fn delete_last_word(&mut self) {
     if self.input.is_empty() {
       return;

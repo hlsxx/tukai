@@ -10,6 +10,7 @@ use crate::{
 };
 
 use ratatui::{
+  Frame,
   crossterm::event::KeyEvent,
   layout::{Alignment, Constraint, Direction, Layout, Rect},
   style::{Style, Stylize},
@@ -19,7 +20,6 @@ use ratatui::{
     Axis, Block, BorderType, Borders, Cell, Chart, Dataset, GraphType, Padding, Paragraph, Row,
     Table,
   },
-  Frame,
 };
 
 use super::ActiveScreenEnum;
@@ -165,7 +165,7 @@ impl StatsScreen {
 
     let default_header_cell_style = Style::default().fg(primary_color).bold();
 
-    let table = Table::new(rows, widths)
+    Table::new(rows, widths)
       .block(block)
       .column_spacing(1)
       .style(app_config.get_bg_color())
@@ -175,9 +175,7 @@ impl StatsScreen {
           Cell::from("🎯 Accuracy").style(default_header_cell_style),
         ])
         .bottom_margin(1),
-      );
-
-    table
+      )
   }
 
   /// Gets the main table widget (Last runs)
@@ -221,7 +219,7 @@ impl StatsScreen {
 
     let default_header_cell_style = Style::default().fg(primary_color).bold();
 
-    let table = Table::new(rows, widths)
+    Table::new(rows, widths)
       .block(block)
       .column_spacing(1)
       .style(app_config.get_bg_color())
@@ -234,9 +232,7 @@ impl StatsScreen {
           Cell::from("🥩 Raw WPM").style(default_header_cell_style),
         ])
         .bottom_margin(1),
-      );
-
-    table
+      )
   }
 
   /// Gets the left bottom widget (Chart)
@@ -252,11 +248,13 @@ impl StatsScreen {
     // Validate best_wpm
     // let upper_x_bound = if *best_wpm < 25 { 50 } else { best_wpm + 10 };
 
-    let datasets = vec![Dataset::default()
-      .marker(symbols::Marker::Dot)
-      .graph_type(GraphType::Scatter)
-      .style(Style::default().fg(text_color))
-      .data(chart_data)];
+    let datasets = vec![
+      Dataset::default()
+        .marker(symbols::Marker::Dot)
+        .graph_type(GraphType::Scatter)
+        .style(Style::default().fg(text_color))
+        .data(chart_data),
+    ];
 
     let y_labels = (0..=125)
       .step_by(25)
@@ -279,13 +277,11 @@ impl StatsScreen {
       .border_style(Style::default().fg(primary_color))
       .border_type(BorderType::Rounded);
 
-    let chart = Chart::new(datasets)
+    Chart::new(datasets)
       .block(chart_block)
       .style(app_config.get_bg_color())
       .x_axis(x_axis)
-      .y_axis(y_axis);
-
-    chart
+      .y_axis(y_axis)
   }
 
   fn get_stats_overview_widget<'a>(&self, stat_overview: &'a StatOverview) -> Paragraph<'a> {
@@ -321,11 +317,9 @@ impl StatsScreen {
       .border_style(Style::default().fg(primary_color))
       .border_type(BorderType::Rounded);
 
-    let p = Paragraph::new(text)
+    Paragraph::new(text)
       .block(block)
       .style(app_config.get_bg_color())
-      .alignment(Alignment::Left);
-
-    p
+      .alignment(Alignment::Left)
   }
 }
