@@ -1,85 +1,83 @@
 <div align="center">
   <h3 align="center">Tukai</h3>
-
-  <p align="center">
-    Terminal based touch typing application
-  </p>
+  <p><strong>Terminal-based touch typing application</strong></p>
+  <img src="https://github.com/hlsxx/tukai/blob/master/blob/example.gif" alt="Tukai Demo" width="80%" />
 </div>
 
-<div align="center">
-  <img src="https://github.com/hlsxx/tukai/blob/master/blob/example.gif" alt="Tukai" style="width:100%; max-height:400px" />
-</div>
+A fast, lightweight terminal-based touch typing application built in Rust using the [Ratatui](https://github.com/ratatui/ratatui) library. Designed to help users improve their typing speed and accuracy through an interactive, customizable practice experience.
 
-</br>
+## ✨ Features
 
-A terminal-based touch typing application built in Rust using the [Ratatui](https://github.com/ratatui/ratatui) library. The app provides an interactive typing experience with switchable templates, designed to help users improve their typing speed and accuracy.
+- **🚀 Terminal-Based**: Lightweight and accessible on any platform
+- **⚡ Rust-Powered**: Built for performance and reliability
+- **🎨 Customizable Templates**: Switch between different practice templates
+- **📊 Stats Tracking**: Built-in statistics preview for completed tests
+- **🌍 Multi-Language Support**: Practice typing in multiple languages
+- **🎯 Interactive Experience**: Real-time feedback and smooth user interface
 
-### Features
-- **Terminal-Based**: Simple, lightweight, and runs in the terminal for easy accessibility on any platform
-- **Rust-Based**: Built with Rust for performance and reliability
-- **Switchable Templates**: Choose between different templates to customize the typing practice experience
-- **Stats preview**: A built-in stats preview of already done tests
-- **Multi-Language Support**: Supports multiple languages for typing practice
+## 📦 Installation
 
-## Getting Started
+### Build from Source
 
-To get a local copy up and running follow these simple example steps.
+1. **Install Rust**
+   
+   If you don't have Rust installed, visit the [official Rust website](https://www.rust-lang.org/tools/install) for installation instructions.
 
-### Arch Linux
+2. **Clone the repository**
+   ```bash
+   git clone https://github.com/hlsxx/tukai
+   cd tukai
+   ```
 
-tukai is available in the Arch Linux [extra repository](https://archlinux.org/packages/extra/x86_64/tukai/).
+3. **Build and run**
+   ```bash
+   # Run directly
+   cargo run
+   
+   # Or build release version
+   cargo build --release
+   ./target/release/tukai
+   ```
 
-```sh
+### Package Managers
+
+#### Cargo (Rust Package Manager)
+```bash
+cargo install tukai
+```
+
+#### Arch Linux
+```bash
 pacman -S tukai
 ```
 
-### X-CMD
-
-If you are a user of [x-cmd](https://x-cmd.com/install/tukai), you can run:
-
-```sh
+#### X-CMD
+```bash
 x install tukai
 ```
 
-### Installation from the Cargo
-```sh
-cargo install tukai
+## ⌨️ Usage & Keyboard Shortcuts
 
-```
-### Installation
+| Key Combination | Alternative | Action |
+|-----------------|-------------|---------|
+| `Ctrl + C` | `Esc` | Exit application |
+| `Ctrl + R` | | Restart and generate new text |
+| `Ctrl + S` | | Switch between templates |
+| `Ctrl + T` | | Toggle transparent background |
+| `Ctrl + H` | `←` | Switch screen forward |
+| `Ctrl + L` | `→` | Switch screen backward |
+| `Ctrl + P` | | Switch language |
 
-#### Step 1. Install Rust
-If you don't have Rust installed, follow the instructions on the official [Rust website](https://www.rust-lang.org/tools/install) to install Rust.
+## 🤝 Contributing
 
-#### Step 2: Clone the repository
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
 
-Clone this repository to your local machine:
+## 📝 License
 
-```sh
-git clone https://github.com/hlsxx/tukai
-cd tukai
-```
-#### Step 3: Run or build the application
-```sh
-cargo run
-cargo build --release
-```
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-<!-- USAGE EXAMPLES -->
-## Usage / Shortcuts
+## 🙏 Acknowledgments
 
-|  Key |  Alternate Key |  Action |
-| ------------ | ------------ | ------------ |
-|  ctrl-c  | esc  |  Exit the application |
-|   ctrl-r |   |  Restart and generate a new text |
-|   ctrl-s |   | Switch between templates  |
-|   ctrl-t |   | Switch transparent background  |
-|   ctrl-h  | ←  | Switch to the typing screen   |
-|   ctrl-l  | → | Switch to the stats screen   |
-|   ctrl-p |   | Switch the language |
-
-<!-- LICENSE -->
-## License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
+<div align="center">
+  <p>Made with ❤️ and Rust</p>
+</div>
