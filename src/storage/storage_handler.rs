@@ -278,7 +278,7 @@ mod tests {
   }
 
   fn get_test_stat() -> Stat {
-    Stat::new(TypingDuration::Minute, 80, 5)
+    Stat::new(TypingDuration::Minute, 80, 5, 6)
   }
 
   //#[test]
