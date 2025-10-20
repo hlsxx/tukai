@@ -23,6 +23,7 @@ use super::ActiveScreenEnum;
 /// Inserts incorrect characters into a HashSet
 pub struct MistakeHandler {
   mistakes_indexes: HashSet<usize>,
+  true_mistakes_indexes: HashSet<usize>,
 }
 
 impl MistakeHandler {
@@ -30,6 +31,7 @@ impl MistakeHandler {
   fn new() -> Self {
     Self {
       mistakes_indexes: HashSet::new(),
+      true_mistakes_indexes: HashSet::new(),
     }
   }
 
@@ -40,6 +42,7 @@ impl MistakeHandler {
 
   /// Adds the typed character into the mistakes
   pub fn add_to_mistakes_indexes(&mut self, char_index: usize) -> bool {
+    self.true_mistakes_indexes.insert(char_index);
     self.mistakes_indexes.insert(char_index)
   }
 
@@ -51,6 +54,10 @@ impl MistakeHandler {
   /// Returns the current mistake count
   pub fn get_mistakes_counter(&self) -> usize {
     self.mistakes_indexes.len()
+  }
+
+  pub fn get_true_mistakes_counter(&self) -> usize {
+    self.true_mistakes_indexes.len()
   }
 }
 
@@ -149,6 +156,7 @@ impl Screen for TypingScreen {
         self.config.borrow().typing_duration.clone(),
         self.input.len(),
         self.mistake_handler.get_mistakes_counter(),
+        self.mistake_handler.get_true_mistakes_counter(),
       );
 
       storage_handler.insert_into_stats(&stat);
@@ -336,16 +344,25 @@ impl Screen for TypingScreen {
         Span::from(format!("{}", self.get_calculated_wpm())).bold(),
       ])
       .style(Style::default().fg(app_layout.get_primary_color())),
+
       Line::from(vec![
         Span::from("🎯 Accuracy: "),
         Span::from(format!("{}%", self.get_calculated_accuracy())).bold(),
       ])
       .style(Style::default().fg(app_layout.get_primary_color())),
+
       Line::from(vec![
         Span::from("🥩 Raw WPM: "),
         Span::from(format!("{}", self.get_calculated_raw_wpm())).bold(),
       ])
       .style(Style::default().fg(app_layout.get_primary_color().to_dark())),
+
+      Line::from(vec![
+        Span::from("🥶 True Accuracy: "),
+        Span::from(format!("{}%", self.get_true_calculated_accuracy())).bold(),
+      ])
+      .style(Style::default().fg(app_layout.get_primary_color().to_dark())),
+
       Line::from(""),
       Line::from(vec![
         Span::from("Try again").style(Style::default().fg(app_layout.get_primary_color())),
@@ -474,6 +491,15 @@ impl TypingScreen {
   pub fn get_calculated_accuracy(&self) -> f64 {
     if let Some(last_stat) = &self.stat {
       last_stat.get_accuracy()
+    } else {
+      0.0
+    }
+  }
+
+  /// Returns the true accuracy
+  pub fn get_true_calculated_accuracy(&self) -> f64 {
+    if let Some(last_stat) = &self.stat {
+      last_stat.get_true_accuracy()
     } else {
       0.0
     }
