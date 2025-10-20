@@ -77,7 +77,7 @@ impl Screen for StatsScreen {
       TukaiLayoutColorTypeEnum::Secondary,
     ));
     instruction_widget.add_instruction(Instruction::new(
-      "Typing",
+      "Repeat word",
       "ctrl-h",
       TukaiLayoutColorTypeEnum::Secondary,
     ));
