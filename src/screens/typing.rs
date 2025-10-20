@@ -458,7 +458,7 @@ impl TypingScreen {
     // Find the last space before the last word in the trimmed part
     let last_word_start_idx = match self.input[..trimmed_end_len].rfind(' ') {
       Some(space_idx) => space_idx + 1, // Word starts after the space
-      None => 0,                        // No space found, word starts at the beginning
+      none => 0,                        // No space found, word starts at the beginning
     };
 
     for i in last_word_start_idx..original_input_len {
