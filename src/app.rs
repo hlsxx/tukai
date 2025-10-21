@@ -210,14 +210,14 @@ impl<'a> Tukai<'a> {
 
     if key_event.code == KeyCode::Esc {
       self.exit();
-    } else if key_event.code == KeyCode::Left {
-      if let Some(previous_screen) = self.screen.get_previous_screen() {
-        self.switch_screen(previous_screen);
-      }
-    } else if key_event.code == KeyCode::Right {
-      if let Some(next_screen) = self.screen.get_next_screen() {
-        self.switch_screen(next_screen);
-      }
+    } else if key_event.code == KeyCode::Left
+      && let Some(previous_screen) = self.screen.get_previous_screen()
+    {
+      self.switch_screen(previous_screen);
+    } else if key_event.code == KeyCode::Right
+      && let Some(next_screen) = self.screen.get_next_screen()
+    {
+      self.switch_screen(next_screen);
     }
   }
 }

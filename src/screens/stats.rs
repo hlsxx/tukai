@@ -133,7 +133,7 @@ impl Screen for StatsScreen {
 
 impl StatsScreen {
   /// Returns the right widget (Best score)
-  fn get_best_score_widget(&self, storage_handler: &StorageHandler) -> Table {
+  fn get_best_score_widget<'a>(&'a self, storage_handler: &StorageHandler) -> Table<'a> {
     let app_config = self.config.borrow();
     let app_layout = &app_config.get_layout();
 

@@ -19,6 +19,7 @@ impl FileHandler {
   ///
   /// # Returns
   /// A [`Result`] containing the opened [`File`] on success, or an error on failure.
+  #[allow(clippy::suspicious_open_options)]
   fn open_file<P: AsRef<Path>>(path: P) -> Result<File> {
     let path_buf = path.as_ref().to_path_buf();
 

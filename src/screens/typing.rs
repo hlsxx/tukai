@@ -344,25 +344,21 @@ impl Screen for TypingScreen {
         Span::from(format!("{}", self.get_calculated_wpm())).bold(),
       ])
       .style(Style::default().fg(app_layout.get_primary_color())),
-
       Line::from(vec![
         Span::from("🎯 Accuracy: "),
         Span::from(format!("{}%", self.get_calculated_accuracy())).bold(),
       ])
       .style(Style::default().fg(app_layout.get_primary_color())),
-
       Line::from(vec![
         Span::from("🥩 Raw WPM: "),
         Span::from(format!("{}", self.get_calculated_raw_wpm())).bold(),
       ])
       .style(Style::default().fg(app_layout.get_primary_color().to_dark())),
-
       Line::from(vec![
         Span::from("🥶 True Accuracy: "),
         Span::from(format!("{}%", self.get_true_calculated_accuracy())).bold(),
       ])
       .style(Style::default().fg(app_layout.get_primary_color().to_dark())),
-
       Line::from(""),
       Line::from(vec![
         Span::from("Try again").style(Style::default().fg(app_layout.get_primary_color())),
@@ -398,12 +394,12 @@ impl TypingScreen {
   ///
   /// If it is not valid, insert it into the set of mistakes
   fn validate_input_char(&mut self, inserted_char: char) {
-    if let Some(generated_char) = self.generated_text.chars().nth(self.cursor_index) {
-      if generated_char != inserted_char {
-        self
-          .mistake_handler
-          .add_to_mistakes_indexes(self.cursor_index);
-      }
+    if let Some(generated_char) = self.generated_text.chars().nth(self.cursor_index)
+      && generated_char != inserted_char
+    {
+      self
+        .mistake_handler
+        .add_to_mistakes_indexes(self.cursor_index);
     }
   }
 
@@ -458,7 +454,7 @@ impl TypingScreen {
     // Find the last space before the last word in the trimmed part
     let last_word_start_idx = match self.input[..trimmed_end_len].rfind(' ') {
       Some(space_idx) => space_idx + 1, // Word starts after the space
-      none => 0,                        // No space found, word starts at the beginning
+      None => 0,                        // No space found, word starts at the beginning
     };
 
     for i in last_word_start_idx..original_input_len {
@@ -508,7 +504,7 @@ impl TypingScreen {
   /// Prepares and returns a paragraph.
   ///
   /// If popup window is showed then colors converts to dark.
-  pub fn get_paragraph(&self, layout: &TukaiLayout) -> Paragraph {
+  pub fn get_paragraph(&self, layout: &TukaiLayout) -> Paragraph<'_> {
     let mut lines = Vec::new();
 
     let (primary_color, error_color, text_color) = {

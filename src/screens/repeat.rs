@@ -241,12 +241,12 @@ impl RepeatScreen {
   ///
   /// If it is not valid, insert it into the set of mistakes
   fn validate_input_char(&mut self, inserted_char: char) {
-    if let Some(generated_char) = self.generated_text.chars().nth(self.cursor_index) {
-      if generated_char != inserted_char {
-        self
-          .mistake_handler
-          .add_to_mistakes_indexes(self.cursor_index);
-      }
+    if let Some(generated_char) = self.generated_text.chars().nth(self.cursor_index)
+      && generated_char != inserted_char
+    {
+      self
+        .mistake_handler
+        .add_to_mistakes_indexes(self.cursor_index);
     }
   }
 
@@ -316,7 +316,7 @@ impl RepeatScreen {
   /// Prepares and returns a paragraph.
   ///
   /// If popup window is showed then colors converts to dark.
-  pub fn get_paragraph(&self, layout: &TukaiLayout) -> Paragraph {
+  pub fn get_paragraph(&self, layout: &TukaiLayout) -> Paragraph<'_> {
     let mut lines = Vec::new();
 
     let (primary_color, error_color, text_color) = {

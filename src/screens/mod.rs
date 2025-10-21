@@ -101,7 +101,7 @@ impl<'a> InstructionWidget<'a> {
   }
 
   /// Returns paragraph contains instructions
-  pub fn get_paragraph(&self) -> Paragraph {
+  pub fn get_paragraph(&self) -> Paragraph<'_> {
     let instructions_spans = self
       .instructions
       .iter()

@@ -460,19 +460,19 @@ impl TukaiConfig {
     }
   }
 
-  pub fn get_layout(&self) -> Ref<TukaiLayout> {
+  pub fn get_layout(&self) -> Ref<'_, TukaiLayout> {
     self.layout.borrow()
   }
 
-  pub fn get_language(&self) -> Ref<Language> {
+  pub fn get_language(&self) -> Ref<'_, Language> {
     self.language.borrow()
   }
 
-  pub fn get_layout_mut(&mut self) -> RefMut<TukaiLayout> {
+  pub fn get_layout_mut(&mut self) -> RefMut<'_, TukaiLayout> {
     self.layout.borrow_mut()
   }
 
-  pub fn get_language_mut(&mut self) -> RefMut<Language> {
+  pub fn get_language_mut(&mut self) -> RefMut<'_, Language> {
     self.language.borrow_mut()
   }
 
