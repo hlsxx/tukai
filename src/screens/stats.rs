@@ -77,7 +77,7 @@ impl Screen for StatsScreen {
       TukaiLayoutColorTypeEnum::Secondary,
     ));
     instruction_widget.add_instruction(Instruction::new(
-      "Typing",
+      "Repeat word",
       "ctrl-h",
       TukaiLayoutColorTypeEnum::Secondary,
     ));
@@ -206,15 +206,18 @@ impl StatsScreen {
           Cell::from(format!("{}%", stat.get_accuracy())).style(default_cell_style),
           Cell::from(stat.get_raw_wpm().to_string())
             .style(Style::default().fg(text_color.to_dark())),
+          Cell::from(format!("{}%", stat.get_true_accuracy()))
+            .style(Style::default().fg(text_color.to_dark())),
         ])
       })
       .collect::<Vec<Row>>();
 
     let widths = [
-      Constraint::Percentage(25),
-      Constraint::Percentage(25),
-      Constraint::Percentage(25),
-      Constraint::Percentage(25),
+      Constraint::Percentage(20),
+      Constraint::Percentage(20),
+      Constraint::Percentage(20),
+      Constraint::Percentage(20),
+      Constraint::Percentage(20),
     ];
 
     let default_header_cell_style = Style::default().fg(primary_color).bold();
@@ -230,6 +233,7 @@ impl StatsScreen {
           Cell::from("🔥 Average WPM").style(default_header_cell_style),
           Cell::from("🎯 Accuracy").style(default_header_cell_style),
           Cell::from("🥩 Raw WPM").style(default_header_cell_style),
+          Cell::from("🥶 True Accuracy").style(default_header_cell_style),
         ])
         .bottom_margin(1),
       )

@@ -15,6 +15,8 @@ pub struct Stat {
   raw_wpm: usize,
 
   accuracy: f64,
+
+  true_accuracy: f64,
 }
 
 impl Stat {
@@ -28,6 +30,7 @@ impl Stat {
     typing_duration: TypingDuration,
     chars_counter: usize,
     mistakes_counter: usize,
+    true_mistakes_counter: usize,
   ) -> Self {
     let typing_duration_in_seconds = typing_duration.as_seconds();
 
@@ -40,6 +43,7 @@ impl Stat {
       ),
       raw_wpm: StatHelper::get_calculated_raw_wpm(chars_counter, typing_duration_in_seconds),
       accuracy: StatHelper::get_calculated_accuracy(chars_counter, mistakes_counter),
+      true_accuracy: StatHelper::get_calculated_accuracy(chars_counter, true_mistakes_counter),
     }
   }
 
@@ -76,5 +80,9 @@ impl Stat {
   /// Returns the accuracy
   pub fn get_accuracy(&self) -> f64 {
     self.accuracy
+  }
+
+  pub fn get_true_accuracy(&self) -> f64 {
+    self.true_accuracy
   }
 }
