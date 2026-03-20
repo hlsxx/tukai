@@ -1,6 +1,7 @@
 pub mod repeat;
 pub mod stats;
 pub mod typing;
+pub mod practice;
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -23,7 +24,8 @@ use crate::{
 pub enum ActiveScreenEnum {
   Typing,
   Repeat,
-  Stats,
+  Practice,
+  Stats
 }
 
 #[allow(unused)]
