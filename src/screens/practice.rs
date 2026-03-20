@@ -12,7 +12,7 @@ use ratatui::{
 use crate::{
   config::{TukaiConfig, TukaiLayout, TukaiLayoutColorTypeEnum},
   helper::Generator,
-  screens::{Instruction, InstructionWidget, Screen, ToDark},
+  screens::{Instruction, InstructionWidget, Screen},
 };
 
 use super::ActiveScreenEnum;
@@ -48,7 +48,7 @@ impl MistakeHandler {
   }
 }
 
-pub struct RepeatScreen {
+pub struct PracticeScreen {
   /// Application config
   config: Rc<RefCell<TukaiConfig>>,
 
@@ -61,6 +61,9 @@ pub struct RepeatScreen {
   /// Handle incorrect characters
   pub mistake_handler: MistakeHandler,
 
+  // Typing running
+  is_running: bool,
+
   /// The current cursor index withing generated_text
   cursor_index: usize,
 
@@ -68,9 +71,9 @@ pub struct RepeatScreen {
   motto: String,
 }
 
-impl RepeatScreen {
+impl PracticeScreen {
   pub fn new(config: Rc<RefCell<TukaiConfig>>) -> Self {
-    let generated_text = Generator::generate_repeated_word(&config.borrow());
+    let generated_text = Generator::generate_random_string(&config.borrow());
 
     Self {
       config,
@@ -81,6 +84,8 @@ impl RepeatScreen {
 
       mistake_handler: MistakeHandler::new(),
 
+      is_running: false,
+
       cursor_index: 0,
 
       motto: Generator::generate_random_motto(),
@@ -88,9 +93,9 @@ impl RepeatScreen {
   }
 }
 
-impl Screen for RepeatScreen {
+impl Screen for PracticeScreen {
   fn is_running(&self) -> bool {
-    true
+      true
   }
 
   fn increment_time_secs(&mut self) {}
@@ -104,15 +109,25 @@ impl Screen for RepeatScreen {
   }
 
   fn get_screen_name(&self) -> String {
-    String::from("Repeat")
+    String::from("Practice")
   }
 
   fn get_next_screen(&self) -> Option<ActiveScreenEnum> {
-    Some(ActiveScreenEnum::Practice)
+    Some(ActiveScreenEnum::Stats)
   }
 
   fn get_previous_screen(&self) -> Option<ActiveScreenEnum> {
-    Some(ActiveScreenEnum::Typing)
+    Some(ActiveScreenEnum::Repeat)
+  }
+
+  fn handle_control_events(&mut self, key_event: KeyEvent) -> bool {
+    match key_event.code {
+      KeyCode::Char('w') => {
+        self.delete_last_word();
+        true
+      }
+      _ => false,
+    }
   }
 
   /// Resets all necessary properties
@@ -121,7 +136,7 @@ impl Screen for RepeatScreen {
     self.cursor_index = 0;
     self.input = String::new();
     let app_config = self.config.borrow();
-    self.generated_text = Generator::generate_repeated_word(&app_config);
+    self.generated_text = Generator::generate_random_string(&app_config);
   }
 
   fn handle_events(&mut self, key_event: KeyEvent) -> bool {
@@ -131,6 +146,10 @@ impl Screen for RepeatScreen {
 
     match key_event.code {
       KeyCode::Char(c) => {
+        if self.cursor_index == 0 {
+          self.run();
+        }
+
         self.move_cursor_forward_with(c);
         true
       }
@@ -204,12 +223,12 @@ impl Screen for RepeatScreen {
       TukaiLayoutColorTypeEnum::Secondary,
     ));
     instruction_widget.add_instruction(Instruction::new(
-      "Typing",
+      "Repeat",
       "ctrl-h",
       TukaiLayoutColorTypeEnum::Secondary,
     ));
     instruction_widget.add_instruction(Instruction::new(
-      "Practice",
+      "Stats",
       "ctrl-l",
       TukaiLayoutColorTypeEnum::Secondary,
     ));
@@ -230,13 +249,15 @@ impl Screen for RepeatScreen {
     frame.render_widget(instructions, area);
   }
 
-  /// Renders a popup screen
-  ///
-  /// Used after the run is completed
   fn render_popup(&self, _frame: &mut Frame) {}
 }
 
-impl RepeatScreen {
+impl PracticeScreen {
+  // Starts the running typing process
+  fn run(&mut self) {
+    self.is_running = true;
+  }
+
   /// Validates an inserted char
   ///
   /// If it is not valid, insert it into the set of mistakes
@@ -278,7 +299,6 @@ impl RepeatScreen {
 
   // Deletes the last word form the input.
   // Handles trailing spaces and updates mistakes.
-  #[allow(unused)]
   pub fn delete_last_word(&mut self) {
     if self.input.is_empty() {
       return;
@@ -302,7 +322,7 @@ impl RepeatScreen {
     // Find the last space before the last word in the trimmed part
     let last_word_start_idx = match self.input[..trimmed_end_len].rfind(' ') {
       Some(space_idx) => space_idx + 1, // Word starts after the space
-      none => 0,                        // No space found, word starts at the beginning
+      _ => 0,                        // No space found, word starts at the beginning
     };
 
     for i in last_word_start_idx..original_input_len {
@@ -314,29 +334,14 @@ impl RepeatScreen {
   }
 
   /// Prepares and returns a paragraph.
-  ///
-  /// If popup window is showed then colors converts to dark.
   pub fn get_paragraph(&self, layout: &TukaiLayout) -> Paragraph<'_> {
     let mut lines = Vec::new();
+    let primary_color = layout.get_primary_color();
+    let error_color = layout.get_error_color();
+    let text_color = layout.get_text_color();
 
-    let (primary_color, error_color, text_color) = {
-      let colors = {
-        (
-          layout.get_primary_color(),
-          layout.get_error_color(),
-          layout.get_text_color(),
-        )
-      };
-
-      if self.is_popup_visible() {
-        (colors.0.to_dark(), colors.1.to_dark(), colors.2.to_dark())
-      } else {
-        colors
-      }
-    };
-
-    let repeat_word_line =
-      Line::from("🔄 Repeat word").style(Style::default().fg(layout.get_primary_color()));
+    let practice_line =
+      Line::from("🌱 Practice").style(Style::default().fg(primary_color));
 
     let text_line = self
       .generated_text
@@ -367,7 +372,7 @@ impl RepeatScreen {
 
     let empty_line = Line::from(Vec::new());
 
-    lines.push(repeat_word_line);
+    lines.push(practice_line);
 
     lines.push(empty_line.clone());
 

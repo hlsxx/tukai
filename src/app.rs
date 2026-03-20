@@ -2,6 +2,7 @@ use crate::config::TukaiConfig;
 use crate::event_handler::{EventHandler, TukaiEvent};
 use crate::screens::ActiveScreenEnum;
 use crate::screens::repeat::RepeatScreen;
+use crate::screens::practice::PracticeScreen;
 use crate::screens::{Screen, stats::StatsScreen, typing::TypingScreen};
 use crate::storage::storage_handler::StorageHandler;
 use std::{cell::RefCell, rc::Rc};
@@ -136,6 +137,7 @@ impl<'a> Tukai<'a> {
     self.screen = match switch_to_screen {
       ActiveScreenEnum::Typing => Box::new(TypingScreen::new(self.config.clone())),
       ActiveScreenEnum::Repeat => Box::new(RepeatScreen::new(self.config.clone())),
+      ActiveScreenEnum::Practice => Box::new(PracticeScreen::new(self.config.clone())),
       ActiveScreenEnum::Stats => Box::new(StatsScreen::new(self.config.clone())),
     }
   }

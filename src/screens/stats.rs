@@ -50,7 +50,7 @@ impl Screen for StatsScreen {
   }
 
   fn get_previous_screen(&self) -> Option<ActiveScreenEnum> {
-    Some(ActiveScreenEnum::Repeat)
+    Some(ActiveScreenEnum::Practice)
   }
 
   fn reset(&mut self) {}
@@ -77,7 +77,7 @@ impl Screen for StatsScreen {
       TukaiLayoutColorTypeEnum::Secondary,
     ));
     instruction_widget.add_instruction(Instruction::new(
-      "Repeat word",
+      "Practice",
       "ctrl-h",
       TukaiLayoutColorTypeEnum::Secondary,
     ));
