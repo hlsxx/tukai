@@ -1,6 +1,7 @@
 use ratatui::style::Style;
 use rust_embed::RustEmbed;
 use std::cell::{Ref, RefCell, RefMut};
+use std::marker::PhantomData;
 
 use serde::{Deserialize, Serialize};
 
@@ -304,10 +305,14 @@ impl TukaiLayout {
 
 #[derive(RustEmbed)]
 #[folder = "dictionary/"]
-struct LanguageDictionary;
+pub struct LanguageDictionary;
 
-pub struct Language {
-  // Language files paths from the `words` folder
+#[derive(RustEmbed)]
+#[folder = "programming/"]
+pub struct CodeDictionary;
+
+pub struct Language<A: RustEmbed> {
+  // Language files paths from the embedded folder
   language_files: Vec<String>,
 
   // Current used language index
@@ -318,21 +323,27 @@ pub struct Language {
 
   // Current selected language words
   words: Vec<String>,
+
+  // Embedded asset marker
+  _marker: PhantomData<A>,
 }
 
-impl Language {
+impl<A: RustEmbed> Language<A> {
   // Creates default empty list of the language files
   pub fn default() -> Self {
     Self {
       language_files: Vec::new(),
       current_index: 0,
-      lang_code: String::from("en"),
+      lang_code: String::new(),
       words: Vec::new(),
+      _marker: PhantomData,
     }
   }
 
   pub fn init_lang_code(&mut self) {
-    let filename = &self.language_files[self.current_index];
+    let Some(filename) = self.language_files.get(self.current_index) else {
+      return;
+    };
 
     let lang_code = Path::new(filename)
       .file_stem()
@@ -343,7 +354,7 @@ impl Language {
     self.lang_code = lang_code;
   }
 
-  /// Load language files from the `words` folder
+  /// Load language files from the embedded folder
   pub fn init(mut self) -> Self {
     if let Ok(language_files) = self.load_language_files() {
       self.language_files = language_files;
@@ -355,13 +366,16 @@ impl Language {
       && let Ok(words) = self.load_language_words()
     {
       self.words = words;
+      self.init_lang_code();
     }
 
     self
   }
 
   pub fn current_index(&mut self, index: usize) {
-    self.current_index = index;
+    let max_index = self.language_files.len().saturating_sub(1);
+
+    self.current_index = index.min(max_index);
     self.init_lang_code();
   }
 
@@ -382,11 +396,11 @@ impl Language {
     self.current_index
   }
 
-  /// Returns the paths of all available language files in the `words` folder.
+  /// Returns the paths of all available language files in the embedded folder.
   ///
   /// So i.e. available languages
   pub fn load_language_files(&self) -> Result<Vec<String>, Box<dyn std::error::Error>> {
-    let languages = LanguageDictionary::iter()
+    let languages = A::iter()
       .map(|file| file.to_string())
       .collect::<Vec<String>>();
 
@@ -410,7 +424,7 @@ impl Language {
       .get(self.current_index)
       .ok_or("Not found a language dictionary file")?;
 
-    let file = LanguageDictionary::get(language_file_path).unwrap();
+    let file = A::get(language_file_path).unwrap();
 
     let words = std::str::from_utf8(&file.data)?
       .lines()
@@ -428,18 +442,28 @@ impl Language {
   pub fn get_lang_code(&self) -> &String {
     &self.lang_code
   }
+}
 
-  /// Returns whether the current language is a code language
-  ///
-  /// Detection is based on the language file extension.
-  /// Human languages use `.txt` files, anything else (e.g. `.rs`) is code.
-  pub fn is_code_language(&self) -> bool {
-    self
-      .language_files
-      .get(self.current_index)
-      .and_then(|file| Path::new(file).extension())
-      .and_then(|ext| ext.to_str())
-      .is_some_and(|ext| ext != "txt")
+/// Practice section
+///
+/// Separates human language practice (`dictionary/` folder)
+/// from programming language practice (`programming/` folder).
+#[derive(PartialEq, Eq, Debug, Clone, Copy)]
+pub enum PracticeSection {
+  Languages,
+  Code,
+}
+
+impl Default for PracticeSection {
+  fn default() -> Self {
+    Self::Languages
+  }
+}
+
+impl PracticeSection {
+  /// Returns whether the active section is a code section
+  pub fn is_code(&self) -> bool {
+    matches!(self, Self::Code)
   }
 }
 
@@ -491,8 +515,14 @@ pub struct TukaiConfig {
   // Choosen layout
   layout: RefCell<TukaiLayout>,
 
-  // Current language
-  language: RefCell<Language>,
+  // Current human language
+  language: RefCell<Language<LanguageDictionary>>,
+
+  // Current programming language
+  code_language: RefCell<Language<CodeDictionary>>,
+
+  // Active practice section (human languages or code)
+  practice_section: PracticeSection,
 
   // App background is transparent
   pub has_transparent_bg: bool,
@@ -506,7 +536,9 @@ impl TukaiConfig {
     Self {
       file_path: PathBuf::from("tukai.bin"),
       layout: RefCell::new(TukaiLayout::default()),
-      language: RefCell::new(Language::default().init()),
+      language: RefCell::new(Language::<LanguageDictionary>::default().init()),
+      code_language: RefCell::new(Language::<CodeDictionary>::default().init()),
+      practice_section: PracticeSection::default(),
       has_transparent_bg: false,
       typing_duration: TypingDuration::default(),
     }
@@ -516,16 +548,52 @@ impl TukaiConfig {
     self.layout.borrow()
   }
 
-  pub fn get_language(&self) -> Ref<'_, Language> {
+  pub fn get_language(&self) -> Ref<'_, Language<LanguageDictionary>> {
     self.language.borrow()
+  }
+
+  pub fn get_code_language(&self) -> Ref<'_, Language<CodeDictionary>> {
+    self.code_language.borrow()
   }
 
   pub fn get_layout_mut(&mut self) -> RefMut<'_, TukaiLayout> {
     self.layout.borrow_mut()
   }
 
-  pub fn get_language_mut(&mut self) -> RefMut<'_, Language> {
+  pub fn get_language_mut(&mut self) -> RefMut<'_, Language<LanguageDictionary>> {
     self.language.borrow_mut()
+  }
+
+  pub fn get_code_language_mut(&mut self) -> RefMut<'_, Language<CodeDictionary>> {
+    self.code_language.borrow_mut()
+  }
+
+  /// Returns the active practice section
+  pub fn get_practice_section(&self) -> PracticeSection {
+    self.practice_section
+  }
+
+  /// Returns whether the code practice section is active
+  pub fn is_code_section_active(&self) -> bool {
+    self.practice_section.is_code()
+  }
+
+  /// Returns the lang code of the active practice section
+  pub fn get_active_lang_code(&self) -> String {
+    match self.practice_section {
+      PracticeSection::Languages => self.get_language().get_lang_code().clone(),
+      PracticeSection::Code => self.get_code_language().get_lang_code().clone(),
+    }
+  }
+
+  /// Returns the words of the active practice section
+  pub fn get_active_words(&self) -> Vec<String> {
+    let words = match self.practice_section {
+      PracticeSection::Languages => self.get_language().load_language_words(),
+      PracticeSection::Code => self.get_code_language().load_language_words(),
+    };
+
+    words.unwrap_or_default()
   }
 
   pub fn get_file_path(&self) -> &PathBuf {
@@ -582,7 +650,13 @@ pub struct TukaiConfigBuilder {
   layout: Option<RefCell<TukaiLayout>>,
 
   // Selected language
-  language: Option<RefCell<Language>>,
+  language: Option<RefCell<Language<LanguageDictionary>>>,
+
+  // Selected programming language
+  code_language: Option<RefCell<Language<CodeDictionary>>>,
+
+  // Selected practice section
+  practice_section: Option<PracticeSection>,
 
   // Has application background transparent
   has_transparent_bg: bool,
@@ -597,6 +671,8 @@ impl TukaiConfigBuilder {
       file_path: None,
       layout: None,
       language: None,
+      code_language: None,
+      practice_section: None,
       has_transparent_bg: true,
       typing_duration: None,
     }
@@ -621,6 +697,10 @@ impl TukaiConfigBuilder {
       file_path: self.file_path.unwrap_or(config_default.file_path),
       layout: self.layout.unwrap_or(config_default.layout),
       language: self.language.unwrap_or(config_default.language),
+      code_language: self.code_language.unwrap_or(config_default.code_language),
+      practice_section: self
+        .practice_section
+        .unwrap_or(config_default.practice_section),
       has_transparent_bg: self.has_transparent_bg,
       typing_duration: self
         .typing_duration
