@@ -6,7 +6,7 @@ use ratatui::{
   layout::{Alignment, Rect},
   style::{Modifier, Style},
   text::{Line, Span, Text},
-  widgets::{Block, BorderType, Borders, Padding, Paragraph, Wrap},
+  widgets::{Block, BorderType, Borders, Padding, Paragraph, Wrap, block::Title},
 };
 
 use crate::{
@@ -105,6 +105,23 @@ impl Screen for RepeatScreen {
 
   fn get_screen_name(&self) -> String {
     String::from("Repeat")
+  }
+
+  /// Returns the application title
+  ///
+  /// The Repeat screen only practices human languages,
+  /// so it always shows the human language code.
+  fn get_title<'a>(&self) -> Title<'a> {
+    let app_config = self.get_config().borrow();
+    let app_layout = app_config.get_layout();
+
+    Title::from(format!(
+      " tukai v{} 》{} 》{} 》{} ",
+      env!("CARGO_PKG_VERSION"),
+      app_layout.get_active_layout_name(),
+      app_config.get_language().get_lang_code(),
+      self.get_screen_name()
+    ))
   }
 
   fn get_next_screen(&self) -> Option<ActiveScreenEnum> {

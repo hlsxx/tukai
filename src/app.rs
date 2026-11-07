@@ -1,4 +1,4 @@
-use crate::config::TukaiConfig;
+use crate::config::{PracticeSection, TukaiConfig};
 use crate::event_handler::{EventHandler, TukaiEvent};
 use crate::screens::ActiveScreenEnum;
 use crate::screens::repeat::RepeatScreen;
@@ -189,15 +189,27 @@ impl<'a> Tukai<'a> {
             self.storage_handler.set_layout(new_layout);
           }
           'p' => {
-            // switches language
-            let new_language_index = self
-              .config
-              .borrow_mut()
-              .get_language_mut()
-              .switch_language();
+            // switches human language
+            let new_language_index = {
+              let mut config = self.config.borrow_mut();
+              config.set_practice_section(PracticeSection::Languages);
+              config.get_language_mut().switch_language()
+            };
 
             self.storage_handler.set_language_index(new_language_index);
             self.reset();
+          }
+          'o' => {
+            // switches programming language
+            // (only on screens that support the code section)
+            if self.screen.supports_code_section() {
+              let mut config = self.config.borrow_mut();
+              config.set_practice_section(PracticeSection::Code);
+              config.get_code_language_mut().switch_language();
+              drop(config);
+
+              self.reset();
+            }
           }
           _ => {}
         }

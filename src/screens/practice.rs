@@ -112,6 +112,10 @@ impl Screen for PracticeScreen {
     String::from("Practice")
   }
 
+  fn supports_code_section(&self) -> bool {
+    true
+  }
+
   fn get_next_screen(&self) -> Option<ActiveScreenEnum> {
     Some(ActiveScreenEnum::Stats)
   }
@@ -235,6 +239,11 @@ impl Screen for PracticeScreen {
     instruction_widget.add_instruction(Instruction::new(
       "Language",
       "ctrl-p",
+      TukaiLayoutColorTypeEnum::Secondary,
+    ));
+    instruction_widget.add_instruction(Instruction::new(
+      "Code",
+      "ctrl-o",
       TukaiLayoutColorTypeEnum::Secondary,
     ));
 

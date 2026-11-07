@@ -178,6 +178,10 @@ impl Screen for TypingScreen {
     String::from("Typing")
   }
 
+  fn supports_code_section(&self) -> bool {
+    true
+  }
+
   fn handle_control_events(&mut self, key_event: KeyEvent) -> bool {
     if self.is_popup_visible {
       return false;
@@ -311,6 +315,11 @@ impl Screen for TypingScreen {
     instruction_widget.add_instruction(Instruction::new(
       "Language",
       "ctrl-p",
+      TukaiLayoutColorTypeEnum::Secondary,
+    ));
+    instruction_widget.add_instruction(Instruction::new(
+      "Code",
+      "ctrl-o",
       TukaiLayoutColorTypeEnum::Secondary,
     ));
 

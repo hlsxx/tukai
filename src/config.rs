@@ -573,6 +573,11 @@ impl TukaiConfig {
     self.practice_section
   }
 
+  /// Sets the active practice section
+  pub fn set_practice_section(&mut self, practice_section: PracticeSection) {
+    self.practice_section = practice_section;
+  }
+
   /// Returns whether the code practice section is active
   pub fn is_code_section_active(&self) -> bool {
     self.practice_section.is_code()
