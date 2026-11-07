@@ -221,13 +221,13 @@ impl StatsScreen {
       .collect::<Vec<Row>>();
 
     let widths = [
+      Constraint::Percentage(11),
+      Constraint::Percentage(14),
+      Constraint::Percentage(13),
       Constraint::Percentage(15),
-      Constraint::Percentage(15),
       Constraint::Percentage(14),
-      Constraint::Percentage(14),
-      Constraint::Percentage(14),
-      Constraint::Percentage(14),
-      Constraint::Percentage(14),
+      Constraint::Percentage(13),
+      Constraint::Percentage(20),
     ];
 
     let default_header_cell_style = Style::default().fg(primary_color).bold();
