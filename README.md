@@ -12,6 +12,7 @@ A terminal-based touch typing application built with [Ratatui](https://github.co
 - **Customizable Templates**: Switch between different practice templates
 - **Stats Tracking**: Built-in statistics preview for completed tests
 - **Multi-Language Support**: Practice typing in multiple languages
+- **Code Practice**: Practice typing real programming language snippets
 - **Interactive Experience**: Real-time feedback and smooth user interface
 
 ## Installation
@@ -51,7 +52,8 @@ x install tukai
 | `Ctrl + T` | | Toggle transparent background |
 | `Ctrl + H` | `←` | Switch screen forward |
 | `Ctrl + L` | `→` | Switch screen backward |
-| `Ctrl + P` | | Switch language |
+| `Ctrl + P` | | Switch human language |
+| `Ctrl + O` | | Switch programming language |
 
 ## Contributing
 
