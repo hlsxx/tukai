@@ -207,6 +207,7 @@ impl StatsScreen {
         let duration_pretty = stat.get_duration_pretty();
 
         Row::new(vec![
+          Cell::from(stat.get_date_pretty()).style(default_cell_style),
           Cell::from(duration_pretty),
           Cell::from(stat.get_section_pretty()),
           Cell::from(stat.get_average_wpm().to_string()).style(default_cell_style),
@@ -220,12 +221,13 @@ impl StatsScreen {
       .collect::<Vec<Row>>();
 
     let widths = [
-      Constraint::Percentage(17),
-      Constraint::Percentage(16),
-      Constraint::Percentage(17),
-      Constraint::Percentage(17),
-      Constraint::Percentage(17),
-      Constraint::Percentage(16),
+      Constraint::Percentage(15),
+      Constraint::Percentage(15),
+      Constraint::Percentage(14),
+      Constraint::Percentage(14),
+      Constraint::Percentage(14),
+      Constraint::Percentage(14),
+      Constraint::Percentage(14),
     ];
 
     let default_header_cell_style = Style::default().fg(primary_color).bold();
@@ -237,6 +239,7 @@ impl StatsScreen {
       .highlight_symbol("X")
       .header(
         Row::new(vec![
+          Cell::from("📅 Date").style(default_header_cell_style),
           Cell::from("⏳ Duration").style(default_header_cell_style),
           Cell::from("📖 Section").style(default_header_cell_style),
           Cell::from("🔥 Average WPM").style(default_header_cell_style),

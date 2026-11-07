@@ -472,6 +472,11 @@ mod tests {
   fn storage_persist_code_section() {
     let file_path = format!("tests/{}.tukai", Uuid::new_v4());
 
+    let stat = Stat::new(TypingDuration::Minute, 80, 5, 6, PracticeSection::Code);
+    let timestamp_secs = stat.get_timestamp_secs();
+
+    assert!(timestamp_secs > 0);
+
     {
       let mut storage_handler = StorageHandler::new(&file_path)
         .init()
@@ -479,13 +484,7 @@ mod tests {
 
       storage_handler.set_code_index(1);
       storage_handler.set_practice_section(PracticeSection::Code);
-      storage_handler.insert_into_stats(&Stat::new(
-        TypingDuration::Minute,
-        80,
-        5,
-        6,
-        PracticeSection::Code,
-      ));
+      storage_handler.insert_into_stats(&stat);
 
       assert!(storage_handler.flush().is_ok());
     }
@@ -501,6 +500,7 @@ mod tests {
 
     assert_eq!(stats.len(), 1);
     assert_eq!(stats[0].get_practice_section(), PracticeSection::Code);
+    assert_eq!(stats[0].get_timestamp_secs(), timestamp_secs);
 
     storage_handler
       .delete_file()

@@ -5,6 +5,7 @@ use ratatui::{
   text::{Line, Span},
 };
 use serde::{Deserialize, Serialize};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Stat {
@@ -19,6 +20,8 @@ pub struct Stat {
   accuracy: f64,
 
   true_accuracy: f64,
+
+  timestamp_secs: u64,
 }
 
 impl Stat {
@@ -37,6 +40,11 @@ impl Stat {
   ) -> Self {
     let typing_duration_in_seconds = typing_duration.as_seconds();
 
+    let timestamp_secs = SystemTime::now()
+      .duration_since(UNIX_EPOCH)
+      .map(|duration| duration.as_secs())
+      .unwrap_or(0);
+
     Self {
       typing_duration: typing_duration.clone(),
       practice_section,
@@ -48,6 +56,7 @@ impl Stat {
       raw_wpm: StatHelper::get_calculated_raw_wpm(chars_counter, typing_duration_in_seconds),
       accuracy: StatHelper::get_calculated_accuracy(chars_counter, mistakes_counter),
       true_accuracy: StatHelper::get_calculated_accuracy(chars_counter, true_mistakes_counter),
+      timestamp_secs,
     }
   }
 
@@ -68,6 +77,19 @@ impl Stat {
       PracticeSection::Languages => Span::from("Language"),
       PracticeSection::Code => Span::from("Code"),
     }
+  }
+
+  /// Returns the run date as "DD Mon YY"
+  ///
+  /// E.g. `07 Nov 26`
+  pub fn get_date_pretty(&self) -> String {
+    StatHelper::format_run_date(self.timestamp_secs)
+  }
+
+  /// Returns the run timestamp (seconds since the Unix epoch)
+  #[allow(unused)]
+  pub fn get_timestamp_secs(&self) -> u64 {
+    self.timestamp_secs
   }
 
   /// Returns the duration
