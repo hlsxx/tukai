@@ -1,4 +1,4 @@
-use crate::config::TukaiConfig;
+use crate::config::{PracticeSection, TukaiConfig};
 use crate::event_handler::{EventHandler, TukaiEvent};
 use crate::screens::ActiveScreenEnum;
 use crate::screens::repeat::RepeatScreen;
@@ -55,6 +55,13 @@ impl<'a> Tukai<'a> {
       let mut language = config.get_language_mut();
       language.current_index(storage_handler.get_language_index());
     }
+
+    {
+      let mut code_language = config.get_code_language_mut();
+      code_language.current_index(storage_handler.get_code_index());
+    }
+
+    config.set_practice_section(storage_handler.get_practice_section());
 
     let config = Rc::new(RefCell::new(config));
     let typing_screen = TypingScreen::new(Rc::clone(&config));
@@ -189,14 +196,32 @@ impl<'a> Tukai<'a> {
             self.storage_handler.set_layout(new_layout);
           }
           'p' => {
-            // switches language
-            let new_language_index = self
-              .config
-              .borrow_mut()
-              .get_language_mut()
-              .switch_language();
+            // switches human language
+            let new_language_index = {
+              let mut config = self.config.borrow_mut();
+              config.set_practice_section(PracticeSection::Languages);
+              config.get_language_mut().switch_language()
+            };
 
             self.storage_handler.set_language_index(new_language_index);
+            self
+              .storage_handler
+              .set_practice_section(PracticeSection::Languages);
+            self.reset();
+          }
+          // switches programming language
+          // (only on screens that support the code section)
+          'o' if self.screen.supports_code_section() => {
+            let new_code_index = {
+              let mut config = self.config.borrow_mut();
+              config.set_practice_section(PracticeSection::Code);
+              config.get_code_language_mut().switch_language()
+            };
+
+            self.storage_handler.set_code_index(new_code_index);
+            self
+              .storage_handler
+              .set_practice_section(PracticeSection::Code);
             self.reset();
           }
           _ => {}

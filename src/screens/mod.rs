@@ -148,6 +148,14 @@ pub trait Screen {
 
   fn stop(&mut self, _storage_handler: &mut StorageHandler) {}
 
+  /// Returns whether the screen supports the code practice section.
+  ///
+  /// Only the Typing and Practice screens do;
+  /// the Repeat screen always uses human languages.
+  fn supports_code_section(&self) -> bool {
+    false
+  }
+
   /// Returns the application title
   /// including version from the `Cargo.toml`.
   fn get_title<'a>(&self) -> Title<'a> {
@@ -158,7 +166,7 @@ pub trait Screen {
       " tukai v{} 》{} 》{} 》{} ",
       env!("CARGO_PKG_VERSION"),
       app_layout.get_active_layout_name(),
-      app_config.get_language().get_lang_code(),
+      app_config.get_active_lang_code(),
       self.get_screen_name()
     ))
   }

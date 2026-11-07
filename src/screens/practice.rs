@@ -73,7 +73,7 @@ pub struct PracticeScreen {
 
 impl PracticeScreen {
   pub fn new(config: Rc<RefCell<TukaiConfig>>) -> Self {
-    let generated_text = Generator::generate_random_string(&config.borrow());
+    let generated_text = Generator::generate_string(&config.borrow());
 
     Self {
       config,
@@ -112,6 +112,10 @@ impl Screen for PracticeScreen {
     String::from("Practice")
   }
 
+  fn supports_code_section(&self) -> bool {
+    true
+  }
+
   fn get_next_screen(&self) -> Option<ActiveScreenEnum> {
     Some(ActiveScreenEnum::Stats)
   }
@@ -136,7 +140,7 @@ impl Screen for PracticeScreen {
     self.cursor_index = 0;
     self.input = String::new();
     let app_config = self.config.borrow();
-    self.generated_text = Generator::generate_random_string(&app_config);
+    self.generated_text = Generator::generate_string(&app_config);
   }
 
   fn handle_events(&mut self, key_event: KeyEvent) -> bool {
@@ -235,6 +239,11 @@ impl Screen for PracticeScreen {
     instruction_widget.add_instruction(Instruction::new(
       "Language",
       "ctrl-p",
+      TukaiLayoutColorTypeEnum::Secondary,
+    ));
+    instruction_widget.add_instruction(Instruction::new(
+      "Code",
+      "ctrl-o",
       TukaiLayoutColorTypeEnum::Secondary,
     ));
 

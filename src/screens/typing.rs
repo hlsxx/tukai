@@ -94,7 +94,7 @@ pub struct TypingScreen {
 
 impl TypingScreen {
   pub fn new(config: Rc<RefCell<TukaiConfig>>) -> Self {
-    let generated_text = Generator::generate_random_string(&config.borrow());
+    let generated_text = Generator::generate_string(&config.borrow());
 
     Self {
       config,
@@ -152,12 +152,17 @@ impl Screen for TypingScreen {
     self.is_popup_visible = true;
 
     if self.stat.is_none() {
-      let stat = Stat::new(
-        self.config.borrow().typing_duration.clone(),
-        self.input.len(),
-        self.mistake_handler.get_mistakes_counter(),
-        self.mistake_handler.get_true_mistakes_counter(),
-      );
+      let stat = {
+        let app_config = self.config.borrow();
+
+        Stat::new(
+          app_config.typing_duration.clone(),
+          self.input.len(),
+          self.mistake_handler.get_mistakes_counter(),
+          self.mistake_handler.get_true_mistakes_counter(),
+          app_config.get_practice_section(),
+        )
+      };
 
       storage_handler.insert_into_stats(&stat);
 
@@ -176,6 +181,10 @@ impl Screen for TypingScreen {
 
   fn get_screen_name(&self) -> String {
     String::from("Typing")
+  }
+
+  fn supports_code_section(&self) -> bool {
+    true
   }
 
   fn handle_control_events(&mut self, key_event: KeyEvent) -> bool {
@@ -204,7 +213,7 @@ impl Screen for TypingScreen {
     self.is_popup_visible = false;
 
     let app_config = self.config.borrow();
-    self.generated_text = Generator::generate_random_string(&app_config);
+    self.generated_text = Generator::generate_string(&app_config);
   }
 
   fn handle_events(&mut self, key_event: KeyEvent) -> bool {
@@ -311,6 +320,11 @@ impl Screen for TypingScreen {
     instruction_widget.add_instruction(Instruction::new(
       "Language",
       "ctrl-p",
+      TukaiLayoutColorTypeEnum::Secondary,
+    ));
+    instruction_widget.add_instruction(Instruction::new(
+      "Code",
+      "ctrl-o",
       TukaiLayoutColorTypeEnum::Secondary,
     ));
 
