@@ -448,16 +448,11 @@ impl<A: RustEmbed> Language<A> {
 ///
 /// Separates human language practice (`dictionary/` folder)
 /// from programming language practice (`programming/` folder).
-#[derive(PartialEq, Eq, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Debug, Clone, Copy, Serialize, Deserialize, Default)]
 pub enum PracticeSection {
+  #[default]
   Languages,
   Code,
-}
-
-impl Default for PracticeSection {
-  fn default() -> Self {
-    Self::Languages
-  }
 }
 
 impl PracticeSection {

@@ -152,12 +152,17 @@ impl Screen for TypingScreen {
     self.is_popup_visible = true;
 
     if self.stat.is_none() {
-      let stat = Stat::new(
-        self.config.borrow().typing_duration.clone(),
-        self.input.len(),
-        self.mistake_handler.get_mistakes_counter(),
-        self.mistake_handler.get_true_mistakes_counter(),
-      );
+      let stat = {
+        let app_config = self.config.borrow();
+
+        Stat::new(
+          app_config.typing_duration.clone(),
+          self.input.len(),
+          self.mistake_handler.get_mistakes_counter(),
+          self.mistake_handler.get_true_mistakes_counter(),
+          app_config.get_practice_section(),
+        )
+      };
 
       storage_handler.insert_into_stats(&stat);
 

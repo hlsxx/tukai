@@ -56,6 +56,13 @@ impl<'a> Tukai<'a> {
       language.current_index(storage_handler.get_language_index());
     }
 
+    {
+      let mut code_language = config.get_code_language_mut();
+      code_language.current_index(storage_handler.get_code_index());
+    }
+
+    config.set_practice_section(storage_handler.get_practice_section());
+
     let config = Rc::new(RefCell::new(config));
     let typing_screen = TypingScreen::new(Rc::clone(&config));
 
@@ -197,19 +204,25 @@ impl<'a> Tukai<'a> {
             };
 
             self.storage_handler.set_language_index(new_language_index);
+            self
+              .storage_handler
+              .set_practice_section(PracticeSection::Languages);
             self.reset();
           }
-          'o' => {
-            // switches programming language
-            // (only on screens that support the code section)
-            if self.screen.supports_code_section() {
+          // switches programming language
+          // (only on screens that support the code section)
+          'o' if self.screen.supports_code_section() => {
+            let new_code_index = {
               let mut config = self.config.borrow_mut();
               config.set_practice_section(PracticeSection::Code);
-              config.get_code_language_mut().switch_language();
-              drop(config);
+              config.get_code_language_mut().switch_language()
+            };
 
-              self.reset();
-            }
+            self.storage_handler.set_code_index(new_code_index);
+            self
+              .storage_handler
+              .set_practice_section(PracticeSection::Code);
+            self.reset();
           }
           _ => {}
         }

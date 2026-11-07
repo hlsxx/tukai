@@ -157,11 +157,16 @@ impl StatsScreen {
         Row::new(vec![
           Cell::from(stat.get_average_wpm().to_string()).style(default_cell_style),
           Cell::from(format!("{}%", stat.get_accuracy())).style(default_cell_style),
+          Cell::from(stat.get_section_pretty()),
         ])
       })
       .collect::<Vec<Row>>();
 
-    let widths = [Constraint::Percentage(50), Constraint::Percentage(50)];
+    let widths = [
+      Constraint::Percentage(34),
+      Constraint::Percentage(33),
+      Constraint::Percentage(33),
+    ];
 
     let default_header_cell_style = Style::default().fg(primary_color).bold();
 
@@ -173,6 +178,7 @@ impl StatsScreen {
         Row::new(vec![
           Cell::from("🔥 Average WPM").style(default_header_cell_style),
           Cell::from("🎯 Accuracy").style(default_header_cell_style),
+          Cell::from("📖 Section").style(default_header_cell_style),
         ])
         .bottom_margin(1),
       )
@@ -202,6 +208,7 @@ impl StatsScreen {
 
         Row::new(vec![
           Cell::from(duration_pretty),
+          Cell::from(stat.get_section_pretty()),
           Cell::from(stat.get_average_wpm().to_string()).style(default_cell_style),
           Cell::from(format!("{}%", stat.get_accuracy())).style(default_cell_style),
           Cell::from(stat.get_raw_wpm().to_string())
@@ -213,11 +220,12 @@ impl StatsScreen {
       .collect::<Vec<Row>>();
 
     let widths = [
-      Constraint::Percentage(20),
-      Constraint::Percentage(20),
-      Constraint::Percentage(20),
-      Constraint::Percentage(20),
-      Constraint::Percentage(20),
+      Constraint::Percentage(17),
+      Constraint::Percentage(16),
+      Constraint::Percentage(17),
+      Constraint::Percentage(17),
+      Constraint::Percentage(17),
+      Constraint::Percentage(16),
     ];
 
     let default_header_cell_style = Style::default().fg(primary_color).bold();
@@ -230,6 +238,7 @@ impl StatsScreen {
       .header(
         Row::new(vec![
           Cell::from("⏳ Duration").style(default_header_cell_style),
+          Cell::from("📖 Section").style(default_header_cell_style),
           Cell::from("🔥 Average WPM").style(default_header_cell_style),
           Cell::from("🎯 Accuracy").style(default_header_cell_style),
           Cell::from("🥩 Raw WPM").style(default_header_cell_style),

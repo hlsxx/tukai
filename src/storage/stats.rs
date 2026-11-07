@@ -1,5 +1,5 @@
 use super::stat_helper::StatHelper;
-use crate::config::TypingDuration;
+use crate::config::{PracticeSection, TypingDuration};
 use ratatui::{
   style::{Color, Style},
   text::{Line, Span},
@@ -9,6 +9,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Stat {
   typing_duration: TypingDuration,
+
+  practice_section: PracticeSection,
 
   average_wpm: usize,
 
@@ -31,11 +33,13 @@ impl Stat {
     chars_counter: usize,
     mistakes_counter: usize,
     true_mistakes_counter: usize,
+    practice_section: PracticeSection,
   ) -> Self {
     let typing_duration_in_seconds = typing_duration.as_seconds();
 
     Self {
       typing_duration: typing_duration.clone(),
+      practice_section,
       average_wpm: StatHelper::get_calculated_wpm(
         chars_counter,
         mistakes_counter,
@@ -50,6 +54,20 @@ impl Stat {
   /// Returns the average wpm
   pub fn get_average_wpm(&self) -> usize {
     self.average_wpm
+  }
+
+  /// Returns the practice section of the run
+  #[allow(unused)]
+  pub fn get_practice_section(&self) -> PracticeSection {
+    self.practice_section
+  }
+
+  /// Returns the practice section as a span
+  pub fn get_section_pretty(&self) -> Span<'static> {
+    match self.practice_section {
+      PracticeSection::Languages => Span::from("Language"),
+      PracticeSection::Code => Span::from("Code"),
+    }
   }
 
   /// Returns the duration
