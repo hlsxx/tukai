@@ -94,7 +94,7 @@ pub struct TypingScreen {
 
 impl TypingScreen {
   pub fn new(config: Rc<RefCell<TukaiConfig>>) -> Self {
-    let generated_text = Generator::generate_random_string(&config.borrow());
+    let generated_text = Generator::generate_string(&config.borrow());
 
     Self {
       config,
@@ -204,7 +204,7 @@ impl Screen for TypingScreen {
     self.is_popup_visible = false;
 
     let app_config = self.config.borrow();
-    self.generated_text = Generator::generate_random_string(&app_config);
+    self.generated_text = Generator::generate_string(&app_config);
   }
 
   fn handle_events(&mut self, key_event: KeyEvent) -> bool {

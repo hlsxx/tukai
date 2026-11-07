@@ -18,6 +18,25 @@ impl Generator {
       .unwrap_or_default()
   }
 
+  /// Generates the text to type for the current language.
+  ///
+  /// Human languages produce a randomly shuffled string while
+  /// code languages keep their original file order.
+  ///
+  /// # Parameters
+  /// - `config`: A reference to a [`TukaiConfig`] instance containing configuration options,
+  ///   including the language to use.
+  ///
+  /// # Returns
+  /// A `String` composed of words from the current language.
+  pub fn generate_string(config: &TukaiConfig) -> String {
+    if config.get_language().is_code_language() {
+      Self::generate_ordered_string(config)
+    } else {
+      Self::generate_random_string(config)
+    }
+  }
+
   /// Generates a random string composed of words from a language-specific word list.
   ///
   /// This method reads words from a `words/{language}.txt` file based on the language
@@ -34,6 +53,27 @@ impl Generator {
 
     Generator::get_words(config)
       .choose_multiple(&mut rng, config.typing_duration.as_seconds() * 2)
+      .fold(String::new(), |mut acc, c| {
+        acc.push_str(format!("{c} ").as_str());
+        acc
+      })
+  }
+
+  /// Generates a string composed of words in their original file order.
+  ///
+  /// Intended for code languages where shuffling would destroy
+  /// the meaning of the content.
+  ///
+  /// # Parameters
+  /// - `config`: A reference to a [`TukaiConfig`] instance containing configuration options,
+  ///   including the language to use.
+  ///
+  /// # Returns
+  /// A `String` composed of words in their original file order.
+  pub fn generate_ordered_string(config: &TukaiConfig) -> String {
+    Generator::get_words(config)
+      .iter()
+      .take(config.typing_duration.as_seconds() * 2)
       .fold(String::new(), |mut acc, c| {
         acc.push_str(format!("{c} ").as_str());
         acc

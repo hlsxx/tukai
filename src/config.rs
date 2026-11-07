@@ -428,6 +428,19 @@ impl Language {
   pub fn get_lang_code(&self) -> &String {
     &self.lang_code
   }
+
+  /// Returns whether the current language is a code language
+  ///
+  /// Detection is based on the language file extension.
+  /// Human languages use `.txt` files, anything else (e.g. `.rs`) is code.
+  pub fn is_code_language(&self) -> bool {
+    self
+      .language_files
+      .get(self.current_index)
+      .and_then(|file| Path::new(file).extension())
+      .and_then(|ext| ext.to_str())
+      .is_some_and(|ext| ext != "txt")
+  }
 }
 
 #[derive(Serialize, Deserialize, Hash, PartialEq, Eq, Debug, Clone)]
